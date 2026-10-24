@@ -13,7 +13,7 @@ Kod, değişken adları, commit önekleri ve dal adları İngilizce kalır.
 - **Lisans:** GPL v3. `LICENSE` dosyasını ve kaynak koddaki lisans/telif bildirimlerini asla silme veya değiştirme.
 - **Analiz edilen commit:** `docs/baseline-commit.txt` içinde kayıtlı (upstream `master`, `6e840ac…`).
 - **Ortam:** Windows, PowerShell, Python 3.12.10, sanal ortam `.venv`.
-- **Araç sürümleri (sabit):** `requirements-analysis.txt` → bandit 1.9.4, pylint 4.1.3, astroid 4.3.4, flake8 (PEP 8 kontrolü için; kurulan sürüm dosyaya sabitlenir).
+- **Araç sürümleri (sabit):** `requirements-analysis.txt` → bandit 1.9.4, pylint 4.1.3, astroid 4.3.4, flake8 7.4.1 (PEP 8 kontrolü için). Tüm ortamın tam kopyası `requirements-lock.txt` içindedir; ekip kurulumunda kullanılan dosya budur (bkz. "Ortam kurulumu").
 
 ## Ders gereksinimleri ve ekip kararları
 
@@ -88,6 +88,7 @@ reports/
 evidence/
   screenshots/
 requirements-analysis.txt
+requirements-lock.txt        # .venv'in tam dondurulmuş hali; ekip kurulumunda kullanılır (python-ldap/Flask-SimpleLDAP hariç)
 ```
 
 `reports/baseline/` içindeki dosyalar oluşturulup commit edildikten sonra asla yeniden üretilmez veya düzenlenmez.
@@ -120,10 +121,15 @@ git switch project-analysis
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-python -m pip install -r requirements-analysis.txt
+python -m pip install -r requirements-lock.txt
 python -m bandit --version   # 1.9.4 olmalı
 python -m pylint --version   # 4.1.3 olmalı
+python -m flake8 --version   # 7.4.1 olmalı
 ```
+
+`requirements-lock.txt`, analiz ortamının (`requirements-analysis.txt` + Calibre-Web `requirements.txt` + `optional-requirements.txt`, LDAP paketleri hariç) tam dondurulmuş (lock) halidir ve K3 kararı gereği tek komutla kurulur. Ayrı ayrı `requirements-analysis.txt`/`requirements.txt`/`optional-requirements.txt` kurmaya gerek yoktur; bu üç dosya yalnızca kaynak/kapsam referansı olarak kalır.
+
+`python-ldap` ve `Flask-SimpleLDAP`, Windows'ta eksik OpenLDAP C başlık dosyaları (`lber.h`) yüzünden derlenemediği için `requirements-lock.txt` içinde **yoktur** (bkz. dosyanın başındaki yorum ve `docs/environment-notes.md`). LDAP girişi özelliğine ait kod (`cps/` içinde) yine de taranır; bu iki modüle ait Pylint `import-error` uyarıları ortam sorunu sayılır, güvenlik/kod kalitesi bulgusu sayılmaz.
 
 `Activate.ps1` engellenirse: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
 
