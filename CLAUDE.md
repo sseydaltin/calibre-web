@@ -13,13 +13,38 @@ Kod, değişken adları, commit önekleri ve dal adları İngilizce kalır.
 - **Lisans:** GPL v3. `LICENSE` dosyasını ve kaynak koddaki lisans/telif bildirimlerini asla silme veya değiştirme.
 - **Analiz edilen commit:** `docs/baseline-commit.txt` içinde kayıtlı (upstream `master`, `6e840ac…`).
 - **Ortam:** Windows, PowerShell, Python 3.12.10, sanal ortam `.venv`.
-- **Araç sürümleri (sabit):** `requirements-analysis.txt` → bandit 1.9.4, pylint 4.1.3, astroid 4.3.4.
+- **Araç sürümleri (sabit):** `requirements-analysis.txt` → bandit 1.9.4, pylint 4.1.3, astroid 4.3.4, flake8 (PEP 8 kontrolü için; kurulan sürüm dosyaya sabitlenir).
+
+## Ders gereksinimleri ve ekip kararları
+
+Ders: **"Güvenlik İçin Statik Kod Analizi"**. Kodlar **çalıştırılmadan**, statik analiz araçlarıyla incelenir. Her karar aşağıdaki 9 maddeye hizmet etmelidir:
+
+| # | Ders gereksinimi | Nasıl karşılanıyor | Sorumlu | Çıktı |
+| --- | --- | --- | --- | --- |
+| 1 | Yeterli büyüklükte Python projesi seçimi ve yapısının tanıtımı | Calibre-Web; kapsam `cps/` + `cps.py`. Büyüklük, dosya ve satır sayısıyla (LOC) gerekçelendirilir | 1. kişi | `project-scope.md`, `architecture.md` |
+| 2 | Pylint ile kalite analizi, başlangıç sonuçlarının kaydı | Kod değişikliğinden önce Pylint taraması, puan ve kategori dağılımı | 1. kişi | `reports/baseline/pylint.txt` |
+| 3 | Bandit ile güvenlik analizi, risk düzeyine göre sınıflandırma | Önem (LOW/MEDIUM/HIGH) × güven (LOW/MEDIUM/HIGH) matrisi ve kural kodu dağılımı | 2. kişi | `reports/baseline/bandit-*.json`, `bandit-summary.md` |
+| 4 | Yüksek/önemli güvenlik bulgularının kod satırlarıyla incelenmesi | Tüm HIGH ve MEDIUM önemli bulgular ile 3. ve 4. kişinin alanındaki bulgular kod parçasıyla incelenir | 2., 3. ve 4. kişi | `review-*.md` |
+| 5 | PEP 8 ve temel kodlama standardı problemleri | Pylint `convention` kategorisi + flake8 ile saf PEP 8 (E/W) taraması | 1. kişi | `reports/baseline/pep8.txt`, `pep8-summary.md` |
+| 6 | Gerçek problem / düşük öncelikli / yanlış pozitif ayrımı | Her bulgu için `dogrulama_sonucu` + `gerekce` alanları zorunlu | Herkes | `findings-register.csv` |
+| 7 | Seçilen sorunların düzeltilmesi; önceki ve yeni kod karşılaştırması | `fix/find-XXX` dalları; PR açıklamasında önceki kod / yeni kod / gerekçe | Herkes | PR'lar, `final-report.md` |
+| 8 | Araçların yeniden çalıştırılması ve karşılaştırma | Aynı sürüm, aynı kapsam ve aynı parametrelerle son tarama | 1. ve 2. kişi | `reports/final/`, `*-comparison.md` |
+| 9 | Rapor: araçlar, önemli bulgular, düzeltmeler, yeniden analiz | Final raporu bu 9 maddeye göre bölümlenir | Ortak | `final-report.md` |
+
+**Alınan kararlar** (değiştirmek için ekip onayı gerekir; değişiklikler buraya yazılır):
+
+- **K1 — Proje ve kapsam:** Calibre-Web, upstream commit `docs/baseline-commit.txt` içinde. Otomatik tarama kapsamı `cps/` ve `cps.py`. `test/`, `library/`, JS/CSS/HTML şablonları kapsam dışı.
+- **K2 — Uygulama çalıştırılmaz:** Analiz tamamen statiktir. Düzeltmeler `py_compile` ve araçların yeniden çalıştırılmasıyla doğrulanır. Uygulamayı çalıştırmak yalnızca bir düzeltmenin davranışını göstermek için gerekirse, yerelde (`127.0.0.1`) ve boş örnek kitaplıkla yapılır.
+- **K3 — Bağımlılıklar kurulur:** Calibre-Web'in `requirements.txt` bağımlılıkları, başlangıç taramasından **önce** `.venv` ortamına kurulur ve `pip freeze` çıktısı `docs/environment-notes.md` dosyasına yazılır. Amaç Pylint'in importları çözebilmesidir; kod çalıştırılmaz. Son taramada aynı ortam kullanılır.
+- **K4 — Araç ayarları:** Bandit varsayılan ayarlarla tüm testleri çalıştırır (skip veya `# nosec` eklenmez). Pylint repo içinde bir yapılandırma dosyası (`.pylintrc`, `pylintrc`, `pyproject.toml`, `setup.cfg`) varsa onu kullanır; ayar değiştirilmez ve hangi dosyanın kullanıldığı `environment-notes.md` dosyasına yazılır. flake8 `--isolated` ile saf PEP 8 varsayılanlarında (satır uzunluğu 79) ve yalnızca `E,W` kodlarıyla çalışır.
+- **K5 — Düzeltme hedefi:** En az **3 güvenlik** bulgusu düzeltilir veya kanıtla yanlış pozitif gösterilir. En az **5 kod kalitesi / PEP 8** bulgu türü düzeltilir. Düzeltmeler küçük ve davranışı koruyan değişikliklerdir. Binlerce stil uyarısını toplu biçimlendirme (black/autopep8 ile tüm projeyi yeniden biçimlendirme) **yapılmaz**, çünkü önce-sonra karşılaştırmasını anlamsızlaştırır ve diff'i okunmaz hale getirir.
+- **K6 — Uyarıları susturmak düzeltme değildir:** `# nosec`, `# pylint: disable` veya `# noqa` yalnızca yanlış pozitif kararı gerekçeyle bulgu kaydına yazıldıktan sonra ve PR'da açıkça belirtilerek eklenebilir. Raporda "susturulan" ve "düzeltilen" uyarılar ayrı sayılır.
 
 ## Ekip ve sorumluluklar
 
 | Kişi | Alan | Ana teslim |
 | --- | --- | --- |
-| 1. kişi — Şeyda Altın (repo sahibi) | Repo/dallar, mimari ve kapsam dokümanı, Pylint başlangıç/son taraması, seçilmiş PEP 8/kod kalitesi düzeltmeleri | `docs/project-scope.md`, `docs/architecture.md`, Pylint raporları ve önce-sonra karşılaştırması |
+| 1. kişi — Şeyda Altın (repo sahibi) | Repo/dallar, mimari ve kapsam dokümanı, Pylint ve PEP 8 (flake8) başlangıç/son taraması, seçilmiş PEP 8/kod kalitesi düzeltmeleri | `docs/project-scope.md`, `docs/architecture.md`, Pylint ve PEP 8 raporları ve önce-sonra karşılaştırması |
 | 2. kişi | Bandit taramaları (`cps/` ve `cps.py`), bulgu envanteri, yanlış pozitif gerekçeleri | Bandit raporları, `docs/findings-register.csv`, manuel değerlendirme notları |
 | 3. kişi | Kimlik doğrulama, oturum, parola, kullanıcı/yönetici yetkilendirmesi | `docs/review-auth.md`, düzeltme kanıtları |
 | 4. kişi | Kitap yükleme/indirme, dosya yolları, dönüştürme, harici süreç çağrıları | `docs/review-file-handling.md`, doğrulama kanıtları |
@@ -113,6 +138,7 @@ Başlangıç ve son taramada aynı araç sürümü, aynı kapsam ve aynı parame
 python -m bandit -r cps -f json -o reports\baseline\bandit-cps.json
 python -m bandit cps.py -f json -o reports\baseline\bandit-entrypoint.json
 python -m pylint cps.py cps --output=reports\baseline\pylint.txt
+python -m flake8 --isolated --select=E,W --statistics --count --output-file=reports\baseline\pep8.txt cps.py cps
 ```
 
 **Son:**
@@ -120,7 +146,10 @@ python -m pylint cps.py cps --output=reports\baseline\pylint.txt
 python -m bandit -r cps -f json -o reports\final\bandit-cps.json
 python -m bandit cps.py -f json -o reports\final\bandit-entrypoint.json
 python -m pylint cps.py cps --output=reports\final\pylint.txt
+python -m flake8 --isolated --select=E,W --statistics --count --output-file=reports\final\pep8.txt cps.py cps
 ```
+
+PowerShell 5'te `>` yönlendirmesi dosyayı UTF-16 olarak yazar. Bu yüzden rapor üretirken her zaman aracın kendi çıktı seçeneğini (`-o`, `--output`, `--output-file`) kullan.
 
 Notlar:
 - Bandit/Pylint uyarı bulunca sıfırdan farklı çıkış kodu verir; bu hata değildir. Her komuttan sonra rapor dosyasının oluştuğunu ve boş olmadığını kontrol et.
@@ -149,7 +178,7 @@ id,kaynak,kural_kodu,dosya,satir,fonksiyon,arac_onem,arac_guven,ekip_onem,dogrul
 ```
 
 - `id`: `FIND-001`, `FIND-002`… sırayla, asla yeniden kullanılmaz.
-- `kaynak`: `Bandit` / `Pylint` / `Manuel`.
+- `kaynak`: `Bandit` / `Pylint` / `PEP8` (flake8) / `Manuel`.
 - `kural_kodu`: örn. `B602`, `W0703`; manuel ise `-`.
 - `dosya`: depo köküne göre yol, `/` ile (örn. `cps/helper.py`).
 - `arac_onem` / `arac_guven`: Bandit için `LOW/MEDIUM/HIGH`; Pylint için mesaj türü (`convention/refactor/warning/error/fatal`), güven `-`.
@@ -187,12 +216,12 @@ Karşılaştırma raporlarında ayrı ayrı belirt: **kapanan**, **devam eden** 
 | 25 Eki | `project-scope.md`, `architecture.md` taslağı |
 | 26 Eki | Herkeste çalışan analiz ortamı |
 | 27 Eki | Bandit başlangıç raporları |
-| 28 Eki | Pylint başlangıç raporu |
+| 28 Eki | Pylint ve PEP 8 (flake8) başlangıç raporları |
 | 29–30 Eki | Yetki ve dosya işleme manuel inceleme notları |
 | 31 Eki | İlk bulgu envanteri |
 | 1 Kas | Önceliklendirilmiş düzeltme listesi |
 | 2–5 Kas | Düzeltme PR'ları ve incelemeler |
-| 6 Kas | Mevcut testler / kontroller |
+| 6 Kas | Düzeltilen dosyalarda `py_compile` + dosya bazlı tekrar tarama kontrolleri (K2) |
 | 7 Kas | Son taramalar (`reports/final/`) |
 | 8 Kas | Önce-sonra karşılaştırması, **kod dondurma** |
 | 9–10 Kas | Rapor, sunum, prova, teslim |
