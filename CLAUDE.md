@@ -60,6 +60,7 @@ Bir oturuma başlarken kullanıcıya hangi kişi olduğunu sor (belli değilse) 
 1. **Başlangıç raporları üretilip commit edilmeden `cps/` veya `cps.py` içinde hiçbir kaynak kod değişikliği yapma.** Kontrol: `reports/baseline/` içinde `bandit-cps.json`, `bandit-entrypoint.json` ve `pylint.txt` var mı?
 2. `master` dalına asla commit veya push yapma. Ana çalışma dalı `project-analysis`.
 3. Upstream'e (`janeczku/calibre-web`) asla push yapma veya PR açma. PR'ların **base repository** değeri her zaman `sseydaltin/calibre-web` olmalı.
+   - PR'lar her zaman şu link biçimiyle açılır: `https://github.com/sseydaltin/calibre-web/compare/project-analysis...DAL_ADI` — GitHub'ın varsayılan "Compare & pull request" butonu fork'larda upstream'i hedefler, kullanma.
 4. `LICENSE`, `README.md`, `SECURITY.md` ve lisans başlıklarını silme.
 5. Şunları asla commit etme: `.venv/`, `venv/`, `__pycache__/`, `*.py[cod]`, loglar, `app.db`, `gdrive.db`, `client_secrets.json`, kişisel e-kitaplar, gerçek bir Calibre kitaplığı, gizli anahtarlar/tokenlar. `git add .` yerine dosyaları adıyla ekle ve commit öncesi `git status` çıktısını kullanıcıya göster.
 6. Rapor ve ekran görüntülerinde kişisel veri, kullanıcı adı/şifre, yerel tam yol gibi bilgileri kontrol et; varsa maskele.
