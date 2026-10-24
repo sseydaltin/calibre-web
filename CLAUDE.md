@@ -39,6 +39,7 @@ Ders: **"Güvenlik İçin Statik Kod Analizi"**. Kodlar **çalıştırılmadan**
 - **K4 — Araç ayarları:** Bandit varsayılan ayarlarla tüm testleri çalıştırır (skip veya `# nosec` eklenmez). Pylint repo içinde bir yapılandırma dosyası (`.pylintrc`, `pylintrc`, `pyproject.toml`, `setup.cfg`) varsa onu kullanır; ayar değiştirilmez ve hangi dosyanın kullanıldığı `environment-notes.md` dosyasına yazılır. flake8 `--isolated` ile saf PEP 8 varsayılanlarında (satır uzunluğu 79) ve yalnızca `E,W` kodlarıyla çalışır.
 - **K5 — Düzeltme hedefi:** En az **3 güvenlik** bulgusu düzeltilir veya kanıtla yanlış pozitif gösterilir. En az **5 kod kalitesi / PEP 8** bulgu türü düzeltilir. Düzeltmeler küçük ve davranışı koruyan değişikliklerdir. Binlerce stil uyarısını toplu biçimlendirme (black/autopep8 ile tüm projeyi yeniden biçimlendirme) **yapılmaz**, çünkü önce-sonra karşılaştırmasını anlamsızlaştırır ve diff'i okunmaz hale getirir.
 - **K6 — Uyarıları susturmak düzeltme değildir:** `# nosec`, `# pylint: disable` veya `# noqa` yalnızca yanlış pozitif kararı gerekçeyle bulgu kaydına yazıldıktan sonra ve PR'da açıkça belirtilerek eklenebilir. Raporda "susturulan" ve "düzeltilen" uyarılar ayrı sayılır.
+- **K7 — Gömülü üçüncü taraf kod:** `cps/cw_login/` ve `cps/cw_advocate/` gömülü üçüncü taraf koddur. Kapsamda kalır (başlangıç taraması bunları içeriyor), bulgu kaydında "gömülü üçüncü taraf" olarak işaretlenir, bu klasörlerde düzeltme yapılmaz; yalnızca incelenir.
 
 ## Ekip ve sorumluluklar
 
