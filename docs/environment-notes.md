@@ -231,8 +231,19 @@ Repo köküne bakıldı; aşağıdaki yapılandırma dosyalarından **hiçbiri m
 
 ## Kurulum/import notları (güvenlik bulgusu DEĞİL)
 
-Bu bölüm, Pylint'in olası `E0401 import-error` / benzeri ortam kaynaklı uyarılarını kaydetmek için ayrılmıştır (CLAUDE.md madde 9). Başlangıç Pylint taraması henüz çalıştırılmadı; tarama sonrası tespit edilen import hataları buraya eklenecektir.
+Bu bölüm, Pylint'in olası `E0401 import-error` / benzeri ortam kaynaklı uyarılarını kaydetmek için ayrılmıştır (CLAUDE.md madde 9).
 
-## Tarama geçmişi
+Başlangıç Pylint taraması çalıştırıldı (bkz. "Tarama kayıtları"). Tespit edilen tek `E0401 import-error`, `cps/services/simpleldap.py` içinde `flask_simpleldap` modülünün bulunamamasından kaynaklanıyor (2 adet) — bu paket Windows'ta `python-ldap` derleme hatası nedeniyle `.venv` ortamına kurulamadı (bkz. yukarıdaki "Kurulamayan paketler" bölümü). Ayrıca 252 adet `E0611 no-name-in-module` bulundu; bunun 2 adedi aynı LDAP modülünde, kalan 250 adedi `cps/__init__.py`'nin alt modülleri paket özniteliği olarak çalışma zamanında atamasından kaynaklanan, LDAP ile ilgisiz ayrı bir Pylint statik analiz kısıtıdır. Ayrıntılı tablo: `docs/pylint-baseline-summary.md` → "Ortamdan kaynaklanan mesajlar".
 
-Henüz başlangıç taraması çalıştırılmadı. Bu bölüm, her tarama komutu çalıştırıldığında tarih, araç sürümü ve çıkış kodu ile güncellenecektir.
+## Tarama kayıtları
+
+| Araç | Komut | Başlangıç (UTC) | Bitiş (UTC) | Çıkış kodu | Rapor dosyası | Rapor boyutu |
+| --- | --- | --- | --- | --- | --- | --- |
+| Pylint 4.1.3 | `python -m pylint cps.py cps --output=reports\baseline\pylint.txt` | 2026-10-24T17:24:36Z | 2026-10-24T17:25:42Z | 30 | `reports/baseline/pylint.txt` | 403.902 bayt |
+| flake8 7.4.1 | `python -m flake8 --isolated --select=E,W --statistics --count --output-file=reports\baseline\pep8.txt cps.py cps` | 2026-10-24T17:25:53Z | 2026-10-24T17:25:55Z | 1 | `reports/baseline/pep8.txt` | 225.077 bayt |
+
+Notlar:
+- Her iki çıkış kodu da beklenen davranıştır: Pylint ve flake8, uyarı/hata bulunduğunda sıfırdan farklı çıkış kodu döner (CLAUDE.md "Tarama komutları" notları). Bu bir çalıştırma hatası değildir.
+- Her iki rapor dosyasının da oluştuğu ve boş olmadığı doğrulandı (satır sayıları: pylint.txt 4223 satır, pep8.txt 3451 satır).
+- Her iki ham rapor da kişisel veri veya yerel tam yol (`C:\Users...` vb.) içermiyor; kontrol edildi, dosya yolları repo köküne göre relatiftir (örn. `cps\admin.py`).
+- Bu tarama, Bandit'i kapsamaz; Bandit taraması 2. kişinin sorumluluğundadır.
