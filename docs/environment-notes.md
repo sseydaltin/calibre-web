@@ -247,3 +247,28 @@ Notlar:
 - Her iki rapor dosyasının da oluştuğu ve boş olmadığı doğrulandı (satır sayıları: pylint.txt 4223 satır, pep8.txt 3451 satır).
 - Her iki ham rapor da kişisel veri veya yerel tam yol (`C:\Users...` vb.) içermiyor; kontrol edildi, dosya yolları repo köküne göre relatiftir (örn. `cps\admin.py`).
 - Bu tarama, Bandit'i kapsamaz; Bandit taraması 2. kişinin sorumluluğundadır.
+
+## Bandit taramaları (2. kişi)
+
+### Başlangıç raporlarının kaydı
+
+| Araç | Rapor dosyası | `generated_at` (UTC) | Bulgu | Not |
+| --- | --- | --- | --- | --- |
+| Bandit | `reports/baseline/bandit-cps.json` | 2026-10-24T18:52:54Z | 39 | Rapor içindeki `more_info` bağlantıları **Bandit 1.8.6**'yı gösteriyor; yol ayıracı `/` |
+| Bandit | `reports/baseline/bandit-entrypoint.json` | 2026-10-24T18:52:54Z | 1 | Aynı (1.8.6) |
+
+Raporu üreten üyenin açıklamasına göre Bandit, `requirements-lock.txt` yerine sürüm belirtilmeden `pip install bandit` ile kurulmuş ve pip 1.8.6'yı yüklemiş. Bu, ekibin sabit sürümü 1.9.4'ten bir sapmadır. Ekip kararı: başlangıç raporları olduğu gibi kalır, son tarama 1.9.4 ile yapılır ve sürüm farkı karşılaştırmada ayrıca gösterilir (bkz. `docs/review-bandit.md` bölüm 1). Bu iki raporun çıkış kodu kayıtlı değil. Bandit JSON çıktısına sürüm yazmaz. Sürüm, her bulgudaki `more_info` dokümantasyon bağlantısından (`.../en/1.8.6/...`) okunmuştur.
+
+### 2. kişi ortamı ve tutarlılık kontrolü (27 Ekim 2026)
+
+- Kurulum CLAUDE.md "Ortam kurulumu" adımlarıyla yapıldı. Tek fark: makinede varsayılan `py` Python 3.13 olduğu için sanal ortam `py -3.12 -m venv .venv` ile oluşturuldu. Python 3.12.10, winget ile python.org resmî yükleyicisinden kuruldu.
+- `python -m pip install -r requirements-lock.txt` hatasız tamamlandı.
+- Sürümler: Python 3.12.10, pip 26.2.2, bandit 1.9.4, pylint 4.1.3 (astroid 4.3.4), flake8 7.4.1. Bunlar CLAUDE.md ile birebir aynı.
+- Tutarlılık için Bandit, başlangıç komutlarıyla aynı parametrelerle yeniden çalıştırıldı. Çıktılar `reports/baseline/` yerine `evidence/bandit-1.9.4-recheck/` altına yazıldı; başlangıç raporlarına dokunulmadı.
+
+| Komut (çıktı yolu dışında başlangıçla aynı) | Çıkış kodu | Bulgu |
+| --- | --- | --- |
+| `python -m bandit -r cps -f json -o <...>\bandit-cps.json` | 1 (bulgu var, beklenen) | 42 |
+| `python -m bandit cps.py -f json -o <...>\bandit-entrypoint.json` | 1 (bulgu var, beklenen) | 1 |
+
+- **Sonuç:** 1.9.4 ile `cps/` için 3 ek B105 bulgusu çıkıyor (`cps/kobo.py:1266`, `cps/kobo.py:1281`, `cps/usermanagement.py:71`). Diğer 40 bulgu ile LOC (31571) ve `nosec` (10) değerleri aynı. Fark kod değişikliğinden değil, Bandit sürümünden kaynaklanıyor. Ekip kararı için: `docs/review-bandit.md` bölüm 1.
