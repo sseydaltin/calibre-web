@@ -138,3 +138,50 @@ Başlangıç raporunda `nosec: 10` görünüyor. Bunlar upstream'den gelen işar
 3. **FIND-002…005 (B704):** Kanıtla yanlış pozitif gösterildi (bu doküman). K5'teki "kanıtla yanlış pozitif gösterilir" maddesini karşılar. `# nosec` eklenecekse K6 gereği PR'da ayrıca belirtilmeli. Alternatif: `Markup(x).unescape()` yerine eşdeğer `html.unescape(x)` kullanmak; bu durumda uyarı gerçekten kapanır.
 
 Son tarama sonrasında 2. kişi, düzeltmeyi yapmayan üye olarak her düzeltmeyi dosya bazlı Bandit çalıştırmasıyla (`python -m bandit cps\<dosya>.py`) doğrular ve `findings-register.csv` içindeki `son_tarama_sonucu` sütununu doldurur.
+
+
+## B113 düzeltme planı
+
+### Amaç ve kapsam
+
+Bandit B113 kapsamında FIND-010–FIND-014 bulgularında dış HTTP isteklerine açık zaman aşımı tanımlanmamıştır. Yanıt vermeyen dış servisler uygulama kaynaklarını uzun süre meşgul edebilir. Bu bölüm, 1 Kasım ekip toplantısında değerlendirilmek üzere hazırlanmış bir düzeltme önerisidir; kaynak kodunda henüz değişiklik yapılmamıştır.
+
+### Bulgu bazlı düzeltme önerileri
+
+| Bulgu | Dosya ve satır | Önerilen değişiklik | Mevcut hata yönetimi |
+| --- | --- | --- | --- |
+| FIND-010 | `cps/metadata_provider/comicvine.py:53` | `timeout=(5, 30)` | `except Exception` ile loglanır; `[]` döner |
+| FIND-011 | `cps/metadata_provider/google.py:54` | `timeout=(5, 30)` | `except Exception` ile loglanır; `[]` döner |
+| FIND-012 | `cps/metadata_provider/lubimyczytac.py:121` | `timeout=(5, 30)` | `except Exception` ile loglanır; `None` döner |
+| FIND-013 | `cps/metadata_provider/lubimyczytac.py:215` | `timeout=(5, 30)` | `except Exception` ile loglanır; `None` döner |
+| FIND-014 | `cps/services/goodreads_support.py:89` | `timeout=(5, 30)` | İncelenen `get_author_info()` çağrı yolunda üst seviyede yakalanır |
+
+### Teknik gerekçe ve dikkat noktaları
+
+- Önerilen `(5, 30)` değerleri bağlantı ve okuma zaman aşımıdır; toplam istek süresine kesin bir üst sınır koymaz.
+- Projede `cps/updater.py` ve `cps/helper.py` içinde açık timeout kullanımı bulunmaktadır. Önerilen değerler testlerle doğrulanmalıdır.
+- FIND-010–FIND-013 için `requests.exceptions.Timeout`, mevcut `except Exception` blokları tarafından yakalanabilir.
+- FIND-013'te `ThreadPool(processes=10)` kullanıldığından paralel isteklerde zaman aşımı ve `None` sonuçlarının işlenmesi ayrıca test edilmelidir.
+- FIND-014'te `request()` içinde doğrudan `try/except` yoktur. İncelenen `get_author_info()` akışında istisna yakalanır; başka çağrı yolları varsa ayrıca kontrol edilmelidir.
+- Dış servise erişim koşulları ve isteklerin kullanıcı tarafından tetiklenebilirliği doğrulama sırasında değerlendirilmelidir.
+
+### Uygulama ve doğrulama planı
+
+1. Ekip onayından sonra beş `requests.get()` çağrısına timeout parametresi eklenecek.
+2. Normal servis yanıtlarında metadata araması ve yazar bilgisi işlemleri test edilecek.
+3. Bağlantı ve okuma zaman aşımı kontrollü olarak simüle edilecek.
+4. FIND-010–FIND-012 için mevcut hata dönüşleri kontrol edilecek.
+5. FIND-013 için paralel istekler ve `None` sonuçlarının üst seviyede işlenmesi test edilecek.
+6. FIND-014 için yazar sayfasının timeout durumundaki davranışı doğrulanacak.
+7. Düzeltme sonrası Bandit 1.9.4 ile ilgili dosyalar yeniden taranacak; B113 sonuçları başlangıç bulgularıyla karşılaştırılacak.
+
+### Sorumluluk ve takvim
+
+- **Planı hazırlayan:** Dilara — Rol 2, Bandit
+- **Düzeltmeyi uygulayacak kişi:** 1 Kasım toplantısında belirlenecek
+- **Gözden geçiren:** Uygulayıcıdan farklı bir ekip üyesi olacak
+- **Düzeltme kararı:** 1 Kasım
+- **Planlanan uygulama:** 2–5 Kasım
+- **Son Bandit taraması:** 7 Kasım
+
+**Durum:** Plan hazır; kaynak kodu değişikliği ve doğrulama testleri henüz yapılmadı.
