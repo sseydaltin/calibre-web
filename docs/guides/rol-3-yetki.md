@@ -1,4 +1,4 @@
-# 3. kişi rehberi — Hasan Kurt: Kimlik doğrulama, oturum ve yetkilendirme
+# 3. kişi rehberi — Emre Bulut: Kimlik doğrulama, oturum ve yetkilendirme
 
 Önce `docs/guides/ortak.md`'yi oku.
 
@@ -63,7 +63,7 @@ Her şeyi bitiremezsen öncelik sırası: A → B → C → D → E.
 ## Çıktı: `docs/review-auth.md` şablonu
 
 ```markdown
-# Yetki ve oturum incelemesi (3. kişi — Hasan Kurt)
+# Yetki ve oturum incelemesi (3. kişi — Emre Bulut)
 
 İncelenen commit: <baseline-commit.txt>
 Tarih: ...
@@ -98,7 +98,7 @@ Gerçek sorun veya düşük öncelikli uyarı bulduğunda Dilara'dan ID al, `kay
 ## Takvim
 
 - 29 Ekim: A ve B
-- 30 Ekim: C, D, E; `review-auth.md` PR'ı (gözden geçiren: Emre veya Şeyda)
+- 30 Ekim: C, D, E; `review-auth.md` PR'ı (gözden geçiren: Hasan veya Şeyda)
 - 31 Ekim: kayıt satırları (gözden geçiren: Dilara)
 - 1 Kasım: düzeltme seçimi toplantısı
 - 2–5 Kasım: seçilen düzeltmeler / başkalarının PR'larını gözden geçirme
@@ -111,7 +111,7 @@ Gerçek sorun veya düşük öncelikli uyarı bulduğunda Dilara'dan ID al, `kay
 
 ## Claude Code'a örnek mesajlar
 
-> Ben 3. kişiyim (Hasan). docs/guides/rol-3-yetki.md'yi oku. docs/review-auth dalını aç. Kontrol listesinin A bölümü için cps/admin.py'deki tüm route'ları, dekoratörlerini ve yaptıkları işi tablo olarak çıkar. Dekoratörsüz ya da beklenenden zayıf korunan route'ları ayrıca işaretle. Henüz dosyaya yazma, bana göster.
+> Ben 3. kişiyim (Emre). docs/guides/rol-3-yetki.md'yi oku. docs/review-auth dalını aç. Kontrol listesinin A bölümü için cps/admin.py'deki tüm route'ları, dekoratörlerini ve yaptıkları işi tablo olarak çıkar. Dekoratörsüz ya da beklenenden zayıf korunan route'ları ayrıca işaretle. Henüz dosyaya yazma, bana göster.
 
 > Kontrol listesi C maddesi: SECRET_KEY'in kaynağını ve oturum çerezi ayarlarını kodda bul, dosya:satır ile göster. Ayar yapılmıyorsa Flask varsayılanının ne olduğunu belirt.
 

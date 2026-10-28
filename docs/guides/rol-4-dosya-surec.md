@@ -1,4 +1,4 @@
-# 4. kişi rehberi — Emre Bulut: Dosya işleme ve harici süreçler
+# 4. kişi rehberi — Hasan Kurt: Dosya işleme ve harici süreçler
 
 Önce `docs/guides/ortak.md`'yi oku.
 
@@ -36,7 +36,7 @@ Her madde için: dosya:satır, ne gördün, sonuç (sorun yok / düşük önceli
 **B. Yol işlemleri ve indirme**
 - [ ] Kitap dosya yolları nasıl kuruluyor? Yazar/başlık gibi kullanıcı verisi yola girerken temizleniyor mu (`update_dir_structure`)?
 - [ ] İndirmede yol, veritabanındaki kayıttan mı yoksa istek parametresinden mi geliyor? `send_from_directory` / `send_file` kullanımı yol dışına çıkmayı (path traversal) engelliyor mu?
-- [ ] İndirme route'ları yetki kontrolü yapıyor mu (Hasan'ın A maddesiyle çapraz kontrol)?
+- [ ] İndirme route'ları yetki kontrolü yapıyor mu (Emre'nin A maddesiyle çapraz kontrol)?
 - [ ] Yönetici yol seçici (`pathchooser`): hangi dizinleri listeleyebiliyor? (FIND-016)
 
 **C. Arşivler ve dönüştürme**
@@ -59,7 +59,7 @@ Her madde için: dosya:satır, ne gördün, sonuç (sorun yok / düşük önceli
 ## Çıktı: `docs/review-file-handling.md` şablonu
 
 ```markdown
-# Dosya işleme ve harici süreç incelemesi (4. kişi — Emre Bulut)
+# Dosya işleme ve harici süreç incelemesi (4. kişi — Hasan Kurt)
 
 İncelenen commit: <baseline-commit.txt>
 Tarih: ...
@@ -91,7 +91,7 @@ Gerçek sorun veya düşük öncelikli uyarı bulduğunda Dilara'dan ID al, `kay
 ## Takvim
 
 - 29 Ekim: A ve B
-- 30 Ekim: C, D, E; `review-file-handling.md` PR'ı (gözden geçiren: Hasan veya Şeyda)
+- 30 Ekim: C, D, E; `review-file-handling.md` PR'ı (gözden geçiren: Emre veya Şeyda)
 - 31 Ekim: kayıt satırları (gözden geçiren: Dilara)
 - 1 Kasım: düzeltme seçimi
 - 2–5 Kasım: seçilen düzeltmeler / PR gözden geçirme
@@ -105,7 +105,7 @@ Gerçek sorun veya düşük öncelikli uyarı bulduğunda Dilara'dan ID al, `kay
 
 ## Claude Code'a örnek mesajlar
 
-> Ben 4. kişiyim (Emre). docs/guides/rol-4-dosya-surec.md'yi oku. docs/review-file-handling dalını aç. Kontrol listesi B için: kitap indirme isteğinin route'tan diske kadar izlediği yolu dosya:satır ile göster; dosya yolunun hangi kısmı kullanıcıdan, hangisi veritabanından geliyor ve path traversal'ı ne engelliyor? Dosyaya yazma.
+> Ben 4. kişiyim (Hasan). docs/guides/rol-4-dosya-surec.md'yi oku. docs/review-file-handling dalını aç. Kontrol listesi B için: kitap indirme isteğinin route'tan diske kadar izlediği yolu dosya:satır ile göster; dosya yolunun hangi kısmı kullanıcıdan, hangisi veritabanından geliyor ve path traversal'ı ne engelliyor? Dosyaya yazma.
 
 > Kontrol listesi D: subproc_wrapper.py'nin Windows dalında komut string'ini oluşturan kodu göster. İçinde boşluk, tırnak veya & içeren bir dosya adı geldiğinde sonuç ne olur, kod okumasıyla değerlendir. Bu dosya adları kullanıcı kontrolünde mi?
 

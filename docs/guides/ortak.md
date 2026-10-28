@@ -23,7 +23,7 @@ git pull
 ```
 
 Claude Code'a ilk mesaj olarak hangi kişi olduğunu ve bugünkü işini söyle. Örnek:
-> Ben 3. kişiyim (Hasan). docs/guides/rol-3-yetki.md'yi oku, bugün review-auth.md'nin 2. adımına devam edeceğiz.
+> Ben 3. kişiyim (Emre). docs/guides/rol-3-yetki.md'yi oku, bugün review-auth.md'nin 2. adımına devam edeceğiz.
 
 ## Bir işi yapma akışı (her iş için aynı)
 
