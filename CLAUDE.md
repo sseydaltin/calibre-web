@@ -54,7 +54,7 @@ Ders: **"Güvenlik İçin Statik Kod Analizi"**. Kodlar **çalıştırılmadan**
 - **K5 — Düzeltme hedefi:** En az **3 güvenlik** bulgusu düzeltilir veya kanıtla yanlış pozitif gösterilir. En az **5 kod kalitesi / PEP 8** bulgu türü düzeltilir. Düzeltmeler küçük ve davranışı koruyan değişikliklerdir. Binlerce stil uyarısını toplu biçimlendirme (black/autopep8 ile tüm projeyi yeniden biçimlendirme) **yapılmaz**, çünkü önce-sonra karşılaştırmasını anlamsızlaştırır ve diff'i okunmaz hale getirir.
 - **K6 — Uyarıları susturmak düzeltme değildir:** `# nosec`, `# pylint: disable` veya `# noqa` yalnızca yanlış pozitif kararı gerekçeyle bulgu kaydına yazıldıktan sonra ve PR'da açıkça belirtilerek eklenebilir. Raporda "susturulan" ve "düzeltilen" uyarılar ayrı sayılır.
 - **K7 — Gömülü üçüncü taraf kod:** `cps/cw_login/` ve `cps/cw_advocate/` gömülü üçüncü taraf koddur. Kapsamda kalır (başlangıç taraması bunları içeriyor), bulgu kaydında "Gömülü üçüncü taraf (K7): kapsamda, incelendi, düzeltme yapılmaz." olarak işaretlenir, bu klasörlerde düzeltme yapılmaz; yalnızca incelenir.
-- **K8 — Bandit baseline sürüm düzeltmesi:** Başlangıç Bandit raporları yanlışlıkla 1.8.6 ile üretildi (kök neden: Python 3.10 altı ortamda sürüm belirtilmeden kurulum, doğrulanacak). Kod değişikliği yapılmadan önce aynı commit ve aynı parametrelerle 1.9.4 ile yeniden üretildi. Orijinaller `evidence/bandit-1.8.6-original/` altında. Bu, "baseline yeniden üretilmez" kuralına tek seferlik istisnadır (ekip onayı 28 Ekim).
+- **K8 — Bandit baseline sürüm düzeltmesi:** Başlangıç Bandit raporları yanlışlıkla 1.8.6 ile üretildi (kök neden: Windows dışı (macOS) ortamda sürüm belirtilmeden kurulum; o anki Python sürümü kayıtlı değil). Kod değişikliği yapılmadan önce aynı commit ve aynı parametrelerle 1.9.4 ile yeniden üretildi. Orijinaller `evidence/bandit-1.8.6-original/` altında. Bu, "baseline yeniden üretilmez" kuralına tek seferlik istisnadır (ekip onayı 28 Ekim).
 
 ## Ekip ve sorumluluklar
 
@@ -136,7 +136,7 @@ Kontrol: `git status` çıktısında `.venv/` görünmemeli. `git check-ignore -
 
 ## Ortam kurulumu (her ekip üyesi için)
 
-Önce Python sürümünü kontrol et: `py --version` **3.12.x** olmalı (en az 3.10; Bandit 1.9 serisi 3.10 altında kurulmaz, pip sessizce eski sürüme düşer — bkz. K8). Varsayılan `py` farklı bir sürümse sanal ortamı `py -3.12 -m venv .venv` ile oluştur. **Araç sürümleri (aşağıdaki `--version` komutları) doğrulanmadan tarama yapılmaz.**
+Önce Python sürümünü kontrol et: `py --version` **3.12.x** olmalı (en az 3.10; Bandit 1.9 serisi 3.10 altında kurulmaz, pip sessizce eski sürüme düşer; K8'deki yanlış sürüm de sürüm belirtilmeden yapılan kurulumdan kaynaklandı). Varsayılan `py` farklı bir sürümse sanal ortamı `py -3.12 -m venv .venv` ile oluştur. **Araç sürümleri (aşağıdaki `--version` komutları) doğrulanmadan tarama yapılmaz.**
 
 ```powershell
 py --version                 # 3.12.x olmalı (en az 3.10)
@@ -209,7 +209,15 @@ UTF-8 (BOM'lu, Excel uyumu için), CRLF satır sonları, virgülle ayrılmış. 
 id,kaynak,kural_kodu,dosya,satir,fonksiyon,arac_onem,arac_guven,ekip_onem,dogrulama_sonucu,gerekce,onerilen_duzeltme,durum,commit_pr,son_tarama_sonucu,inceleyen,duzelten,gozden_geciren
 ```
 
-- `id`: `FIND-001`, `FIND-002`… sırayla, asla yeniden kullanılmaz. **Yeni ID'leri 2. kişi (Dilara) dağıtır**; mevcut kayıt FIND-001…044.
+- `id`: `FIND-001`, `FIND-002`… sırayla, asla yeniden kullanılmaz. **Yeni ID'leri 2. kişi (Dilara) dağıtır**; mevcut kayıt FIND-001…044. ID blokları (28 Ekim ekip kararı); herkes kendi bloğunu sırayla kullanır, blok biterse Dilara'dan ek aralık ister:
+
+  | Kişi | Blok |
+  | --- | --- |
+  | Şeyda Altın (1. kişi, Pylint/PEP 8) | FIND-045–FIND-124 |
+  | Emre Bulut (3. kişi, yetki) | FIND-125–FIND-149 |
+  | Hasan Kurt (4. kişi, dosya/süreç) | FIND-150–FIND-174 |
+  | Dilara Yıldırım (2. kişi, yedek) | FIND-175–FIND-199 |
+- `inceleyen`, `duzelten`, `gozden_geciren`: rol numarası değil **ad soyad** yazılır (örn. `Emre Bulut`); henüz belli değilse `-`.
 - `kaynak`: `Bandit` / `Pylint` / `PEP8` (flake8) / `Manuel`.
 - `kural_kodu`: örn. `B602`, `W0703`, `E501`; manuel ise `-`.
 - `dosya`: depo köküne göre yol, `/` ile (örn. `cps/helper.py`).

@@ -23,9 +23,10 @@ Bu kontroller kayıtların teknik tutarlılığına yöneliktir; bütün bulgula
 
 ## 3. Önerilen FIND-ID dağılımı
 
-- Şeyda: FIND-045–FIND-079
-- Hasan: FIND-080–FIND-099
-- Emre: FIND-100–FIND-119
+- Şeyda: FIND-045–FIND-124 (28 Ekim akşamı ekip kararıyla güncellendi)
+- Emre: FIND-125–FIND-149 (28 Ekim akşamı ekip kararıyla güncellendi)
+- Hasan: FIND-150–FIND-174 (28 Ekim akşamı ekip kararıyla güncellendi)
+- Dilara: FIND-175–FIND-199, yedek (28 Ekim akşamı ekip kararıyla güncellendi)
 
 Bu dağılım ekip onayına sunulacak öneridir.
 

@@ -1,16 +1,16 @@
-# Bandit bulguları — manuel değerlendirme notları (hazırlayan: 3. kişi — Emre Bulut; gözden geçiren: 1. kişi)
+# Bandit bulguları — manuel değerlendirme notları (hazırlayan: 3. kişi — Emre Bulut; gözden geçiren: 1. kişi — Şeyda Altın)
 
 - **Kapsam:** `cps/` ve `cps.py` (K1). Ham raporlar: `reports/baseline/bandit-cps.json`, `reports/baseline/bandit-entrypoint.json`.
 - **Otomatik özet:** `docs/bandit-summary.md` (`scripts/summarize_bandit_reports.py` ile üretilir).
 - **Bulgu kaydı:** `docs/findings-register.csv` → FIND-001 … FIND-044.
 - **Yöntem:** Her uyarının satırı ve çağrıldığı yer kodda okundu. Girdinin nereden geldiğine (HTTP isteği mi, yapılandırma mı, sabit mi) ve hangi yetkiyle ulaşılabildiğine bakıldı. Uygulama çalıştırılmadı (K2), yani sonuçlar kod okumasına dayanır. CLAUDE.md madde 8 gereği hiçbir uyarı, kodla gerekçelendirilmeden "açık" sayılmadı.
-- **İnceleyen:** 3. kişi (Emre Bulut). Gözden geçiren `findings-register.csv` içindeki `gozden_geciren` sütununda yazılı: tüm bulgularda 1. kişi. Yetki bulguları başlangıçta 3. kişiye atanmıştı; rol düzeltmesiyle (Emre Bulut = 3. kişi) inceleyen ve gözden geçiren aynı kişi olacağı için 1. kişiye alındı (`inceleyen ≠ gozden_geciren`). Bulgu kaydının sahibi 2. kişidir (Dilara Yıldırım).
+- **İnceleyen:** 3. kişi (Emre Bulut). Kayıtta `inceleyen = Emre Bulut`; `gozden_geciren` FIND-001…043 için `Şeyda Altın` (PR #4 incelemesi), FIND-044 için `-` (karar `review-auth.md` PR'ında verilecek, gözden geçiren orada yazılacak). Yetki bulguları başlangıçta 3. kişiye atanmıştı; rol düzeltmesiyle (Emre Bulut = 3. kişi) inceleyen ve gözden geçiren aynı kişi olacağı için 1. kişiye alındı (`inceleyen ≠ gozden_geciren`). Bulgu kaydının sahibi 2. kişidir (Dilara Yıldırım).
 
 ## 1. Başlangıç raporunun Bandit sürümü (K8)
 
 Geçerli baseline (`reports/baseline/bandit-cps.json`, `bandit-entrypoint.json`) **Bandit 1.9.4** ile, CLAUDE.md'deki komut ve parametrelerle, kod değişikliğinden önce üretilmiştir (`generated_at` 2026-10-28T12:12:14Z). `cps/` için 42, `cps.py` için 1 bulgu; LOC / `# nosec` / hata: 31571 / 10 / 0.
 
-**Arka plan:** İlk başlangıç raporları yanlışlıkla Bandit 1.8.6 ile üretilmişti (Bandit sürüm belirtilmeden kurulmuş; kök neden olarak Python 3.10 altı bir ortam düşünülüyor, doğrulanacak). Kurulum sonrası tutarlılık kontrolünde aynı commit (`6e840ac…`) ve aynı parametrelerle 1.9.4 kullanıldığında `cps/` için 3 ek B105 bulgusu çıktı: `cps/kobo.py:1266`, `cps/kobo.py:1281` ve `cps/usermanagement.py:71` (FIND-035, FIND-036, FIND-042). Diğer bulgular birebir aynıydı; fark kod değişikliğinden değil sürümden kaynaklanıyordu.
+**Arka plan:** İlk başlangıç raporları yanlışlıkla Bandit 1.8.6 ile üretilmişti (kök neden: Windows dışı (macOS) ortamda sürüm belirtilmeden kurulum; o anki Python sürümü kayıtlı değil). Kurulum sonrası tutarlılık kontrolünde aynı commit (`6e840ac…`) ve aynı parametrelerle 1.9.4 kullanıldığında `cps/` için 3 ek B105 bulgusu çıktı: `cps/kobo.py:1266`, `cps/kobo.py:1281` ve `cps/usermanagement.py:71` (FIND-035, FIND-036, FIND-042). Diğer bulgular birebir aynıydı; fark kod değişikliğinden değil sürümden kaynaklanıyordu.
 
 **Karar (K8, ekip onayı 28 Ekim 2026):** Baseline 1.9.4 ile yeniden üretildi; orijinal 1.8.6 raporları `evidence/bandit-1.8.6-original/` altında saklanıyor. Bu, "baseline yeniden üretilmez" kuralına tek seferlik istisnadır. Başlangıç ve son tarama artık aynı Bandit sürümüyle yapıldığı için `bandit-comparison.md` içinde ayrı bir "sürüm farkı" satırına gerek yoktur. Bundan sonraki tüm Bandit çalıştırmaları yalnızca `requirements-lock.txt` ile kurulmuş `.venv` içinde yapılır ve çalıştırmadan önce `python -m bandit --version` çıktısının 1.9.4 olduğu kontrol edilir.
 
@@ -133,7 +133,7 @@ Başlangıç raporunda `nosec: 10` görünüyor. Bunlar upstream'den gelen işar
 
 ## 7. Düzeltme için öneriler (K5: en az 3 güvenlik bulgusu)
 
-1. **FIND-010…014 (B113):** `timeout` eklenmesi. Küçük ve davranışı koruyan bir değişiklik. Sahibi 4. kişi (dış istekler) veya ekip kararıyla 2. kişi.
+1. **FIND-010…014 (B113):** `timeout` eklenmesi. Küçük ve davranışı koruyan bir değişiklik. Uygulayıcı 1 Kasım toplantısında belirlenecek (bkz. B113 düzeltme planı).
 2. **FIND-001 (B307):** `eval` yerine demet karşılaştırması. Sahibi 1. kişi veya 2. kişi.
 3. **FIND-002…005 (B704):** Kanıtla yanlış pozitif gösterildi (bu doküman). K5'teki "kanıtla yanlış pozitif gösterilir" maddesini karşılar. `# nosec` eklenecekse K6 gereği PR'da ayrıca belirtilmeli. Alternatif: `Markup(x).unescape()` yerine eşdeğer `html.unescape(x)` kullanmak; bu durumda uyarı gerçekten kapanır.
 
