@@ -1,10 +1,10 @@
-# Bandit bulguları — manuel değerlendirme notları (2. kişi)
+# Bandit bulguları — manuel değerlendirme notları (hazırlayan: 4. kişi — Emre Bulut; gözden geçiren: 1. kişi)
 
 - **Kapsam:** `cps/` ve `cps.py` (K1). Ham raporlar: `reports/baseline/bandit-cps.json`, `reports/baseline/bandit-entrypoint.json`.
 - **Otomatik özet:** `docs/bandit-summary.md` (`scripts/summarize_bandit_reports.py` ile üretilir).
 - **Bulgu kaydı:** `docs/findings-register.csv` → FIND-001 … FIND-044.
 - **Yöntem:** Her uyarının satırı ve çağrıldığı yer kodda okundu. Girdinin nereden geldiğine (HTTP isteği mi, yapılandırma mı, sabit mi) ve hangi yetkiyle ulaşılabildiğine bakıldı. Uygulama çalıştırılmadı (K2), yani sonuçlar kod okumasına dayanır. CLAUDE.md madde 8 gereği hiçbir uyarı, kodla gerekçelendirilmeden "açık" sayılmadı.
-- **İnceleyen:** 2. kişi. Gözden geçiren, bulgunun alanına göre `findings-register.csv` içindeki `gozden_geciren` sütununda yazılı: 3. kişi yetki, 4. kişi dosya/süreç/dış istek, 1. kişi geri kalanlar.
+- **İnceleyen:** 4. kişi (Emre Bulut). Gözden geçiren, bulgunun alanına göre `findings-register.csv` içindeki `gozden_geciren` sütununda yazılı: 3. kişi yetki; 1. kişi dosya/süreç/dış istek dahil geri kalanlar (PR #4 incelemesinde doğrulandı). Bulgu kaydının sahibi 2. kişidir (Dilara Yıldırım).
 
 ## 1. Başlangıç raporunun Bandit sürümü (K8)
 

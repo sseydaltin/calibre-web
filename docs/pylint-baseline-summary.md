@@ -57,7 +57,7 @@ Bu dosya, `reports/baseline/pylint.txt` ham raporundan `scripts/summarize_baseli
 
 ## Ortamdan kaynaklanan mesajlar (güvenlik/kod kalitesi bulgusu SAYILMAZ)
 
-CLAUDE.md madde 9: import/bağımlılık hataları (`E0401 import-error` vb.) güvenlik bulgusu sayılmaz; ortam sorunu olarak burada ve `docs/environment-notes.md` içinde kayıtlıdır. `E0611 no-name-in-module` da aynı tabloda, kaynağı ayrıştırılmış biçimde gösterilir.
+CLAUDE.md madde 9: import/bağımlılık hataları (`E0401 import-error` vb.) güvenlik bulgusu sayılmaz; ortam sorunu olarak burada ve `docs/environment-notes.md` içinde kayıtlıdır. `E0611 no-name-in-module` uyarıları da burada, Pylint'in bildirdiği modüle göre gruplanarak gösterilir.
 
 ### E0401 — import-error
 
@@ -68,7 +68,18 @@ CLAUDE.md madde 9: import/bağımlılık hataları (`E0401 import-error` vb.) g�
 
 ### E0611 — no-name-in-module
 
-Toplam 252 adet. Bunlardan **2** adedi LDAP modülünde (`cps/services/simpleldap.py`, `flask_simpleldap` eksik olduğu için modül tam çözümlenemiyor); kalan **250** adedi LDAP ile ilgisizdir ve `cps/__init__.py` içinde alt modüllerin paket özniteliği olarak çalışma zamanında (dynamic attribute) atanmasından kaynaklanır — Pylint'in statik analizinin bu örüntüyü çözememesi bilinen bir kısıttır, kod hatası veya güvenlik açığı değildir.
+Toplam 252 adet. Pylint'in bildirdiği modüle göre dağılım:
 
-LDAP dışı E0611 uyarılarının göründüğü dosya sayısı: 62 (liste `reports/baseline/pylint.txt` içinde `E0611` aranarak görülebilir; ayrıntı burada tekrarlanmamıştır).
+| Modül | Adet | Dosya sayısı | Neden | Değerlendirme |
+| --- | --- | --- | --- | --- |
+| `cps` | 250 | 62 | `cps/__init__.py` alt modülleri ve servis örneklerini paket özniteliği olarak atıyor (dinamik atama); astroid bu örüntüyü çözemiyor | Yanlış pozitif adayı |
+| `lxml.etree` | 1 | 1 | `lxml.etree` derlenmiş bir C uzantısı; astroid içini göremiyor, `ParserError` kurulu ortamda mevcut | Yanlış pozitif adayı |
+| `cps.cw_advocate` | 1 | 1 | Gömülü üçüncü taraf kodda (K7) `from . import cw_advocate`; pakette `cw_advocate` adlı bir alt modül yok | Hata adayı (K7, düzeltilmez); 1. kişi `docs/pylint-findings` işinde doğrulayıp kayıtta gerekçelendirecek |
+
+`cps/services/simpleldap.py` içindeki 2 E0611 uyarısı da `cps` modülü grubundadır (`constants`, `logger` gibi paket öznitelikleri); LDAP paketinin eksikliğiyle ilgisi yoktur.
+
+`cps` dışındaki uyarılar:
+
+- `cps\clean_html.py:20` — No name 'ParserError' in module 'lxml.etree' (no-name-in-module)
+- `cps\cw_advocate\api.py:175` — No name 'cw_advocate' in module 'cps.cw_advocate' (no-name-in-module)
 
