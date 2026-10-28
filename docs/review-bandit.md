@@ -6,34 +6,15 @@
 - **Yöntem:** Her uyarının satırı ve çağrıldığı yer kodda okundu. Girdinin nereden geldiğine (HTTP isteği mi, yapılandırma mı, sabit mi) ve hangi yetkiyle ulaşılabildiğine bakıldı. Uygulama çalıştırılmadı (K2), yani sonuçlar kod okumasına dayanır. CLAUDE.md madde 8 gereği hiçbir uyarı, kodla gerekçelendirilmeden "açık" sayılmadı.
 - **İnceleyen:** 2. kişi. Gözden geçiren, bulgunun alanına göre `findings-register.csv` içindeki `gozden_geciren` sütununda yazılı: 3. kişi yetki, 4. kişi dosya/süreç/dış istek, 1. kişi geri kalanlar.
 
-## 1. Ekibin karar vermesi gereken konu: başlangıç raporu farklı bir Bandit sürümüyle üretilmiş
+## 1. Başlangıç raporunun Bandit sürümü (K8)
 
-Kurulum sonrası tutarlılık kontrolü olarak Bandit'i aynı commit (`6e840ac…`, `cps/` ve `cps.py` dosyalarında `master`'a göre değişiklik yok) ve aynı parametrelerle yeniden çalıştırdım. Rapor `reports/baseline/` altına **yazılmadı**, `evidence/bandit-1.9.4-recheck/` altına kaydedildi.
+Geçerli baseline (`reports/baseline/bandit-cps.json`, `bandit-entrypoint.json`) **Bandit 1.9.4** ile, CLAUDE.md'deki komut ve parametrelerle, kod değişikliğinden önce üretilmiştir (`generated_at` 2026-10-28T12:12:14Z). `cps/` için 42, `cps.py` için 1 bulgu; LOC / `# nosec` / hata: 31571 / 10 / 0.
 
-| | `reports/baseline/` (commit `94445a02`) | Tekrar tarama (`evidence/bandit-1.9.4-recheck/`) |
-| --- | --- | --- |
-| Bandit sürümü (`more_info` bağlantılarından) | **1.8.6** | 1.9.4 |
-| Yol ayıracı | `/` (Windows dışı bir sistemde üretilmiş görünüyor) | `\` (Windows) |
-| `cps/` bulgu sayısı | 39 | **42** |
-| `cps.py` bulgu sayısı | 1 | 1 (aynı) |
-| LOC / `# nosec` / hata | 31571 / 10 / 0 | 31571 / 10 / 0 (aynı) |
+**Arka plan:** İlk başlangıç raporları yanlışlıkla Bandit 1.8.6 ile üretilmişti (Bandit sürüm belirtilmeden kurulmuş; kök neden olarak Python 3.10 altı bir ortam düşünülüyor, doğrulanacak). Kurulum sonrası tutarlılık kontrolünde aynı commit (`6e840ac…`) ve aynı parametrelerle 1.9.4 kullanıldığında `cps/` için 3 ek B105 bulgusu çıktı: `cps/kobo.py:1266`, `cps/kobo.py:1281` ve `cps/usermanagement.py:71` (FIND-035, FIND-036, FIND-042). Diğer bulgular birebir aynıydı; fark kod değişikliğinden değil sürümden kaynaklanıyordu.
 
-Fazladan çıkan 3 bulgu, Bandit 1.9 ile gelen sözlük anahtarı kontrolünden kaynaklanan B105 uyarılarıdır: `cps/kobo.py:1266`, `cps/kobo.py:1281` ve `cps/usermanagement.py:71` (FIND-035, FIND-036, FIND-042). Diğer 40 bulgu birebir aynı. Üçü de yanlış pozitif.
+**Karar (K8, ekip onayı 28 Ekim 2026):** Baseline 1.9.4 ile yeniden üretildi; orijinal 1.8.6 raporları `evidence/bandit-1.8.6-original/` altında saklanıyor. Bu, "baseline yeniden üretilmez" kuralına tek seferlik istisnadır. Başlangıç ve son tarama artık aynı Bandit sürümüyle yapıldığı için `bandit-comparison.md` içinde ayrı bir "sürüm farkı" satırına gerek yoktur. Bundan sonraki tüm Bandit çalıştırmaları yalnızca `requirements-lock.txt` ile kurulmuş `.venv` içinde yapılır ve çalıştırmadan önce `python -m bandit --version` çıktısının 1.9.4 olduğu kontrol edilir.
 
-**Neden önemli:** `CLAUDE.md` ve `project-scope.md` dosyalarında Bandit sürümü 1.9.4 yazıyor. Ders maddesi 8 de son taramanın aynı sürümle yapılmasını istiyor. Son tarama 1.9.4 ile yapılırsa bu 3 uyarı karşılaştırmada "yeni oluşan" gibi görünür, oysa kodda değişiklik yoktur.
-
-**Nedeni (raporu üreten üyenin açıklaması):** Bandit, sürüm belirtilmeden `pip install bandit` ile kurulmuş ve pip 1.8.6'yı yüklemiş. Ekibin sabit sürümü ise `requirements-analysis.txt` / `requirements-lock.txt` / CLAUDE.md'ye göre 1.9.4'tür. 1.9.4, PyPI'de 25 Şubat 2026'dan beri yayında. Bu yüzden 1.8.6'nın kurulması büyük olasılıkla 3.10'dan eski bir Python yorumlayıcısından kaynaklanıyor: Bandit 1.9 serisi Python 3.10 ve üzerini istiyor. Bu bir ortam hatasıdır; kodda değişiklik yoktur.
-
-**Ekip kararı (27 Ekim 2026):** Sürüm farkı notu kayda alınır ve şöyle ilerlenir:
-
-- `reports/baseline/` olduğu gibi kalır (CLAUDE.md: başlangıç raporları yeniden üretilmez).
-- Son tarama, CLAUDE.md'deki gibi **Bandit 1.9.4** ile yapılır.
-- `bandit-comparison.md` dosyasında FIND-035, FIND-036 ve FIND-042, "yeni oluşan" değil **"sürüm farkı (1.8.6 → 1.9.4), kod değişikliği değil"** olarak ayrı satırda gösterilir. Kanıt: `evidence/bandit-1.9.4-recheck/` (aynı kod, 1.9.4: 40 ortak bulgu + bu 3 bulgu).
-- Bundan sonraki tüm Bandit çalıştırmaları yalnızca `requirements-lock.txt` ile kurulmuş `.venv` içinde yapılır. Çalıştırmadan önce `python -m bandit --version` çıktısının 1.9.4 olduğu kontrol edilir.
-
-**Gerekçe:** Başlangıç kaydı değiştirilmediği için "baseline'a dokunulmaz" kuralı korunur ve kod değişikliğinden önceki durum kayıtta kalır. Farkın kaynağı da raporda açıkça görünür.
-
-Bulgu kaydı iki raporu da kapsar: 43 Bandit bulgusu (1.9.4 seti, 1.8.6 setinin tamamını içerir) ve 1 manuel bulgu. Yalnızca 1.9.4'te çıkan 3 bulgunun `gerekce` alanında bu durum ayrıca belirtilmiştir.
+Bulgu kaydı, geçerli baseline'daki 43 Bandit bulgusunu ve 1 manuel bulguyu kapsar.
 
 ## 2. Sonuç özeti
 
@@ -117,20 +98,20 @@ def edit_book_comments(comments, book):
 | FIND | Kural | Konum | Sonuç | Gerekçe (özet) |
 | --- | --- | --- | --- | --- |
 | 015 | B110 | `cps.py:61` | Düşük öncelikli | Ctrl+C sonrası kapanışta hata yutuluyor; süreç zaten çıkıyor. |
-| 016 | B112 | `cps/admin.py:1081` (`pathchooser`) | Düşük öncelikli | Yalnızca admin dosya seçicisinde; işlenemeyen girdi atlanıyor, yetki atlatma yok. |
+| 016 | B112 | `cps/admin.py:1081` (`pathchooser`) | Düşük öncelikli | `pathchooser()` dekoratörsüz bir yardımcıdır; yetki kontrolü onu çağıran `ajax_pathchooser` üzerindeki `@user_login_required` + `@admin_required` ile yapılır (`admin.py:952-956`). İşlenemeyen girdi atlanıyor, yetki atlatma yok. |
 | 027 | B110 | `cps/error_handler.py:72` | Düşük öncelikli | Hata durumunda yığın izi gösterilmez (güvenli varsayılan). |
 | 032, 033 | B110 | `cps/ub.py:766, 771` (`dispose`) | Düşük öncelikli | Veritabanı oturumu kapatılırken yapılan temizlikte hata yutuluyor. |
-| 028 | B404 | `cps/subproc_wrapper.py:21` | Yanlış pozitif | Yalnızca import. Tek `Popen` çağrısı `shell=False`, argümanlar liste. |
+| 028 | B404 | `cps/subproc_wrapper.py:21` | Yanlış pozitif | Yalnızca import. Tek `Popen` çağrısı `shell=False`. Windows dışında argümanlar liste; Windows'ta (`os.name == 'nt'`) tırnaklanıp tek string'e birleştiriliyor (`subproc_wrapper.py:28-32`). Shell yok; argüman bölme/tırnaklama riski 4. kişiye not edildi. |
 | 029–031 | B101 | `cps/tornado_wsgi.py:86, 111, 112` | Yanlış pozitif | Tornado'dan uyarlanmış tip daraltma assert'leri, güvenlik kontrolü değil. |
 | 037 | B606 | `cps/server.py:317` | Yanlış pozitif | `os.execv` argümanları `sys.executable` ve `sys.argv`'den geliyor, kullanıcı girdisi yok. |
 | 034 | B105 | `cps/admin.py:1643` | Yanlış pozitif | LDAP kullanıcısının yerel parolası `''`. Werkzeug `check_password_hash('', x)` her zaman `False` döner (`$` ayrıştırılamaz). |
 | 041 | B105 | `cps/ub.py:668` | Yanlış pozitif | Guest parola özeti `''`, aynı nedenle yerel girişte eşleşmez. `web.py` Guest girişini ayrıca reddediyor. |
-| 042 | B105 | `cps/usermanagement.py:71` | Yanlış pozitif | Yalnızca `config_anonbrowse == 1` iken Guest için kurulan boş yetkilendirme. *(Yalnızca 1.9.4'te çıkıyor.)* |
-| 035, 036 | B105 | `cps/kobo.py:1266, 1281` | Yanlış pozitif | Anahtar adında "password"/"token" geçen herkese açık kobo.com URL'leri. *(Yalnızca 1.9.4'te çıkıyor.)* |
+| 042 | B105 | `cps/usermanagement.py:71` | Yanlış pozitif | Yalnızca `config_anonbrowse == 1` iken Guest için kurulan boş yetkilendirme. |
+| 035, 036 | B105 | `cps/kobo.py:1266, 1281` | Yanlış pozitif | Anahtar adında "password"/"token" geçen herkese açık kobo.com URL'leri: 1266 → `password_retrieval_page`, 1281 → `rakuten_token_exchange`. |
 | 038–040 | B105 | `cps/services/simpleldap.py:101, 104, 108` | Yanlış pozitif | `''` "parola yok" (anonim bağlanma) anlamında. Gerçek değer yapılandırmadan geliyor. |
 | 043 | B107 | `cps/web.py:1366` (`render_login`) | Yanlış pozitif | Giriş formunu dolduran boş varsayılan argümanlar. |
 
-## 5. Gömülü üçüncü taraf kod (K7) — üçüncü taraf / kapsam dışı
+## 5. Gömülü üçüncü taraf kod (K7): kapsamda, incelendi, düzeltme yapılmaz
 
 | FIND | Kural | Konum | Not |
 | --- | --- | --- | --- |

@@ -250,25 +250,29 @@ Notlar:
 
 ## Bandit taramaları (2. kişi)
 
-### Başlangıç raporlarının kaydı
+### Başlangıç raporlarının kaydı (K8 sonrası, geçerli baseline)
 
-| Araç | Rapor dosyası | `generated_at` (UTC) | Bulgu | Not |
-| --- | --- | --- | --- | --- |
-| Bandit | `reports/baseline/bandit-cps.json` | 2026-10-24T18:52:54Z | 39 | Rapor içindeki `more_info` bağlantıları **Bandit 1.8.6**'yı gösteriyor; yol ayıracı `/` |
-| Bandit | `reports/baseline/bandit-entrypoint.json` | 2026-10-24T18:52:54Z | 1 | Aynı (1.8.6) |
+| Araç | Komut | `generated_at` (UTC) | Çıkış kodu | Rapor dosyası | Bulgu |
+| --- | --- | --- | --- | --- | --- |
+| Bandit 1.9.4 | `python -m bandit -r cps -f json -o reports\baseline\bandit-cps.json` | 2026-10-28T12:12:14Z | 1 (bulgu var, beklenen) | `reports/baseline/bandit-cps.json` | 42 |
+| Bandit 1.9.4 | `python -m bandit cps.py -f json -o reports\baseline\bandit-entrypoint.json` | 2026-10-28T12:12:14Z | 1 (bulgu var, beklenen) | `reports/baseline/bandit-entrypoint.json` | 1 |
 
-Raporu üreten üyenin açıklamasına göre Bandit, `requirements-lock.txt` yerine sürüm belirtilmeden `pip install bandit` ile kurulmuş ve pip 1.8.6'yı yüklemiş. Bu, ekibin sabit sürümü 1.9.4'ten bir sapmadır. Ekip kararı: başlangıç raporları olduğu gibi kalır, son tarama 1.9.4 ile yapılır ve sürüm farkı karşılaştırmada ayrıca gösterilir (bkz. `docs/review-bandit.md` bölüm 1). Bu iki raporun çıkış kodu kayıtlı değil. Bandit JSON çıktısına sürüm yazmaz. Sürüm, her bulgudaki `more_info` dokümantasyon bağlantısından (`.../en/1.8.6/...`) okunmuştur.
+- Çalıştırmadan önce `python -m bandit --version` çıktısının 1.9.4 olduğu doğrulandı. Komutlar CLAUDE.md'deki parametrelerle, `requirements-lock.txt` ile kurulmuş `.venv` içinde çalıştırıldı. `cps/` ve `cps.py`, baseline commit'ine (`docs/baseline-commit.txt`) göre değişmemiştir.
+- LOC / `# nosec` / hata: `cps/` 31571 / 10 / 0, `cps.py` 26 / 0 / 0.
+- Raporlar kişisel veri veya yerel tam yol içermiyor; dosya yolları repo köküne göre relatiftir.
+- **Yol ayıracı farkı:** Geçerli baseline Windows'ta üretildiği için dosya yollarında `\` kullanılır (örn. `cps\admin.py`). Orijinal 1.8.6 raporlarında `/` vardır (Windows dışı bir sistemde üretilmiş görünüyor). Karşılaştırma betikleri yolları `/` biçimine normalize ederek eşleştirme yapmalıdır.
+
+### İlk (geçersiz kılınan) Bandit 1.8.6 raporları — K8
+
+İlk başlangıç raporları (`generated_at` 2026-10-24T18:52:54Z; `cps/` 39 bulgu, `cps.py` 1 bulgu) yanlışlıkla Bandit 1.8.6 ile üretildi. Raporu üreten üyenin açıklamasına göre Bandit, `requirements-lock.txt` yerine sürüm belirtilmeden `pip install bandit` ile kurulmuş ve pip 1.8.6'yı yüklemiş; kök neden olarak Python 3.10 altı bir ortam düşünülüyor (doğrulanacak). Bandit JSON çıktısına sürüm yazmadığı için sürüm, her bulgudaki `more_info` dokümantasyon bağlantısından (`.../en/1.8.6/...`) okunmuştur. Bu iki raporun çıkış kodu kayıtlı değil.
+
+K8 kararı gereği bu dosyalar silinmedi; `git mv` ile `evidence/bandit-1.8.6-original/` altına taşındı ve baseline 1.9.4 ile yeniden üretildi (yukarıdaki tablo). Bu, "baseline yeniden üretilmez" kuralına tek seferlik istisnadır.
 
 ### 2. kişi ortamı ve tutarlılık kontrolü (27 Ekim 2026)
 
 - Kurulum CLAUDE.md "Ortam kurulumu" adımlarıyla yapıldı. Tek fark: makinede varsayılan `py` Python 3.13 olduğu için sanal ortam `py -3.12 -m venv .venv` ile oluşturuldu. Python 3.12.10, winget ile python.org resmî yükleyicisinden kuruldu.
 - `python -m pip install -r requirements-lock.txt` hatasız tamamlandı.
 - Sürümler: Python 3.12.10, pip 26.2.2, bandit 1.9.4, pylint 4.1.3 (astroid 4.3.4), flake8 7.4.1. Bunlar CLAUDE.md ile birebir aynı.
-- Tutarlılık için Bandit, başlangıç komutlarıyla aynı parametrelerle yeniden çalıştırıldı. Çıktılar `reports/baseline/` yerine `evidence/bandit-1.9.4-recheck/` altına yazıldı; başlangıç raporlarına dokunulmadı.
-
-| Komut (çıktı yolu dışında başlangıçla aynı) | Çıkış kodu | Bulgu |
-| --- | --- | --- |
-| `python -m bandit -r cps -f json -o <...>\bandit-cps.json` | 1 (bulgu var, beklenen) | 42 |
-| `python -m bandit cps.py -f json -o <...>\bandit-entrypoint.json` | 1 (bulgu var, beklenen) | 1 |
-
-- **Sonuç:** 1.9.4 ile `cps/` için 3 ek B105 bulgusu çıkıyor (`cps/kobo.py:1266`, `cps/kobo.py:1281`, `cps/usermanagement.py:71`). Diğer 40 bulgu ile LOC (31571) ve `nosec` (10) değerleri aynı. Fark kod değişikliğinden değil, Bandit sürümünden kaynaklanıyor. Ekip kararı için: `docs/review-bandit.md` bölüm 1.
+- Tutarlılık için Bandit, başlangıç komutlarıyla aynı parametrelerle (yalnızca çıktı yolu farklı) yeniden çalıştırıldı; çıkış kodları 1/1, bulgu 42 + 1.
+- **Sonuç:** 1.9.4 ile `cps/` için 3 ek B105 bulgusu çıkıyor (`cps/kobo.py:1266`, `cps/kobo.py:1281`, `cps/usermanagement.py:71`). Diğer 40 bulgu ile LOC (31571) ve `nosec` (10) değerleri aynı. Fark kod değişikliğinden değil, Bandit sürümünden kaynaklanıyor. Bu tespit K8 kararına yol açtı (bkz. `docs/review-bandit.md` bölüm 1).
+- 28 Ekim'de üretilen geçerli baseline, bu tekrar taramayla birebir aynı çıktı (toplam bulgu, önem×güven matrisi, `test_id` adetleri, normalize edilmiş (dosya, test_id, satır) kümeleri). Bu yüzden ara kanıt klasörü `evidence/bandit-1.9.4-recheck/` kaldırıldı; içeriği artık `reports/baseline/` ile aynıdır.

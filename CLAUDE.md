@@ -40,6 +40,7 @@ Ders: **"Güvenlik İçin Statik Kod Analizi"**. Kodlar **çalıştırılmadan**
 - **K5 — Düzeltme hedefi:** En az **3 güvenlik** bulgusu düzeltilir veya kanıtla yanlış pozitif gösterilir. En az **5 kod kalitesi / PEP 8** bulgu türü düzeltilir. Düzeltmeler küçük ve davranışı koruyan değişikliklerdir. Binlerce stil uyarısını toplu biçimlendirme (black/autopep8 ile tüm projeyi yeniden biçimlendirme) **yapılmaz**, çünkü önce-sonra karşılaştırmasını anlamsızlaştırır ve diff'i okunmaz hale getirir.
 - **K6 — Uyarıları susturmak düzeltme değildir:** `# nosec`, `# pylint: disable` veya `# noqa` yalnızca yanlış pozitif kararı gerekçeyle bulgu kaydına yazıldıktan sonra ve PR'da açıkça belirtilerek eklenebilir. Raporda "susturulan" ve "düzeltilen" uyarılar ayrı sayılır.
 - **K7 — Gömülü üçüncü taraf kod:** `cps/cw_login/` ve `cps/cw_advocate/` gömülü üçüncü taraf koddur. Kapsamda kalır (başlangıç taraması bunları içeriyor), bulgu kaydında "gömülü üçüncü taraf" olarak işaretlenir, bu klasörlerde düzeltme yapılmaz; yalnızca incelenir.
+- **K8 — Bandit baseline sürüm düzeltmesi:** Başlangıç Bandit raporları yanlışlıkla 1.8.6 ile üretildi (kök neden: Python 3.10 altı ortamda sürüm belirtilmeden kurulum, doğrulanacak). Kod değişikliği yapılmadan önce aynı commit ve aynı parametrelerle 1.9.4 ile yeniden üretildi. Orijinaller `evidence/bandit-1.8.6-original/` altında. Bu, "baseline yeniden üretilmez" kuralına tek seferlik istisnadır (ekip onayı 28 Ekim).
 
 ## Ekip ve sorumluluklar
 
@@ -115,7 +116,10 @@ Kontrol: `git status` çıktısında `.venv/` görünmemeli. `git check-ignore -
 
 ## Ortam kurulumu (her ekip üyesi için)
 
+Önce Python sürümünü kontrol et: `py --version` **3.12.x** olmalı (en az 3.10; Bandit 1.9 serisi 3.10 altında kurulmaz, pip sessizce eski sürüme düşer — bkz. K8). Varsayılan `py` farklı bir sürümse sanal ortamı `py -3.12 -m venv .venv` ile oluştur. **Araç sürümleri (aşağıdaki `--version` komutları) doğrulanmadan tarama yapılmaz.**
+
 ```powershell
+py --version                 # 3.12.x olmalı (en az 3.10)
 cd $HOME\Projeler
 git clone https://github.com/sseydaltin/calibre-web.git
 cd calibre-web

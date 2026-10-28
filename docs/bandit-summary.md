@@ -6,10 +6,10 @@ Bu dosya `scripts/summarize_bandit_reports.py` ile `reports/baseline/` altındak
 
 | Rapor | Üretilme zamanı (UTC) | Bulgu | Taranan LOC | `# nosec` | Hata | Bandit sürümü (more_info) |
 | --- | --- | --- | --- | --- | --- | --- |
-| `bandit-cps.json` | 2026-10-24T18:52:54Z | 39 | 31571 | 10 | 0 | 1.8.6 |
-| `bandit-entrypoint.json` | 2026-10-24T18:52:54Z | 1 | 26 | 0 | 0 | 1.8.6 |
+| `bandit-cps.json` | 2026-10-28T12:12:14Z | 42 | 31571 | 10 | 0 | 1.9.4 |
+| `bandit-entrypoint.json` | 2026-10-28T12:12:14Z | 1 | 26 | 0 | 0 | 1.9.4 |
 
-Toplam bulgu: **40**
+Toplam bulgu: **43**
 
 ## Önem × güven matrisi
 
@@ -17,8 +17,8 @@ Toplam bulgu: **40**
 | --- | --- | --- | --- | --- |
 | HIGH | 0 | 0 | 0 | 0 |
 | MEDIUM | 8 | 1 | 5 | 14 |
-| LOW | 19 | 7 | 0 | 26 |
-| Toplam | 27 | 8 | 5 | 40 |
+| LOW | 19 | 10 | 0 | 29 |
+| Toplam | 27 | 11 | 5 | 43 |
 
 ## Kural kodu dağılımı
 
@@ -31,7 +31,7 @@ Toplam bulgu: **40**
 | B307 | `blacklist` | MEDIUM | 1 | 0 |
 | B310 | `blacklist` | MEDIUM | 1 | 0 |
 | B101 | `assert_used` | LOW | 12 | 9 |
-| B105 | `hardcoded_password_string` | LOW | 5 | 0 |
+| B105 | `hardcoded_password_string` | LOW | 8 | 0 |
 | B110 | `try_except_pass` | LOW | 4 | 0 |
 | B107 | `hardcoded_password_default` | LOW | 1 | 0 |
 | B112 | `try_except_continue` | LOW | 1 | 0 |
@@ -59,16 +59,16 @@ Toplam bulgu: **40**
 | 14 | MEDIUM | LOW | B113 | `cps/services/goodreads_support.py:89` | Call to requests without timeout |  |
 | 15 | LOW | HIGH | B110 | `cps.py:61` | Try, Except, Pass detected. |  |
 | 16 | LOW | HIGH | B112 | `cps/admin.py:1081` | Try, Except, Continue detected. |  |
-| 17 | LOW | HIGH | B101 | `cps/cw_advocate/addrvalidator.py:243` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf / kapsam dışı (K7) |
-| 18 | LOW | HIGH | B403 | `cps/cw_advocate/api.py:31` | Consider possible security implications associated with pickle module. | Gömülü üçüncü taraf / kapsam dışı (K7) |
-| 19 | LOW | HIGH | B101 | `cps/cw_advocate/connection.py:63` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf / kapsam dışı (K7) |
-| 20 | LOW | HIGH | B101 | `cps/cw_advocate/connection.py:184` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf / kapsam dışı (K7) |
-| 21 | LOW | HIGH | B101 | `cps/cw_advocate/connection.py:185` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf / kapsam dışı (K7) |
-| 22 | LOW | HIGH | B101 | `cps/cw_advocate/connectionpool.py:26` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf / kapsam dışı (K7) |
-| 23 | LOW | HIGH | B101 | `cps/cw_advocate/connectionpool.py:27` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf / kapsam dışı (K7) |
-| 24 | LOW | HIGH | B101 | `cps/cw_advocate/connectionpool.py:28` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf / kapsam dışı (K7) |
-| 25 | LOW | HIGH | B101 | `cps/cw_advocate/connectionpool.py:29` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf / kapsam dışı (K7) |
-| 26 | LOW | HIGH | B101 | `cps/cw_advocate/poolmanager.py:58` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf / kapsam dışı (K7) |
+| 17 | LOW | HIGH | B101 | `cps/cw_advocate/addrvalidator.py:243` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf (K7): kapsamda, incelendi, düzeltme yapılmaz. |
+| 18 | LOW | HIGH | B403 | `cps/cw_advocate/api.py:31` | Consider possible security implications associated with pickle module. | Gömülü üçüncü taraf (K7): kapsamda, incelendi, düzeltme yapılmaz. |
+| 19 | LOW | HIGH | B101 | `cps/cw_advocate/connection.py:63` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf (K7): kapsamda, incelendi, düzeltme yapılmaz. |
+| 20 | LOW | HIGH | B101 | `cps/cw_advocate/connection.py:184` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf (K7): kapsamda, incelendi, düzeltme yapılmaz. |
+| 21 | LOW | HIGH | B101 | `cps/cw_advocate/connection.py:185` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf (K7): kapsamda, incelendi, düzeltme yapılmaz. |
+| 22 | LOW | HIGH | B101 | `cps/cw_advocate/connectionpool.py:26` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf (K7): kapsamda, incelendi, düzeltme yapılmaz. |
+| 23 | LOW | HIGH | B101 | `cps/cw_advocate/connectionpool.py:27` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf (K7): kapsamda, incelendi, düzeltme yapılmaz. |
+| 24 | LOW | HIGH | B101 | `cps/cw_advocate/connectionpool.py:28` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf (K7): kapsamda, incelendi, düzeltme yapılmaz. |
+| 25 | LOW | HIGH | B101 | `cps/cw_advocate/connectionpool.py:29` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf (K7): kapsamda, incelendi, düzeltme yapılmaz. |
+| 26 | LOW | HIGH | B101 | `cps/cw_advocate/poolmanager.py:58` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. | Gömülü üçüncü taraf (K7): kapsamda, incelendi, düzeltme yapılmaz. |
 | 27 | LOW | HIGH | B110 | `cps/error_handler.py:72` | Try, Except, Pass detected. |  |
 | 28 | LOW | HIGH | B404 | `cps/subproc_wrapper.py:21` | Consider possible security implications associated with the subprocess module. |  |
 | 29 | LOW | HIGH | B101 | `cps/tornado_wsgi.py:86` | Use of assert detected. The enclosed code will be removed when compiling to optimised byte code. |  |
@@ -77,9 +77,12 @@ Toplam bulgu: **40**
 | 32 | LOW | HIGH | B110 | `cps/ub.py:766` | Try, Except, Pass detected. |  |
 | 33 | LOW | HIGH | B110 | `cps/ub.py:771` | Try, Except, Pass detected. |  |
 | 34 | LOW | MEDIUM | B105 | `cps/admin.py:1643` | Possible hardcoded password: '' |  |
-| 35 | LOW | MEDIUM | B606 | `cps/server.py:317` | Starting a process without a shell. |  |
-| 36 | LOW | MEDIUM | B105 | `cps/services/simpleldap.py:101` | Possible hardcoded password: '' |  |
-| 37 | LOW | MEDIUM | B105 | `cps/services/simpleldap.py:104` | Possible hardcoded password: '' |  |
-| 38 | LOW | MEDIUM | B105 | `cps/services/simpleldap.py:108` | Possible hardcoded password: '' |  |
-| 39 | LOW | MEDIUM | B105 | `cps/ub.py:668` | Possible hardcoded password: '' |  |
-| 40 | LOW | MEDIUM | B107 | `cps/web.py:1366` | Possible hardcoded password: '' |  |
+| 35 | LOW | MEDIUM | B105 | `cps/kobo.py:1266` | Possible hardcoded password: 'https://www.kobo.com/passwordretrieval.html' |  |
+| 36 | LOW | MEDIUM | B105 | `cps/kobo.py:1281` | Possible hardcoded password: 'https://storeapi.kobo.com/v1/auth/rakuten_token_exchange' |  |
+| 37 | LOW | MEDIUM | B606 | `cps/server.py:317` | Starting a process without a shell. |  |
+| 38 | LOW | MEDIUM | B105 | `cps/services/simpleldap.py:101` | Possible hardcoded password: '' |  |
+| 39 | LOW | MEDIUM | B105 | `cps/services/simpleldap.py:104` | Possible hardcoded password: '' |  |
+| 40 | LOW | MEDIUM | B105 | `cps/services/simpleldap.py:108` | Possible hardcoded password: '' |  |
+| 41 | LOW | MEDIUM | B105 | `cps/ub.py:668` | Possible hardcoded password: '' |  |
+| 42 | LOW | MEDIUM | B105 | `cps/usermanagement.py:71` | Possible hardcoded password: '' |  |
+| 43 | LOW | MEDIUM | B107 | `cps/web.py:1366` | Possible hardcoded password: '' |  |

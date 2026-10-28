@@ -116,7 +116,7 @@ def build_markdown(results, meta, report_dir: Path) -> str:
     ]
     for i, r in enumerate(results, 1):
         path = normalize_path(r["filename"])
-        note = "Gömülü üçüncü taraf / kapsam dışı (K7)" if is_third_party(path) else ""
+        note = "Gömülü üçüncü taraf (K7): kapsamda, incelendi, düzeltme yapılmaz." if is_third_party(path) else ""
         text = r["issue_text"].replace("|", "\\|").replace("``", "`")
         lines.append(f"| {i} | {r['issue_severity']} | {r['issue_confidence']} | {r['test_id']} | "
                      f"`{path}:{r['line_number']}` | {text} | {note} |")
