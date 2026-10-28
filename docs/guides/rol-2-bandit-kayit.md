@@ -18,22 +18,9 @@
 
 ## Sıradaki adımlar
 
-### 0) Ortamını düzelt — bugün
+### 0) ✅ Ortam kuruldu (28 Ekim, lock dosyasıyla)
 
-```powershell
-py --version
-```
-3.10'dan eskiyse Python 3.12'yi python.org'dan kur. Sonra:
-```powershell
-Remove-Item -Recurse -Force .venv
-py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements-lock.txt
-python -m bandit --version   # 1.9.4
-python -m pylint --version   # 4.1.3
-python -m flake8 --version   # 7.4.1
-```
-Python sürümünü ve işletim sistemini gruba yaz: K8'deki kök neden ("doğrulanacak") kesinleşecek.
+Kalan: K8 kök nedeni için Python sürümünü (`py --version`) ve işletim sistemini gruba bildir; 1. kişi K8'i günceller.
 
 ### 1) Bulgu kaydını yönet — sürekli
 
