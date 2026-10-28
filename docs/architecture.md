@@ -148,7 +148,13 @@ POST /upload
 
 ## 6. `E0611 no-name-in-module` notu (ortam sorunu, dinamik atama)
 
-Pylint başlangıç taramasında 252 adet `E0611` uyarısı bulundu (bkz. `docs/pylint-baseline-summary.md`). Bunun **2 adedi** gerçekten eksik bir pakete bağlıdır (`cps/services/simpleldap.py`, `flask_simpleldap` kurulu değil). Kalan **250 adedi** ise kod hatası değildir; `cps/__init__.py`'nin kendisi, alt modülleri ve servis örneklerini **paket seviyesinde adlandırılmış değişkenler** olarak tanımlar:
+Pylint başlangıç taramasında 252 adet `E0611` uyarısı bulundu (bkz. `docs/pylint-baseline-summary.md`). Pylint'in bildirdiği modüle göre üç grup vardır:
+
+- **250 adet — `in module 'cps'`:** Bu bölümün konusu. `cps/services/simpleldap.py` içindeki 2 uyarı da bu gruptadır (`constants`, `logger`); LDAP paketinin eksikliğiyle ilgisi yoktur.
+- **1 adet — `cps/clean_html.py:20`, `lxml.etree`:** `lxml.etree` derlenmiş bir C uzantısıdır; astroid içini göremez. `ParserError` kurulu ortamda mevcuttur → yanlış pozitif adayı.
+- **1 adet — `cps/cw_advocate/api.py:175`, `cps.cw_advocate`:** Gömülü üçüncü taraf kodda (K7) `from . import cw_advocate` satırı; pakette `cw_advocate` adlı bir alt modül yoktur → hata adayı. K7 gereği düzeltilmez; 1. kişi `docs/pylint-findings` işinde gerçek hata mı yanlış pozitif mi olduğunu doğrulayıp kayıtta gerekçelendirecek.
+
+250'lik grup kod hatası değildir; `cps/__init__.py`'nin kendisi, alt modülleri ve servis örneklerini **paket seviyesinde adlandırılmış değişkenler** olarak tanımlar:
 
 ```python
 # cps/__init__.py — paket seviyesinde tanımlanan örnekler
@@ -166,7 +172,7 @@ from . import db, calibre_db, converter, uploader, constants, dep_check
 
 Burada `db`, `converter`, `uploader`, `constants`, `dep_check` gerçek alt modül dosyalarıdır (`cps/db.py`, `cps/converter.py` vb.) ve normalde sorunsuz çözümlenmelidir; `calibre_db` ise `__init__.py` içinde tanımlı bir örnektir. Pylint/astroid, paketin kendi `__init__.py`'si **çok sayıda döngüsel import** içerdiğinden (aynı taramada 43 adet `R0401 cyclic-import` bulgusu var; örn. `cps -> cps.ub -> cps.helper -> cps.file_helper`) `cps` paketinin isim tablosunu bazı modüller için eksik/geçici bir anlık görüntü üzerinden değerlendirir ve hem gerçek alt modülleri hem de paket örneklerini "yok" sayabilir. Bu, Pylint/astroid'in döngüsel import + paket-seviyesi dinamik durum örüntüsünü statik olarak çözememesinden kaynaklanan **bilinen bir kısıttır**; çalışma zamanında bu adlar gerçekten mevcuttur ve uygulama çalışır.
 
-**Durum:** Bu 250 uyarı şu an **doğrulanmamış bir yanlış pozitif adayıdır**. Ekip, bulgu envanteri aşamasında (`docs/findings-register.csv`, CLAUDE.md takvimi: 31 Ekim) bu adayı resmî olarak "Yanlış pozitif" durumuna işleyecek veya aksini gösteren bir örnek bulunursa gerekçeyle güncelleyecektir.
+**Durum:** `cps` grubundaki bu 250 uyarı şu an **doğrulanmamış bir yanlış pozitif adayıdır**. Ekip, bulgu envanteri aşamasında (`docs/findings-register.csv`, CLAUDE.md takvimi: 31 Ekim) bu adayı resmî olarak "Yanlış pozitif" durumuna işleyecek veya aksini gösteren bir örnek bulunursa gerekçeyle güncelleyecektir.
 
 ## 7. Modüller arası ilişki (basitleştirilmiş)
 

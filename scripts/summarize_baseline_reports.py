@@ -55,6 +55,29 @@ PEP8_STAT_RE = re.compile(r"^\s*(?P<count>\d+)\s+(?P<code>[EWF]\d+)\s+(?P<messag
 
 LDAP_FILE_MARKER = "simpleldap"
 
+# E0611 mesajındaki "in module '<modül>'" kısmı
+E0611_MODULE_RE = re.compile(r"in module '([\w.]+)'")
+
+# E0611 uyarılarının modüle göre nedeni (elle doğrulandı; bkz. architecture.md 6. bölüm)
+E0611_CAUSES = {
+    "cps": (
+        "`cps/__init__.py` alt modülleri ve servis örneklerini paket özniteliği olarak "
+        "atıyor (dinamik atama); astroid bu örüntüyü çözemiyor",
+        "Yanlış pozitif adayı",
+    ),
+    "lxml.etree": (
+        "`lxml.etree` derlenmiş bir C uzantısı; astroid içini göremiyor, "
+        "`ParserError` kurulu ortamda mevcut",
+        "Yanlış pozitif adayı",
+    ),
+    "cps.cw_advocate": (
+        "Gömülü üçüncü taraf kodda (K7) `from . import cw_advocate`; pakette "
+        "`cw_advocate` adlı bir alt modül yok",
+        "Hata adayı (K7, düzeltilmez); 1. kişi `docs/pylint-findings` işinde doğrulayıp "
+        "kayıtta gerekçelendirecek",
+    ),
+}
+
 
 def parse_pylint(text: str):
     score = None
@@ -182,7 +205,7 @@ def render_pylint_summary(data: dict) -> str:
         "CLAUDE.md madde 9: import/bağımlılık hataları (`E0401 import-error` vb.) "
         "güvenlik bulgusu sayılmaz; ortam sorunu olarak burada ve "
         "`docs/environment-notes.md` içinde kayıtlıdır. `E0611 no-name-in-module` "
-        "da aynı tabloda, kaynağı ayrıştırılmış biçimde gösterilir."
+        "uyarıları da burada, Pylint'in bildirdiği modüle göre gruplanarak gösterilir."
     )
     lines.append("")
     lines.append("### E0401 — import-error")
@@ -199,26 +222,36 @@ def render_pylint_summary(data: dict) -> str:
 
     lines.append("### E0611 — no-name-in-module")
     lines.append("")
-    ldap_e0611 = [o for o in data["e0611"] if is_ldap_related(o[0])]
-    other_e0611 = [o for o in data["e0611"] if not is_ldap_related(o[0])]
+    by_module = defaultdict(list)
+    for occurrence in data["e0611"]:
+        module_m = E0611_MODULE_RE.search(occurrence[2])
+        by_module[module_m.group(1) if module_m else "?"].append(occurrence)
     lines.append(
-        f"Toplam {len(data['e0611'])} adet. Bunlardan **{len(ldap_e0611)}** adedi "
-        f"LDAP modülünde (`cps/services/simpleldap.py`, `flask_simpleldap` eksik "
-        "olduğu için modül tam çözümlenemiyor); kalan "
-        f"**{len(other_e0611)}** adedi LDAP ile ilgisizdir ve `cps/__init__.py` "
-        "içinde alt modüllerin paket özniteliği olarak çalışma zamanında "
-        "(dynamic attribute) atanmasından kaynaklanır — Pylint'in statik "
-        "analizinin bu örüntüyü çözememesi bilinen bir kısıttır, kod hatası "
-        "veya güvenlik açığı değildir."
+        f"Toplam {len(data['e0611'])} adet. Pylint'in bildirdiği modüle göre dağılım:"
     )
     lines.append("")
-    affected_files = sorted({o[0] for o in other_e0611})
-    lines.append(
-        f"LDAP dışı E0611 uyarılarının göründüğü dosya sayısı: {len(affected_files)} "
-        "(liste `reports/baseline/pylint.txt` içinde `E0611` aranarak görülebilir; "
-        "ayrıntı burada tekrarlanmamıştır)."
-    )
+    lines.append("| Modül | Adet | Dosya sayısı | Neden | Değerlendirme |")
+    lines.append("| --- | --- | --- | --- | --- |")
+    for module, occurrences in sorted(by_module.items(), key=lambda kv: -len(kv[1])):
+        cause, verdict = E0611_CAUSES.get(module, ("Sınıflandırılmadı", "Elle incelenmeli"))
+        file_count = len({o[0] for o in occurrences})
+        lines.append(f"| `{module}` | {len(occurrences)} | {file_count} | {cause} | {verdict} |")
     lines.append("")
+    ldap_in_cps = [o for o in by_module.get("cps", []) if is_ldap_related(o[0])]
+    if ldap_in_cps:
+        lines.append(
+            f"`cps/services/simpleldap.py` içindeki {len(ldap_in_cps)} E0611 uyarısı da "
+            "`cps` modülü grubundadır (`constants`, `logger` gibi paket öznitelikleri); "
+            "LDAP paketinin eksikliğiyle ilgisi yoktur."
+        )
+        lines.append("")
+    small_groups = [o for module, occ in by_module.items() if module != "cps" for o in occ]
+    if small_groups:
+        lines.append("`cps` dışındaki uyarılar:")
+        lines.append("")
+        for file_, line_no, rest in small_groups:
+            lines.append(f"- `{file_}:{line_no}` — {rest}")
+        lines.append("")
 
     return "\n".join(lines) + "\n"
 
