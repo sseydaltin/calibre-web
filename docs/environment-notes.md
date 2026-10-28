@@ -264,7 +264,7 @@ Notlar:
 
 ### İlk (geçersiz kılınan) Bandit 1.8.6 raporları — K8
 
-İlk başlangıç raporları (`generated_at` 2026-10-24T18:52:54Z; `cps/` 39 bulgu, `cps.py` 1 bulgu) yanlışlıkla Bandit 1.8.6 ile üretildi. Raporu üreten üyenin açıklamasına göre Bandit, `requirements-lock.txt` yerine sürüm belirtilmeden `pip install bandit` ile kurulmuş ve pip 1.8.6'yı yüklemiş; kök neden olarak Python 3.10 altı bir ortam düşünülüyor (doğrulanacak). Bandit JSON çıktısına sürüm yazmadığı için sürüm, her bulgudaki `more_info` dokümantasyon bağlantısından (`.../en/1.8.6/...`) okunmuştur. Bu iki raporun çıkış kodu kayıtlı değil.
+İlk başlangıç raporları (`generated_at` 2026-10-24T18:52:54Z; `cps/` 39 bulgu, `cps.py` 1 bulgu) yanlışlıkla Bandit 1.8.6 ile üretildi. Raporu üreten üyenin açıklamasına göre Bandit, `requirements-lock.txt` yerine sürüm belirtilmeden `pip install bandit` ile kurulmuş ve pip 1.8.6'yı yüklemiş; kök neden: Windows dışı (macOS) ortamda sürüm belirtilmeden kurulum; o anki Python sürümü kayıtlı değil (bkz. K8, `docs/28-ekim-kontrol-dilara.md`). Bandit JSON çıktısına sürüm yazmadığı için sürüm, her bulgudaki `more_info` dokümantasyon bağlantısından (`.../en/1.8.6/...`) okunmuştur. Bu iki raporun çıkış kodu kayıtlı değil.
 
 K8 kararı gereği bu dosyalar silinmedi; `git mv` ile `evidence/bandit-1.8.6-original/` altına taşındı ve baseline 1.9.4 ile yeniden üretildi (yukarıdaki tablo). Bu, "baseline yeniden üretilmez" kuralına tek seferlik istisnadır.
 

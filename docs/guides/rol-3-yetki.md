@@ -93,7 +93,7 @@ Kod parçalarını kısa tut (birkaç satır). Rapora girecek.
 
 ## Bulgu kaydı
 
-Gerçek sorun veya düşük öncelikli uyarı bulduğunda Dilara'dan ID al, `kaynak = Manuel` ile ekle. "Sorun yok" sonuçları kayda girmez, `review-auth.md`'de kalır.
+Gerçek sorun veya düşük öncelikli uyarı bulduğunda kendi ID bloğundan (FIND-125–FIND-149) sıradaki ID'yi kullan, `kaynak = Manuel` ile ekle; `inceleyen = Emre Bulut`. "Sorun yok" sonuçları kayda girmez, `review-auth.md`'de kalır.
 
 ## Takvim
 

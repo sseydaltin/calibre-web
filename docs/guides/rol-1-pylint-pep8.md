@@ -18,7 +18,7 @@
 
 ### 1) Pylint ve PEP 8 bulgularını kayda ekle — 31 Ekim
 
-Dal: `docs/pylint-findings`. ID aralığını Dilara'dan al (FIND-045'ten başlaması beklenir).
+Dal: `docs/pylint-findings`. ID bloğun: FIND-045–FIND-124 (CLAUDE.md → "Bulgu kaydı"); sırayla kullan.
 
 Gruplama kuralı (CLAUDE.md): aynı kural kodu tek satır, `satir = çoklu (N adet)`.
 

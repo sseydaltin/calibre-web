@@ -86,7 +86,7 @@ FIND-006/007/008/028 ve B404/B606 hakkında notlar.
 
 ## Bulgu kaydı
 
-Gerçek sorun veya düşük öncelikli uyarı bulduğunda Dilara'dan ID al, `kaynak = Manuel` ile ekle. "Sorun yok" sonuçları yalnızca `review-file-handling.md`'de kalır.
+Gerçek sorun veya düşük öncelikli uyarı bulduğunda kendi ID bloğundan (FIND-150–FIND-174) sıradaki ID'yi kullan, `kaynak = Manuel` ile ekle; `inceleyen = Hasan Kurt`. "Sorun yok" sonuçları yalnızca `review-file-handling.md`'de kalır.
 
 ## Takvim
 

@@ -20,11 +20,11 @@
 
 ### 0) ✅ Ortam kuruldu (28 Ekim, lock dosyasıyla)
 
-Kalan: K8 kök nedeni için Python sürümünü (`py --version`) ve işletim sistemini gruba bildir; 1. kişi K8'i günceller.
+✅ K8 kök nedeni için ortam bilgisi bildirildi (`docs/28-ekim-kontrol-dilara.md`: macOS, Python 3.12.16); K8 güncellendi: Windows dışı (macOS) ortamda sürüm belirtilmeden kurulum; o anki Python sürümü kayıtlı değil.
 
 ### 1) Bulgu kaydını yönet — sürekli
 
-- ID dağıtımı: Şeyda (Pylint/PEP 8), Emre (yetki), Hasan (dosya) senden ID aralığı ister. Basit bir yöntem: her kişiye ayrı blok ver (ör. 045–079 Şeyda, 080–099 Hasan, 100–119 Emre) ve gruba yaz.
+- ID dağıtımı: Şeyda (Pylint/PEP 8), Emre (yetki), Hasan (dosya) kendi ID bloklarını kullanır (28 Ekim ekip kararı, CLAUDE.md → "Bulgu kaydı"): Şeyda FIND-045–124, Emre FIND-125–149, Hasan FIND-150–174, sen FIND-175–199 (yedek). Blok biten kişiye yedekten ek aralık verip gruba yaz.
 - Her kayıt PR'ında gözden geçiren sensin. Kontrol: 18 sütun ve sıra, BOM, izinli değerler, gerekçe dolu, `inceleyen ≠ gozden_geciren`, K7 ifadesi.
 - 31 Ekim akşamı: tüm satırlar birleştikten sonra kaydın son kontrolünü yap; `İnceleniyor` kalan satırları ilgili kişiye bildir.
 

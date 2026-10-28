@@ -42,11 +42,12 @@ Claude Code'a ilk mesaj olarak hangi kişi olduğunu ve bugünkü işini söyle.
 
 ## Bulgu kaydına satır ekleme
 
-- `docs/findings-register.csv` dosyasının sorumlusu **2. kişi (Dilara)**. Yeni ID'leri ondan al; iki kişi aynı ID'yi kullanmasın.
+- `docs/findings-register.csv` dosyasının sorumlusu **2. kişi (Dilara)**. Herkes kendi ID bloğunu kullanır (CLAUDE.md → "Bulgu kaydı": Şeyda 045–124, Emre 125–149, Hasan 150–174, Dilara 175–199 yedek); blok biterse Dilara'dan ek aralık iste. İki kişi aynı ID'yi kullanmasın.
 - Dosyayı Excel'de açıp kaydetme: Excel virgülü, BOM'u ve tırnakları bozabilir. Claude Code'a "şu satırları ekle" de ya da metin düzenleyiciyle ekle.
 - Her satırda zorunlu: `dogrulama_sonucu`, `gerekce`, `inceleyen`. Gerekçe kodla desteklenmeli: dosya:satır ve ne gördüğün.
 - Manuel bulgularda `kaynak = Manuel`, `kural_kodu = -`, `arac_onem = -`, `arac_guven = -`.
-- Satır eklediğin PR'da 2. kişiyi gözden geçiren olarak ata.
+- `inceleyen`, `duzelten`, `gozden_geciren` alanlarına rol numarası değil ad soyad yaz (örn. `Hasan Kurt`).
+- Satır eklediğin PR'da 2. kişiyi (Dilara Yıldırım) gözden geçiren olarak ata.
 
 ## Doğrulama sonucu nasıl verilir
 
