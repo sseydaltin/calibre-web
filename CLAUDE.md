@@ -62,10 +62,10 @@ Ders: **"Güvenlik İçin Statik Kod Analizi"**. Kodlar **çalıştırılmadan**
 | --- | --- | --- | --- | --- |
 | 1. kişi — Şeyda Altın (repo sahibi) | `sseydaltin` | Repo/dallar/PR birleştirme, mimari ve kapsam dokümanı, Pylint ve PEP 8 (flake8) başlangıç/son taraması, seçilmiş kod kalitesi/PEP 8 düzeltmeleri | `project-scope.md`, `architecture.md`, Pylint/PEP 8 raporları, özetleri ve karşılaştırmaları | `docs/guides/rol-1-pylint-pep8.md` |
 | 2. kişi — Dilara Yıldırım | `dilarayldrmm` | Bandit taramaları, risk sınıflandırması, **bulgu kaydının sahibi** (ID dağıtımı, biçim kontrolü), B113 güvenlik düzeltme planı | Bandit raporları, `findings-register.csv`, `bandit-summary.md`, `bandit-comparison.md` | `docs/guides/rol-2-bandit-kayit.md` |
-| 3. kişi — Hasan Kurt | `kurtmhasan` | Kimlik doğrulama, oturum, parola, kullanıcı/yönetici yetkilendirmesi, CSRF | `review-auth.md`, ilgili bulgu satırları ve düzeltmeler | `docs/guides/rol-3-yetki.md` |
-| 4. kişi — Emre Bulut | `emjebulut` | Kitap yükleme/indirme, dosya yolları, arşivler, dönüştürme, harici süreç ve ağ çağrıları | `review-file-handling.md`, ilgili bulgu satırları ve düzeltmeler | `docs/guides/rol-4-dosya-surec.md` |
+| 3. kişi — Emre Bulut | `emjebulut` | Kimlik doğrulama, oturum, parola, kullanıcı/yönetici yetkilendirmesi, CSRF | `review-auth.md`, ilgili bulgu satırları ve düzeltmeler | `docs/guides/rol-3-yetki.md` |
+| 4. kişi — Hasan Kurt | `kurtmhasan` | Kitap yükleme/indirme, dosya yolları, arşivler, dönüştürme, harici süreç ve ağ çağrıları | `review-file-handling.md`, ilgili bulgu satırları ve düzeltmeler | `docs/guides/rol-4-dosya-surec.md` |
 
-Not: Bandit başlangıç envanteri ve `review-bandit.md` 4. kişi (Emre Bulut) tarafından hazırlandı; 2. kişi bulgu kaydı sorumluluğunu sürdürür.
+Not: Bandit başlangıç envanteri ve `review-bandit.md` 3. kişi (Emre Bulut) tarafından hazırlandı; 2. kişi bulgu kaydı sorumluluğunu sürdürür.
 
 **Ortak kural:** Her bulgunun bir inceleme sahibi ve bir gözden geçireni olur (`inceleyen ≠ gozden_geciren`). Düzeltmeyi yapan kişi neden güvenli olduğunu açıklar. Son taramayı düzeltmeyi yapmayan farklı bir üye kontrol eder.
 
