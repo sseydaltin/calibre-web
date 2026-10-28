@@ -24,7 +24,7 @@ Kalan: K8 kök nedeni için Python sürümünü (`py --version`) ve işletim sis
 
 ### 1) Bulgu kaydını yönet — sürekli
 
-- ID dağıtımı: Şeyda (Pylint/PEP 8), Hasan (yetki), Emre (dosya) senden ID aralığı ister. Basit bir yöntem: her kişiye ayrı blok ver (ör. 045–079 Şeyda, 080–099 Hasan, 100–119 Emre) ve gruba yaz.
+- ID dağıtımı: Şeyda (Pylint/PEP 8), Emre (yetki), Hasan (dosya) senden ID aralığı ister. Basit bir yöntem: her kişiye ayrı blok ver (ör. 045–079 Şeyda, 080–099 Emre, 100–119 Hasan) ve gruba yaz.
 - Her kayıt PR'ında gözden geçiren sensin. Kontrol: 18 sütun ve sıra, BOM, izinli değerler, gerekçe dolu, `inceleyen ≠ gozden_geciren`, K7 ifadesi.
 - 31 Ekim akşamı: tüm satırlar birleştikten sonra kaydın son kontrolünü yap; `İnceleniyor` kalan satırları ilgili kişiye bildir.
 
