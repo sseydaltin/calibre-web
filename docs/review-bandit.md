@@ -4,7 +4,7 @@
 - **Otomatik özet:** `docs/bandit-summary.md` (`scripts/summarize_bandit_reports.py` ile üretilir).
 - **Bulgu kaydı:** `docs/findings-register.csv` → FIND-001 … FIND-044.
 - **Yöntem:** Her uyarının satırı ve çağrıldığı yer kodda okundu. Girdinin nereden geldiğine (HTTP isteği mi, yapılandırma mı, sabit mi) ve hangi yetkiyle ulaşılabildiğine bakıldı. Uygulama çalıştırılmadı (K2), yani sonuçlar kod okumasına dayanır. CLAUDE.md madde 8 gereği hiçbir uyarı, kodla gerekçelendirilmeden "açık" sayılmadı.
-- **İnceleyen:** 3. kişi (Emre Bulut). Gözden geçiren, bulgunun alanına göre `findings-register.csv` içindeki `gozden_geciren` sütununda yazılı: 3. kişi yetki; 1. kişi dosya/süreç/dış istek dahil geri kalanlar (PR #4 incelemesinde doğrulandı). Bulgu kaydının sahibi 2. kişidir (Dilara Yıldırım).
+- **İnceleyen:** 3. kişi (Emre Bulut). Gözden geçiren `findings-register.csv` içindeki `gozden_geciren` sütununda yazılı: tüm bulgularda 1. kişi. Yetki bulguları başlangıçta 3. kişiye atanmıştı; rol düzeltmesiyle (Emre Bulut = 3. kişi) inceleyen ve gözden geçiren aynı kişi olacağı için 1. kişiye alındı (`inceleyen ≠ gozden_geciren`). Bulgu kaydının sahibi 2. kişidir (Dilara Yıldırım).
 
 ## 1. Başlangıç raporunun Bandit sürümü (K8)
 
