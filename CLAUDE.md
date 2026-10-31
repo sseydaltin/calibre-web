@@ -204,7 +204,7 @@ Notlar:
 
 ## Bulgu kaydı: `docs/findings-register.csv`
 
-UTF-8 (BOM'lu, Excel uyumu için), CRLF satır sonları, virgülle ayrılmış. Excel'de açıp kaydetme. Sütunlar sırasıyla:
+UTF-8 (BOM'lu, Excel uyumu için), CRLF satır sonları, virgülle ayrılmış. Excel'de açıp kaydetme. Satır sonu `.gitattributes` ile CRLF'ye sabitlendi; satır sonu farkı tek başına değişiklik olarak commit edilmez. Sütunlar sırasıyla:
 
 ```
 id,kaynak,kural_kodu,dosya,satir,fonksiyon,arac_onem,arac_guven,ekip_onem,dogrulama_sonucu,gerekce,onerilen_duzeltme,durum,commit_pr,son_tarama_sonucu,inceleyen,duzelten,gozden_geciren
