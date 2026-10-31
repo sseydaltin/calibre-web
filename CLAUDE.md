@@ -55,6 +55,7 @@ Ders: **"Güvenlik İçin Statik Kod Analizi"**. Kodlar **çalıştırılmadan**
 - **K6 — Uyarıları susturmak düzeltme değildir:** `# nosec`, `# pylint: disable` veya `# noqa` yalnızca yanlış pozitif kararı gerekçeyle bulgu kaydına yazıldıktan sonra ve PR'da açıkça belirtilerek eklenebilir. Raporda "susturulan" ve "düzeltilen" uyarılar ayrı sayılır.
 - **K7 — Gömülü üçüncü taraf kod:** `cps/cw_login/` ve `cps/cw_advocate/` gömülü üçüncü taraf koddur. Kapsamda kalır (başlangıç taraması bunları içeriyor), bulgu kaydında "Gömülü üçüncü taraf (K7): kapsamda, incelendi, düzeltme yapılmaz." olarak işaretlenir, bu klasörlerde düzeltme yapılmaz; yalnızca incelenir.
 - **K8 — Bandit baseline sürüm düzeltmesi:** Başlangıç Bandit raporları yanlışlıkla 1.8.6 ile üretildi (kök neden: Windows dışı (macOS) ortamda sürüm belirtilmeden kurulum; o anki Python sürümü kayıtlı değil). Kod değişikliği yapılmadan önce aynı commit ve aynı parametrelerle 1.9.4 ile yeniden üretildi. Orijinaller `evidence/bandit-1.8.6-original/` altında. Bu, "baseline yeniden üretilmez" kuralına tek seferlik istisnadır (ekip onayı 28 Ekim).
+- **K9 — Yalıtılmış davranış denemeleri:** Bir bulgunun doğrulanması için uygulamayı başlatmadan, tek bir kütüphane ya da fonksiyon davranışını küçük bir Python parçasıyla denemek serbesttir (ör. zipfile'ın bozuk arşivde hangi istisnayı fırlattığı, SQLAlchemy istisna öznitelikleri). Bu durumda gerekçeye "yalıtılmış deneme ile doğrulandı" yazılır ve yöntem raporda belirtilir. Uygulama, veritabanı veya ağ servisleri çalıştırılmaz (K2).
 
 ## Ekip ve sorumluluklar
 
@@ -221,7 +222,7 @@ id,kaynak,kural_kodu,dosya,satir,fonksiyon,arac_onem,arac_guven,ekip_onem,dogrul
 - `kaynak`: `Bandit` / `Pylint` / `PEP8` (flake8) / `Manuel`.
 - `kural_kodu`: örn. `B602`, `W0703`, `E501`; manuel ise `-`.
 - `dosya`: depo köküne göre yol, `/` ile (örn. `cps/helper.py`).
-- `arac_onem` / `arac_guven`: Bandit için `LOW/MEDIUM/HIGH`; Pylint için mesaj türü (`convention/refactor/warning/error/fatal`), güven `-`; flake8 ve manuel için `-`.
+- `arac_onem` / `arac_guven`: Bandit için `LOW/MEDIUM/HIGH`; Pylint için mesaj türü (`convention/refactor/warning/error/fatal/information`), güven `-`; flake8 ve manuel için `-`.
 - `ekip_onem`: `Yüksek` / `Orta` / `Düşük`.
 - `dogrulama_sonucu`: `Gerçek sorun` / `Yanlış pozitif` / `Düşük öncelikli uyarı` / `İnceleniyor`.
 - `durum`: `Açık` / `Düzeltildi` / `Kabul edildi (düzeltilmeyecek)` / `Yanlış pozitif`.
