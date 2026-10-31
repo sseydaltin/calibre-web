@@ -108,7 +108,7 @@ Akış: `POST /upload` (`cps/editbooks.py:105`) → `file_handling_on_upload()` 
 ### A7. Yorum alanının HTML temizliği (FIND-002…005 ile ilişkili)
 - **Konum:** `cps/clean_html.py:40-46, 53-66`. Çağıran `editbooks.py:1281-1285` (`edit_book_comments`). Çıktıda şablonlar ayrıca `|clean_string|safe` uyguluyor (`themes/standard/templates/detail.html:290`).
 - **Kontrol:** `review-bandit.md` tarafından bırakılan soru: nh3'ün izin verdiği etiketler ve öznitelikler yeterli mi?
-- **Gözlem:** İzin listesi nh3 varsayılanlarına `p, span, div, pre, br, h1-h6, img` etiketlerini, tüm etiketler için `class, style` özniteliklerini, `a` için `href, title, rel` ve `img` için `src, alt, title, width, height` özniteliklerini ekliyor. Aynı ayarlarla `nh3 0.3.7` üzerinde yalıtılmış deneme yapıldı:
+- **Gözlem:** İzin listesi nh3 varsayılanlarına `p, span, div, pre, br, h1-h6, img` etiketlerini, tüm etiketler için `class, style` özniteliklerini, `a` için `href, title, rel` ve `img` için `src, alt, title, width, height` özniteliklerini ekliyor. Aynı ayarlarla `nh3 0.3.7` üzerinde yalıtılmış deneme yapıldı (yalıtılmış deneme ile doğrulandı, K9):
 
   | Girdi | Çıktı |
   | --- | --- |
@@ -308,7 +308,7 @@ Akış: `POST /upload` (`cps/editbooks.py:105`) → `file_handling_on_upload()` 
   stream = urlopen(web_content_link)                               # thumbnail.py:386
   ```
   - Kitap küçük resmi (`thumbnail.py:187`) aynı fonksiyonun dönüşünü doğru biçimde içerik olarak kullanıyor. Seri küçük resmi ise onu URL sanıp `urlopen()`'a veriyor.
-  - Standart kütüphanede yalıtılmış deneme: `urllib.request.urlopen(b'...')` → `AttributeError: 'bytes' object has no attribute 'timeout'`.
+  - Yalıtılmış deneme ile doğrulandı (K9): standart kütüphanede `urllib.request.urlopen(b'...')` → `AttributeError: 'bytes' object has no attribute 'timeout'`.
   - Hata `thumbnail.py:405-407`'de yakalanıp loglanıyor ve yeniden fırlatılıyor. Google Drive kullanılan kurulumlarda seri küçük resimleri hiç oluşmuyor.
 - **Sonuç:** Gerçek sorun (işlev hatası, güvenlik değil). FIND-008'in B310 "yanlış pozitif" kararı değişmiyor, çünkü `urlopen()` URL şemasıyla ilgili bir risk taşımıyor. — **FIND-152**
 
