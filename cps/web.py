@@ -1429,14 +1429,13 @@ def login_post():
             if user is not None and user.name != "Guest":
                 ret, __ = reset_password(user.id)
                 if ret == 1:
-                    flash(_(u"New Password was sent to your email address"), category="info")
                     log.info('Password reset for user "%s" IP-address: %s', username, ip_address)
                 else:
                     log.error(u"An unknown error occurred. Please try again later")
-                    flash(_(u"An unknown error occurred. Please try again later."), category="error")
             else:
-                flash(_(u"Please enter valid username to reset password"), category="error")
                 log.warning('Username missing for password reset IP-address: %s', ip_address)
+            # one message for all cases (no username enumeration)
+            flash(_(u"New Password was sent to your email address"), category="info")
         else:
             if user and check_password_hash(str(user.password), form['password']) and user.name != "Guest":
                 config.config_is_initial = False
