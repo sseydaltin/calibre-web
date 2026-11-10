@@ -1371,10 +1371,10 @@ def update_mailsettings():
     except (OperationalError, InvalidRequestError) as e:
         ub.session.rollback()
         log.error_or_exception("Settings Database error: {}".format(e))
-        flash(_("Oops! Database Error: %(error)s.", error=e.orig), category="error")
+        flash(_("Oops! Database Error: %(error)s.", error=getattr(e, 'orig', e)), category="error")
         return edit_mailsettings()
     except Exception as e:
-        flash(_("Oops! Database Error: %(error)s.", error=e.orig), category="error")
+        flash(_("Oops! Database Error: %(error)s.", error=getattr(e, 'orig', e)), category="error")
         return edit_mailsettings()
 
     if to_save.get("test"):

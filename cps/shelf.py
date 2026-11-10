@@ -284,7 +284,7 @@ def delete_shelf(shelf_id):
     except InvalidRequestError as e:
         ub.session.rollback()
         log.error_or_exception("Settings Database error: {}".format(e))
-        flash(_("Oops! Database Error: %(error)s.", error=e.orig), category="error")
+        flash(_("Oops! Database Error: %(error)s.", error=getattr(e, 'orig', e)), category="error")
     return redirect(url_for('web.index'))
 
 
