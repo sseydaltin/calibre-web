@@ -1,3 +1,5 @@
+> Tarihsel belge: proje sürecinde kullanılan çalışma rehberidir; tarihler planlanan takvimi gösterir, gerçekleşen takvim için docs/surec/CLAUDE.md'ye bakın.
+
 # 1. kişi rehberi — Şeyda Altın: Repo, mimari, Pylint ve PEP 8
 
 Önce `docs/surec/guides/ortak.md`'yi oku.

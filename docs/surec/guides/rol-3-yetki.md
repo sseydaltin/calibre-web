@@ -1,3 +1,5 @@
+> Tarihsel belge: proje sürecinde kullanılan çalışma rehberidir; tarihler planlanan takvimi gösterir, gerçekleşen takvim için docs/surec/CLAUDE.md'ye bakın.
+
 # 3. kişi rehberi — Emre Bulut: Kimlik doğrulama, oturum ve yetkilendirme
 
 Önce `docs/surec/guides/ortak.md`'yi oku.
