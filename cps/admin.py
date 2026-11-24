@@ -2203,7 +2203,7 @@ def extract_dynamic_field_from_filter(user, filtr):
     if match:
         return match.group(1)
     else:
-        raise Exception("Could Not Parse LDAP Userfield: {}", user)
+        raise Exception(f"Could Not Parse LDAP Userfield: {user}")
 
 
 def extract_user_identifier(user, filtr):
