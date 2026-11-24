@@ -1,7 +1,7 @@
 # Ortak rehber — herkes için iş akışları ve şablonlar
 
 Bu dosya tüm rollerin ortak kullandığı akışları anlatır. Kendi rol rehberinle birlikte oku.
-Kurallar ve kararlar (K1–K8) için tek kaynak `CLAUDE.md`'dir; burası "nasıl yapılır" kısmıdır.
+Kurallar ve kararlar (K1–K10) için tek kaynak `CLAUDE.md`'dir; burası "nasıl yapılır" kısmıdır.
 
 ## Projenin şu anki durumu (24 Kasım 2026 — tamamlandı)
 
@@ -58,13 +58,13 @@ Claude Code'a ilk mesaj olarak hangi kişi olduğunu ve bugünkü işini söyle.
 | **Gerçek sorun** | Kod yolunu izledin ve saldırganın/hatalı girdinin bu noktaya ulaşıp zarar verebileceğini gösterebiliyorsun; ya da kalite sorunu gerçekten hataya/bakım sorununa yol açıyor. |
 | **Düşük öncelikli uyarı** | Sorun teorik olarak var ama etkisi küçük, yalnızca yöneticinin erişebildiği bir yerde ya da başka bir korumayla sınırlanmış. |
 | **Yanlış pozitif** | Aracın uyardığı durum bu kodda oluşamıyor; nedenini kodla gösterebiliyorsun (örn. değer sabit, girdi önceden temizleniyor, araç dinamik yapıyı anlayamıyor). |
-| **İnceleniyor** | Henüz karar verilmedi. 1 Kasım'dan önce kalmamalı. |
+| **İnceleniyor** | Henüz karar verilmedi. Teslimde kalmamalı (kayıtta 0 satır). |
 
 "Araç uyardı, demek ki açık var" ya da "kimse istismar etmez" gerekçe değildir.
 
-## Düzeltme yapma akışı (2–5 Kasım)
+## Düzeltme yapma akışı
 
-1. Bulgu kayıtta `Gerçek sorun` ve 1 Kasım toplantısında seçilmiş olmalı. Dal: `fix/find-XXX`.
+1. Bulgu kayıtta `Gerçek sorun` ve seçilmiş olmalı (`docs/4-duzeltme/fix-candidates.md`, K10). Dal: `fix/find-XXX`.
 2. **En küçük** değişikliği yap; davranışı koru. İlgisiz satırları, boşlukları, importları ellemeyin.
 3. K7: `cps/cw_login/` ve `cps/cw_advocate/` içinde düzeltme yok.
 4. Doğrula:
@@ -91,7 +91,7 @@ Claude Code'a ilk mesaj olarak hangi kişi olduğunu ve bugünkü işini söyle.
 
 Sorun varsa **Request changes**, yoksa **Approve**. Yorumları somut yaz: dosya:satır + ne yapılmalı.
 
-## Son taramalar ve karşılaştırma (7–8 Kasım)
+## Son taramalar ve karşılaştırma (24 Kasım, tamamlandı)
 
 - Son taramaları **kod dondurmadan önceki son commit** üzerinde, CLAUDE.md'deki "Son" komutlarıyla, sabit ortamda yap. Çalıştıran ile düzeltmeyi yapan farklı kişi olmalı.
 - Karşılaştırma eşleştirmesi: normalize yol + kural kodu + kod parçası (satır numaraları kayar). Yol ayracı farkını (`/` ve `\`) normalize et.

@@ -1,3 +1,5 @@
+> Tarihsel belge: proje sürecinde kullanılan çalışma rehberidir; tarihler planlanan takvimi gösterir, gerçekleşen takvim için docs/surec/CLAUDE.md'ye bakın.
+
 # 2. kişi rehberi — Dilara Yıldırım: Bandit ve bulgu kaydı
 
 Önce `docs/surec/guides/ortak.md`'yi oku.

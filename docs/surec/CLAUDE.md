@@ -171,7 +171,7 @@ python -m pylint cps.py cps --output=reports\baseline\pylint.txt
 python -m flake8 --isolated --select=E,W --statistics --count --output-file=reports\baseline\pep8.txt cps.py cps
 ```
 
-**Son** (7 Kasım):
+**Son** (24 Kasım 2026, commit 830d3a80; tamamlandı):
 ```powershell
 python -m bandit -r cps -f json -o reports\final\bandit-cps.json
 python -m bandit cps.py -f json -o reports\final\bandit-entrypoint.json
@@ -207,7 +207,7 @@ UTF-8 (BOM'lu, Excel uyumu için), CRLF satır sonları, virgülle ayrılmış. 
 id,kaynak,kural_kodu,dosya,satir,fonksiyon,arac_onem,arac_guven,ekip_onem,dogrulama_sonucu,gerekce,onerilen_duzeltme,durum,commit_pr,son_tarama_sonucu,inceleyen,duzelten,gozden_geciren
 ```
 
-- `id`: `FIND-001`, `FIND-002`… sırayla, asla yeniden kullanılmaz. **Yeni ID'leri 2. kişi (Dilara) dağıtır**; mevcut kayıt FIND-001…044. ID blokları (28 Ekim ekip kararı); herkes kendi bloğunu sırayla kullanır, blok biterse Dilara'dan ek aralık ister:
+- `id`: `FIND-001`, `FIND-002`… sırayla, asla yeniden kullanılmaz. **Yeni ID'leri 2. kişi (Dilara) dağıtır**; mevcut kayıt 137 satır (son ID FIND-160). ID blokları (28 Ekim ekip kararı); herkes kendi bloğunu sırayla kullanır, blok biterse Dilara'dan ek aralık ister:
 
   | Kişi | Blok |
   | --- | --- |
@@ -238,7 +238,7 @@ Her inceleme notunda: dosya:satır, ne kontrol edildi, gözlem, sonuç (sorun yo
 
 ## Düzeltme yaparken
 
-1. Bulgu `findings-register.csv` içinde `Gerçek sorun` olarak işaretlenmiş ve 1 Kasım toplantısında seçilmiş olmalı.
+1. Bulgu `findings-register.csv` içinde `Gerçek sorun` olarak işaretlenmiş ve seçilmiş olmalı (`docs/4-duzeltme/fix-candidates.md`, K10).
 2. K7 klasörlerinde düzeltme yapılmaz.
 3. Değişikliği en küçük, davranışı koruyan biçimde yap. Önceki kod / yeni kod / gerekçe / doğrulama dörtlüsünü PR açıklamasına yaz (`.github/pull_request_template.md`).
 4. Doğrulama: `python -m py_compile cps\<dosya>.py` ve ilgili araçla dosya bazlı tarama (`bandit`, `pylint` veya `flake8 --isolated --select=E,W`). Uyarı kapanmalı, yeni uyarı çıkmamalı.
@@ -257,13 +257,13 @@ Karşılaştırma raporlarında ayrı ayrı belirt: **kapanan**, **devam eden** 
 | 26 Eki | Herkeste çalışan analiz ortamı | ✅ |
 | 27 Eki | Bandit başlangıç raporları | ✅ (K8 ile 28 Ekim'de 1.9.4) |
 | 28 Eki | Pylint ve PEP 8 başlangıç raporları | ✅ |
-| 29–30 Eki | Yetki ve dosya işleme manuel inceleme notları | |
-| 31 Eki | Bulgu envanteri tamam (Pylint/PEP 8 + manuel satırlar), B113 planı | |
-| 1 Kas | Önceliklendirilmiş düzeltme listesi (toplantı) | |
-| 2–5 Kas | Düzeltme PR'ları ve incelemeler | |
-| 6 Kas | Düzeltilen dosyalarda `py_compile` + dosya bazlı tekrar tarama (K2) | |
-| 24 Kas | Son düzeltmeler, **kod dondurma (16:00)**, son taramalar (`reports/final/`), önce-sonra karşılaştırması | |
-| 24–25 Kas | Rapor, sunum, prova | |
-| 26 Kas | **Teslim** | |
+| 29–30 Eki | Yetki ve dosya işleme manuel inceleme notları | ✅ (31 Ekim, PR #10 ve #11) |
+| 31 Eki | Bulgu envanteri tamam (Pylint/PEP 8 + manuel satırlar), B113 planı | ✅ (PR #13 ve #14; B113 planı PR #7, 28 Ekim) |
+| 1 Kas | Önceliklendirilmiş düzeltme listesi (toplantı) | ✅ Toplantı yapılmadı; seçim grupta (`fix-candidates.md`, PR #14) |
+| 2–5 Kas | Düzeltme PR'ları ve incelemeler | ✅ Gerçekleşen: 31 Ekim – 24 Kasım, PR #16–#18 ve #20–#26 (K10) |
+| 6 Kas | Düzeltilen dosyalarda `py_compile` + dosya bazlı tekrar tarama (K2) | ✅ Her düzeltme PR'ında dosya bazlı tarama yapıldı |
+| 24 Kas | Son düzeltmeler, **kod dondurma (16:00)**, son taramalar (`reports/final/`), önce-sonra karşılaştırması | ✅ Kod dondurma `830d3a80` (`v1.0-kod-dondurma`); son taramalar ve karşılaştırmalar PR #28 |
+| 24–25 Kas | Rapor, sunum, prova | ⏳ Rapor (Dilara yeniden yazıyor) |
+| 26 Kas | **Teslim** | ⏳ Teslim (`v1.0-teslim` etiketi rapor birleşince atılacak) |
 
 Gecikmede öncelik: bulgu değerlendirmesi → en anlamlı düzeltmeler → tekrar tarama → rapor/sunum.

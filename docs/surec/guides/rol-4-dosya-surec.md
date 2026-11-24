@@ -1,3 +1,5 @@
+> Tarihsel belge: proje sürecinde kullanılan çalışma rehberidir; tarihler planlanan takvimi gösterir, gerçekleşen takvim için docs/surec/CLAUDE.md'ye bakın.
+
 # 4. kişi rehberi — Hasan Kurt: Dosya işleme ve harici süreçler
 
 Önce `docs/surec/guides/ortak.md`'yi oku.
