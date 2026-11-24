@@ -299,7 +299,7 @@ def get_sorted_author(value):
             value2 = value
     except Exception as ex:
         log.error("Sorting author %s failed: %s", value, ex)
-        if isinstance(list, value2):
+        if isinstance(value, list):
             value2 = value[0]
         else:
             value2 = value
@@ -414,7 +414,7 @@ def rename_all_files_on_change(one_book, new_path, old_path, all_new_name, gdriv
                 gd.moveGdriveFileRemote(g_file, all_new_name + '.' + file_format.format.lower())
                 gd.updateDatabaseOnEdit(g_file['id'], all_new_name + '.' + file_format.format.lower())
             else:
-                log.error("File {} not found on gdrive"
+                log.error("File {}/{} not found on gdrive"
                           .format(old_path, file_format.name + '.' + file_format.format.lower()))
 
         # change name in Database

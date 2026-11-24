@@ -60,11 +60,12 @@ def shortentitle_filter(s, nchar=20):
         if suml >= 60:
             res += '...'
             break
-        # if word longer than 20 chars truncate line and append '...', otherwise add whole word to result
-        # string, and summarize total length to stop at chars given by nchar
+        # if word longer than 20 chars truncate line and append '...',
+        # otherwise add whole word to result string, and summarize total
+        # length to stop at chars given by nchar
         if len(line) > nchar:
-            res += line[:(nchar-3)] + '[..] '
-            suml += nchar+3
+            res += line[:(nchar - 3)] + '[..] '
+            suml += nchar + 3
         else:
             res += line + ' '
             suml += len(line) + 1
@@ -81,7 +82,8 @@ def formatdate_filter(val):
     try:
         return format_date(val, format='medium')
     except AttributeError as e:
-        log.error('Babel error: %s, Current user locale: %s, Current User: %s', e,
+        log.error('Babel error: %s, Current user locale: %s, '
+                  'Current User: %s', e,
                   current_user.locale,
                   current_user.name
                   )
@@ -90,14 +92,15 @@ def formatdate_filter(val):
 
 @jinjia.app_template_filter('formatdateinput')
 def format_date_input(val):
-    input_date = val.isoformat().split('T', 1)[0]  # Hack to support dates <1900
+    # Hack to support dates <1900
+    input_date = val.isoformat().split('T', 1)[0]
     return '' if input_date == "0101-01-01" else input_date
 
 
 @jinjia.app_template_filter('strftime')
 def timestamptodate(date, fmt=None):
     date = datetime.datetime.fromtimestamp(
-        int(date)/1000
+        int(date) / 1000
     )
     native = date.replace(tzinfo=None)
     if fmt:
@@ -135,11 +138,13 @@ def uuidfilter(var):
 @jinjia.app_template_filter('cache_timestamp')
 def cache_timestamp(rolling_period='month'):
     if rolling_period == 'day':
-        return str(int(datetime.datetime.today().replace(hour=1, minute=1).timestamp()))
+        return str(int(datetime.datetime.today()
+                       .replace(hour=1, minute=1).timestamp()))
     elif rolling_period == 'year':
         return str(int(datetime.datetime.today().replace(day=1).timestamp()))
     else:
-        return str(int(datetime.datetime.today().replace(month=1, day=1).timestamp()))
+        return str(int(datetime.datetime.today()
+                       .replace(month=1, day=1).timestamp()))
 
 
 @jinjia.app_template_filter('last_modified')
@@ -156,7 +161,8 @@ def get_cover_srcset(book):
         constants.COVER_THUMBNAIL_LARGE: 'lg'
     }
     for resolution, shortname in resolutions.items():
-        url = url_for('web.get_cover', book_id=book.id, resolution=shortname, c=book_last_modified(book))
+        url = url_for('web.get_cover', book_id=book.id,
+                      resolution=shortname, c=book_last_modified(book))
         srcset.append(f'{url} {resolution}x')
     return ', '.join(srcset)
 
@@ -170,7 +176,8 @@ def get_cover_srcset(series):
         constants.COVER_THUMBNAIL_LARGE: 'lg'
     }
     for resolution, shortname in resolutions.items():
-        url = url_for('web.get_series_cover', series_id=series.id, resolution=shortname, c=cache_timestamp())
+        url = url_for('web.get_series_cover', series_id=series.id,
+                      resolution=shortname, c=cache_timestamp())
         srcset.append(f'{url} {resolution}x')
     return ', '.join(srcset)
 
@@ -183,8 +190,7 @@ def contains_music(book_formats):
             result = True
     return result
 
+
 @jinjia.app_template_filter('clean_string')
 def clean_string(unsafe_text):
     return html_clean_string(unsafe_text)
-
-
