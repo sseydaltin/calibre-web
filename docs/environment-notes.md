@@ -248,6 +248,27 @@ Notlar:
 - Her iki ham rapor da kişisel veri veya yerel tam yol (`C:\Users...` vb.) içermiyor; kontrol edildi, dosya yolları repo köküne göre relatiftir (örn. `cps\admin.py`).
 - Bu tarama, Bandit'i kapsamaz; Bandit taraması 2. kişinin sorumluluğundadır.
 
+### Son taramalar (24 Kasım 2026, K10)
+
+- **Taranan commit:** `830d3a80afeb5edc68c74e57c8f3625d41a709e9` (`project-analysis`, PR #27 birleşmesi). K10 kapsamındaki tüm düzeltme PR'ları (#16, #17, #18, #20, #21, #22–#26) bu commit'te. PR #27 yalnızca doküman değiştirdi; `cps/` ve `cps.py` içeriği `a1493258` ile aynı.
+- **Çalıştıran:** Şeyda Altın · **Çapraz doğrulama:** Emre Bulut (bekleniyor).
+- **Ortam:** Windows, PowerShell, `.venv` (`requirements-lock.txt`). Çalıştırmadan önce sürümler doğrulandı: Python 3.12.10, bandit 1.9.4, pylint 4.1.3, astroid 4.3.4, flake8 7.4.1.
+- **Komutlar:** CLAUDE.md → "Son" komutları, parametreler değiştirilmeden. Başlangıç taramasıyla aynı sürüm, aynı kapsam (`cps/` + `cps.py`) ve aynı parametreler.
+
+| Araç | Komut | Başlangıç (UTC) | Bitiş (UTC) | Çıkış kodu | Rapor dosyası | Rapor boyutu |
+| --- | --- | --- | --- | --- | --- | --- |
+| Bandit 1.9.4 | `python -m bandit -r cps -f json -o reports\final\bandit-cps.json` | 2026-11-24T12:01:21Z | 2026-11-24T12:01:25Z | 1 | `reports/final/bandit-cps.json` | 78.047 bayt |
+| Bandit 1.9.4 | `python -m bandit cps.py -f json -o reports\final\bandit-entrypoint.json` | 2026-11-24T12:01:25Z | 2026-11-24T12:01:25Z | 1 | `reports/final/bandit-entrypoint.json` | 1.514 bayt |
+| Pylint 4.1.3 | `python -m pylint cps.py cps --output=reports\final\pylint.txt` | 2026-11-24T12:01:25Z | 2026-11-24T12:02:04Z | 30 | `reports/final/pylint.txt` | 402.748 bayt |
+| flake8 7.4.1 | `python -m flake8 --isolated --select=E,W --statistics --count --output-file=reports\final\pep8.txt cps.py cps` | 2026-11-24T12:02:04Z | 2026-11-24T12:02:06Z | 1 | `reports/final/pep8.txt` | 224.025 bayt |
+
+Notlar:
+- Çıkış kodları başlangıç taramasıyla aynı ve beklenen davranış (bulgu bulunduğunda sıfırdan farklı). Bu bir çalıştırma hatası değildir.
+- Dört rapor da oluştu ve boş değil: `pylint.txt` 4214 satır, `pep8.txt` 3434 satır. Bandit `generated_at` 2026-11-24T12:01:25Z; `errors` 0.
+- Bandit LOC / `# nosec` / hata: `cps/` 31582 / 10 / 0, `cps.py` 26 / 0 / 0. `# nosec` sayısı başlangıçla aynı (10): bu dönemde susturma yorumu eklenmedi (K6).
+- Raporlar aracın kendi çıktı seçeneğiyle yazıldı (ASCII/JSON, UTF-16 değil). Kişisel veri veya yerel tam yol içermiyor; yollar repo köküne göre relatif (`cps\admin.py`).
+- Ham sayılar (ayrıntılı önce-sonra karşılaştırması `*-comparison.md` dosyalarında): Bandit `cps/` 42 → 37 (MEDIUM 14 → 9, LOW 28 → 28), `cps.py` 1 → 1; Pylint 6.42/10 → 6.44/10, 3999 → 3985 mesaj; flake8 3409 → 3393 ihlal.
+
 ## Bandit taramaları (2. kişi)
 
 ### Başlangıç raporlarının kaydı (K8 sonrası, geçerli baseline)
