@@ -251,7 +251,7 @@ Notlar:
 ### Son taramalar (24 Kasım 2026, K10)
 
 - **Taranan commit:** `830d3a80afeb5edc68c74e57c8f3625d41a709e9` (`project-analysis`, PR #27 birleşmesi). K10 kapsamındaki tüm düzeltme PR'ları (#16, #17, #18, #20, #21, #22–#26) bu commit'te. PR #27 yalnızca doküman değiştirdi; `cps/` ve `cps.py` içeriği `a1493258` ile aynı.
-- **Çalıştıran:** Şeyda Altın · **Çapraz doğrulama:** Emre Bulut (bekleniyor).
+- **Çalıştıran:** Şeyda Altın · **Çapraz doğrulama:** Emre Bulut, 24 Kasım 2026, kendi bilgisayarında aynı commit (830d3a80) ve aynı sürümlerle (Python 3.12.10, Bandit 1.9.4) tekrarladı: Bandit cps/ 37 (0 HIGH, 9 MEDIUM, 28 LOW), cps.py 1, Pylint 6.44/10, flake8 3393 — sonuçlar birebir aynı.
 - **Ortam:** Windows, PowerShell, `.venv` (`requirements-lock.txt`). Çalıştırmadan önce sürümler doğrulandı: Python 3.12.10, bandit 1.9.4, pylint 4.1.3, astroid 4.3.4, flake8 7.4.1.
 - **Komutlar:** CLAUDE.md → "Son" komutları, parametreler değiştirilmeden. Başlangıç taramasıyla aynı sürüm, aynı kapsam (`cps/` + `cps.py`) ve aynı parametreler.
 
