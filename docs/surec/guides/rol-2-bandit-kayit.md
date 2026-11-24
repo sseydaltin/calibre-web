@@ -1,6 +1,6 @@
 # 2. kişi rehberi — Dilara Yıldırım: Bandit ve bulgu kaydı
 
-Önce `docs/guides/ortak.md`'yi oku.
+Önce `docs/surec/guides/ortak.md`'yi oku.
 
 ## Sorumlulukların
 
@@ -13,14 +13,14 @@
 ## Tamamlananlar
 
 - ✅ Bandit başlangıç raporları 1.9.4 (K8): 43 bulgu — cps/ 42, cps.py 1; 0 HIGH, 14 MEDIUM
-- ✅ FIND-001…044, `docs/review-bandit.md`, `docs/bandit-summary.md` (Bandit envanteri ve notlar Emre tarafından hazırlandı)
+- ✅ FIND-001…044, `docs/3-inceleme/review-bandit.md`, `docs/2-baslangic/bandit-summary.md` (Bandit envanteri ve notlar Emre tarafından hazırlandı)
 - 1.8.6 olayı K8'de belgelendi; orijinaller `evidence/bandit-1.8.6-original/`
 
 ## Sıradaki adımlar
 
 ### 0) ✅ Ortam kuruldu (28 Ekim, lock dosyasıyla)
 
-✅ K8 kök nedeni için ortam bilgisi bildirildi (`docs/28-ekim-kontrol-dilara.md`: macOS, Python 3.12.16); K8 güncellendi: Windows dışı (macOS) ortamda sürüm belirtilmeden kurulum; o anki Python sürümü kayıtlı değil.
+✅ K8 kök nedeni için ortam bilgisi bildirildi (`docs/surec/28-ekim-kontrol-dilara.md`: macOS, Python 3.12.16); K8 güncellendi: Windows dışı (macOS) ortamda sürüm belirtilmeden kurulum; o anki Python sürümü kayıtlı değil.
 
 ### 1) Bulgu kaydını yönet — sürekli
 
@@ -38,7 +38,7 @@ Kayıtta B113 olarak işaretlenmiş 5 gerçek bulgu (zaman aşımı olmayan `req
 - Zaman aşımında ne olur? Çağıran kod `requests.exceptions.Timeout`'u yakalıyor mu, yoksa düzeltme yeni bir hata yolu açar mı?
 - Kim düzeltecek, kim gözden geçirecek?
 
-Planı `docs/review-bandit.md` sonuna "B113 düzeltme planı" başlığıyla ekle ve 1 Kasım toplantısına getir.
+Planı `docs/3-inceleme/review-bandit.md` sonuna "B113 düzeltme planı" başlığıyla ekle ve 1 Kasım toplantısına getir.
 
 ### 3) Düzeltmeler — 2–5 Kasım
 
@@ -47,7 +47,7 @@ Her bulgu için `fix/find-XXX` dalı; ya da aynı türden bulgular tek dosyadays
 ### 4) Bandit son tarama ve karşılaştırma — 7–8 Kasım
 
 - CLAUDE.md'deki "Son" Bandit komutları, aynı ortam. `python -m bandit --version` ile başla.
-- `docs/bandit-comparison.md`:
+- `docs/5-karsilastirma/bandit-comparison.md`:
   - Önem × güven matrisi önce/sonra
   - test_id adetleri önce/sonra
   - Kapanan / devam eden / yeni çıkan bulgular (normalize yol + test_id + kod parçası ile eşleştir)
@@ -63,6 +63,6 @@ Her bulgu için `fix/find-XXX` dalı; ya da aynı türden bulgular tek dosyadays
 
 ## Claude Code'a örnek mesajlar
 
-> Ben 2. kişiyim. docs/guides/rol-2-bandit-kayit.md'yi oku. findings-register.csv'deki B113 satırlarını listele; her biri için çağrının amacı, tetikleyen kullanıcı tipi, timeout'un çağıran kodda nasıl ele alınacağı ve kodda mevcut timeout örüntüleri hakkında bir tablo çıkar. Dosya değiştirme.
+> Ben 2. kişiyim. docs/surec/guides/rol-2-bandit-kayit.md'yi oku. findings-register.csv'deki B113 satırlarını listele; her biri için çağrının amacı, tetikleyen kullanıcı tipi, timeout'un çağıran kodda nasıl ele alınacağı ve kodda mevcut timeout örüntüleri hakkında bir tablo çıkar. Dosya değiştirme.
 
 > docs/<dal> dalındaki findings-register.csv değişikliklerini doğrula: sütun sayısı/sırası, BOM, izinli değerler, ID çakışması, boş gerekçe. Sorunları listele.

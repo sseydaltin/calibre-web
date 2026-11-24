@@ -233,7 +233,7 @@ Repo köküne bakıldı; aşağıdaki yapılandırma dosyalarından **hiçbiri m
 
 Bu bölüm, Pylint'in olası `E0401 import-error` / benzeri ortam kaynaklı uyarılarını kaydetmek için ayrılmıştır (CLAUDE.md madde 9).
 
-Başlangıç Pylint taraması çalıştırıldı (bkz. "Tarama kayıtları"). Tespit edilen tek `E0401 import-error`, `cps/services/simpleldap.py` içinde `flask_simpleldap` modülünün bulunamamasından kaynaklanıyor (2 adet) — bu paket Windows'ta `python-ldap` derleme hatası nedeniyle `.venv` ortamına kurulamadı (bkz. yukarıdaki "Kurulamayan paketler" bölümü). Ayrıca 252 adet `E0611 no-name-in-module` bulundu; bunlar LDAP paketinin eksikliğiyle ilgili değildir. 250 adedi (`simpleldap.py` içindeki 2 uyarı dahil) `cps/__init__.py`'nin alt modülleri paket özniteliği olarak çalışma zamanında atamasından kaynaklanan bir Pylint statik analiz kısıtıdır; 1 adedi `lxml.etree` C uzantısının astroid tarafından görülememesidir (`cps/clean_html.py:20`); 1 adedi gömülü üçüncü taraf kodda (K7) bir hata adayıdır (`cps/cw_advocate/api.py:175`, 1. kişi doğrulayacak). Ayrıntılı tablo: `docs/pylint-baseline-summary.md` → "Ortamdan kaynaklanan mesajlar".
+Başlangıç Pylint taraması çalıştırıldı (bkz. "Tarama kayıtları"). Tespit edilen tek `E0401 import-error`, `cps/services/simpleldap.py` içinde `flask_simpleldap` modülünün bulunamamasından kaynaklanıyor (2 adet) — bu paket Windows'ta `python-ldap` derleme hatası nedeniyle `.venv` ortamına kurulamadı (bkz. yukarıdaki "Kurulamayan paketler" bölümü). Ayrıca 252 adet `E0611 no-name-in-module` bulundu; bunlar LDAP paketinin eksikliğiyle ilgili değildir. 250 adedi (`simpleldap.py` içindeki 2 uyarı dahil) `cps/__init__.py`'nin alt modülleri paket özniteliği olarak çalışma zamanında atamasından kaynaklanan bir Pylint statik analiz kısıtıdır; 1 adedi `lxml.etree` C uzantısının astroid tarafından görülememesidir (`cps/clean_html.py:20`); 1 adedi gömülü üçüncü taraf kodda (K7) bir hata adayıdır (`cps/cw_advocate/api.py:175`, 1. kişi doğrulayacak). Ayrıntılı tablo: `docs/2-baslangic/pylint-baseline-summary.md` → "Ortamdan kaynaklanan mesajlar".
 
 ## Tarama kayıtları
 
@@ -278,14 +278,14 @@ Notlar:
 | Bandit 1.9.4 | `python -m bandit -r cps -f json -o reports\baseline\bandit-cps.json` | 2026-10-28T12:12:14Z | 1 (bulgu var, beklenen) | `reports/baseline/bandit-cps.json` | 42 |
 | Bandit 1.9.4 | `python -m bandit cps.py -f json -o reports\baseline\bandit-entrypoint.json` | 2026-10-28T12:12:14Z | 1 (bulgu var, beklenen) | `reports/baseline/bandit-entrypoint.json` | 1 |
 
-- Çalıştırmadan önce `python -m bandit --version` çıktısının 1.9.4 olduğu doğrulandı. Komutlar CLAUDE.md'deki parametrelerle, `requirements-lock.txt` ile kurulmuş `.venv` içinde çalıştırıldı. `cps/` ve `cps.py`, baseline commit'ine (`docs/baseline-commit.txt`) göre değişmemiştir.
+- Çalıştırmadan önce `python -m bandit --version` çıktısının 1.9.4 olduğu doğrulandı. Komutlar CLAUDE.md'deki parametrelerle, `requirements-lock.txt` ile kurulmuş `.venv` içinde çalıştırıldı. `cps/` ve `cps.py`, baseline commit'ine (`docs/1-kapsam/baseline-commit.txt`) göre değişmemiştir.
 - LOC / `# nosec` / hata: `cps/` 31571 / 10 / 0, `cps.py` 26 / 0 / 0.
 - Raporlar kişisel veri veya yerel tam yol içermiyor; dosya yolları repo köküne göre relatiftir.
 - **Yol ayıracı farkı:** Geçerli baseline Windows'ta üretildiği için dosya yollarında `\` kullanılır (örn. `cps\admin.py`). Orijinal 1.8.6 raporlarında `/` vardır (Windows dışı bir sistemde üretilmiş görünüyor). Karşılaştırma betikleri yolları `/` biçimine normalize ederek eşleştirme yapmalıdır.
 
 ### İlk (geçersiz kılınan) Bandit 1.8.6 raporları — K8
 
-İlk başlangıç raporları (`generated_at` 2026-10-24T18:52:54Z; `cps/` 39 bulgu, `cps.py` 1 bulgu) yanlışlıkla Bandit 1.8.6 ile üretildi. Raporu üreten üyenin açıklamasına göre Bandit, `requirements-lock.txt` yerine sürüm belirtilmeden `pip install bandit` ile kurulmuş ve pip 1.8.6'yı yüklemiş; kök neden: Windows dışı (macOS) ortamda sürüm belirtilmeden kurulum; o anki Python sürümü kayıtlı değil (bkz. K8, `docs/28-ekim-kontrol-dilara.md`). Bandit JSON çıktısına sürüm yazmadığı için sürüm, her bulgudaki `more_info` dokümantasyon bağlantısından (`.../en/1.8.6/...`) okunmuştur. Bu iki raporun çıkış kodu kayıtlı değil.
+İlk başlangıç raporları (`generated_at` 2026-10-24T18:52:54Z; `cps/` 39 bulgu, `cps.py` 1 bulgu) yanlışlıkla Bandit 1.8.6 ile üretildi. Raporu üreten üyenin açıklamasına göre Bandit, `requirements-lock.txt` yerine sürüm belirtilmeden `pip install bandit` ile kurulmuş ve pip 1.8.6'yı yüklemiş; kök neden: Windows dışı (macOS) ortamda sürüm belirtilmeden kurulum; o anki Python sürümü kayıtlı değil (bkz. K8, `docs/surec/28-ekim-kontrol-dilara.md`). Bandit JSON çıktısına sürüm yazmadığı için sürüm, her bulgudaki `more_info` dokümantasyon bağlantısından (`.../en/1.8.6/...`) okunmuştur. Bu iki raporun çıkış kodu kayıtlı değil.
 
 K8 kararı gereği bu dosyalar silinmedi; `git mv` ile `evidence/bandit-1.8.6-original/` altına taşındı ve baseline 1.9.4 ile yeniden üretildi (yukarıdaki tablo). Bu, "baseline yeniden üretilmez" kuralına tek seferlik istisnadır.
 
@@ -295,5 +295,5 @@ K8 kararı gereği bu dosyalar silinmedi; `git mv` ile `evidence/bandit-1.8.6-or
 - `python -m pip install -r requirements-lock.txt` hatasız tamamlandı.
 - Sürümler: Python 3.12.10, pip 26.2.2, bandit 1.9.4, pylint 4.1.3 (astroid 4.3.4), flake8 7.4.1. Bunlar CLAUDE.md ile birebir aynı.
 - Tutarlılık için Bandit, başlangıç komutlarıyla aynı parametrelerle (yalnızca çıktı yolu farklı) yeniden çalıştırıldı; çıkış kodları 1/1, bulgu 42 + 1.
-- **Sonuç:** 1.9.4 ile `cps/` için 3 ek B105 bulgusu çıkıyor (`cps/kobo.py:1266`, `cps/kobo.py:1281`, `cps/usermanagement.py:71`). Diğer 40 bulgu ile LOC (31571) ve `nosec` (10) değerleri aynı. Fark kod değişikliğinden değil, Bandit sürümünden kaynaklanıyor. Bu tespit K8 kararına yol açtı (bkz. `docs/review-bandit.md` bölüm 1).
+- **Sonuç:** 1.9.4 ile `cps/` için 3 ek B105 bulgusu çıkıyor (`cps/kobo.py:1266`, `cps/kobo.py:1281`, `cps/usermanagement.py:71`). Diğer 40 bulgu ile LOC (31571) ve `nosec` (10) değerleri aynı. Fark kod değişikliğinden değil, Bandit sürümünden kaynaklanıyor. Bu tespit K8 kararına yol açtı (bkz. `docs/3-inceleme/review-bandit.md` bölüm 1).
 - 28 Ekim'de üretilen geçerli baseline, bu tekrar taramayla birebir aynı çıktı (toplam bulgu, önem×güven matrisi, `test_id` adetleri, normalize edilmiş (dosya, test_id, satır) kümeleri). Bu yüzden ara kanıt klasörü `evidence/bandit-1.9.4-recheck/` kaldırıldı; içeriği artık `reports/baseline/` ile aynıdır.

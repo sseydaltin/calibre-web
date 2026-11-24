@@ -57,7 +57,7 @@ Bu dosya, `reports/baseline/pylint.txt` ham raporundan `scripts/summarize_baseli
 
 ## Ortamdan kaynaklanan mesajlar (güvenlik/kod kalitesi bulgusu SAYILMAZ)
 
-CLAUDE.md madde 9: import/bağımlılık hataları (`E0401 import-error` vb.) güvenlik bulgusu sayılmaz; ortam sorunu olarak burada ve `docs/environment-notes.md` içinde kayıtlıdır. `E0611 no-name-in-module` uyarıları da burada, Pylint'in bildirdiği modüle göre gruplanarak gösterilir.
+CLAUDE.md madde 9: import/bağımlılık hataları (`E0401 import-error` vb.) güvenlik bulgusu sayılmaz; ortam sorunu olarak burada ve `docs/surec/environment-notes.md` içinde kayıtlıdır. `E0611 no-name-in-module` uyarıları da burada, Pylint'in bildirdiği modüle göre gruplanarak gösterilir.
 
 ### E0401 — import-error
 

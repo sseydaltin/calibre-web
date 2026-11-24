@@ -1,11 +1,11 @@
 # 4. kişi rehberi — Hasan Kurt: Dosya işleme ve harici süreçler
 
-Önce `docs/guides/ortak.md`'yi oku.
+Önce `docs/surec/guides/ortak.md`'yi oku.
 
 ## Sorumlulukların
 
 - Kitap yükleme/indirme, dosya yolları, dönüştürme, arşivler, harici süreç ve ağ çağrılarının manuel kod incelemesi (ders gereksinimi 4 ve 6)
-- `docs/review-file-handling.md` ve kayda eklenen manuel bulgular
+- `docs/3-inceleme/review-file-handling.md` ve kayda eklenen manuel bulgular
 - Seçilirse bu alandaki düzeltmeler
 - Final raporda 5. bölümün dosya/süreç kısmı
 
@@ -13,7 +13,7 @@ Bu bir **kod okuma** işidir; uygulamayı çalıştırmazsın (K2). Her kontrol 
 
 ## Başlangıç noktası
 
-`docs/architecture.md` 4. bölüm (indirme ve yükleme akışları) ve 5. bölüm (dosya/süreç tablosu). İlgili dosyalar arasında: `cps/editbooks.py` (`upload`, `file_handling_on_upload`), `cps/uploader.py`, `cps/helper.py` (`get_download_link`, `do_download_file`, `update_dir_structure`), `cps/file_helper.py` (`validate_mime_type`), `cps/web.py` (`download_link`), `cps/tasks/convert.py`, `cps/subproc_wrapper.py`, `cps/gdriveutils.py`, `cps/updater.py`, `cps/comic.py`. `cps/cw_advocate/` gömülü SSRF kütüphanesidir (K7): incele, düzeltme.
+`docs/1-kapsam/architecture.md` 4. bölüm (indirme ve yükleme akışları) ve 5. bölüm (dosya/süreç tablosu). İlgili dosyalar arasında: `cps/editbooks.py` (`upload`, `file_handling_on_upload`), `cps/uploader.py`, `cps/helper.py` (`get_download_link`, `do_download_file`, `update_dir_structure`), `cps/file_helper.py` (`validate_mime_type`), `cps/web.py` (`download_link`), `cps/tasks/convert.py`, `cps/subproc_wrapper.py`, `cps/gdriveutils.py`, `cps/updater.py`, `cps/comic.py`. `cps/cw_advocate/` gömülü SSRF kütüphanesidir (K7): incele, düzeltme.
 
 Bandit kayıtlarından seni ilgilendirenler:
 
@@ -56,7 +56,7 @@ Her madde için: dosya:satır, ne gördün, sonuç (sorun yok / düşük önceli
 
 Öncelik sırası: A → B → D → C → E.
 
-## Çıktı: `docs/review-file-handling.md` şablonu
+## Çıktı: `docs/3-inceleme/review-file-handling.md` şablonu
 
 ```markdown
 # Dosya işleme ve harici süreç incelemesi (4. kişi — Hasan Kurt)
@@ -105,7 +105,7 @@ Gerçek sorun veya düşük öncelikli uyarı bulduğunda kendi ID bloğundan (F
 
 ## Claude Code'a örnek mesajlar
 
-> Ben 4. kişiyim (Hasan). docs/guides/rol-4-dosya-surec.md'yi oku. docs/review-file-handling dalını aç. Kontrol listesi B için: kitap indirme isteğinin route'tan diske kadar izlediği yolu dosya:satır ile göster; dosya yolunun hangi kısmı kullanıcıdan, hangisi veritabanından geliyor ve path traversal'ı ne engelliyor? Dosyaya yazma.
+> Ben 4. kişiyim (Hasan). docs/surec/guides/rol-4-dosya-surec.md'yi oku. docs/review-file-handling dalını aç. Kontrol listesi B için: kitap indirme isteğinin route'tan diske kadar izlediği yolu dosya:satır ile göster; dosya yolunun hangi kısmı kullanıcıdan, hangisi veritabanından geliyor ve path traversal'ı ne engelliyor? Dosyaya yazma.
 
 > Kontrol listesi D: subproc_wrapper.py'nin Windows dalında komut string'ini oluşturan kodu göster. İçinde boşluk, tırnak veya & içeren bir dosya adı geldiğinde sonuç ne olur, kod okumasıyla değerlendir. Bu dosya adları kullanıcı kontrolünde mi?
 

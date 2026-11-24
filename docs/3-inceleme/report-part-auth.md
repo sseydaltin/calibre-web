@@ -1,6 +1,6 @@
 # Final rapor payı — 3. kişi (Emre Bulut): yetki incelemesi ve düzeltmeler
 
-Bu dosya `docs/final-report.md` içine aktarılmak üzere hazırlandı. 5. bölümün yetki kısmını ve 8. bölümdeki FIND-126 ile FIND-049 düzeltmelerini içerir. Ayrıntılı kanıtlar: `docs/review-auth.md`, `docs/findings-register.csv`.
+Bu dosya `docs/final-report.md` içine aktarılmak üzere hazırlandı. 5. bölümün yetki kısmını ve 8. bölümdeki FIND-126 ile FIND-049 düzeltmelerini içerir. Ayrıntılı kanıtlar: `docs/3-inceleme/review-auth.md`, `docs/findings-register.csv`.
 
 ---
 

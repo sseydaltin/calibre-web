@@ -2,9 +2,9 @@
 
 Bu dosya `scripts/compare_reports.py` ile ham raporlardan üretilir; elle düzenlenmez. Ham raporlar değiştirilmez.
 
-- Başlangıç: `reports/baseline/` · commit `6e840acb` (upstream `master`, `docs/baseline-commit.txt`)
+- Başlangıç: `reports/baseline/` · commit `6e840acb` (upstream `master`, `docs/1-kapsam/baseline-commit.txt`)
 - Son: `reports/final/` · commit `830d3a80` (`project-analysis`, 24 Kasım 2026, K10)
-- Aynı araç sürümü, aynı kapsam (`cps/` + `cps.py`), aynı parametreler (CLAUDE.md → "Tarama komutları"; `docs/environment-notes.md` → "Tarama kayıtları").
+- Aynı araç sürümü, aynı kapsam (`cps/` + `cps.py`), aynı parametreler (CLAUDE.md → "Tarama komutları"; `docs/surec/environment-notes.md` → "Tarama kayıtları").
 - Eşleştirme: normalize yol + kural kodu + kod parçası (kaynak satırın metni). Satırı yeniden biçimlenip aynı mesajla süren uyarılar "devam eden (satırı değişti)" sayılır.
 - Susturma: bu dönemde `# nosec`, `# noqa` veya `# pylint: disable` eklenmedi (K6); aşağıdaki tüm kapanışlar kod düzeltmesidir.
 - flake8 `--isolated --select=E,W`, satır uzunluğu 79 (K4). Toplam ihlal, raporun ihlal satırlarından sayıldı (`--statistics` özetiyle aynı).
@@ -135,7 +135,7 @@ Bu iki kod düzeltme hedefi olarak seçilmedi: birini düzeltmek diğerini doğu
 
 ## K5 gerekçesi (PEP 8 kısmı)
 
-Bu dönemde düzeltilen flake8 türleri: `E722` (FIND-109, PR #16), `E501`, `E226`, `E302` ve `W391` (FIND-117, PR #26). Toplam **5 PEP 8 türü**; Pylint'teki 7 türle birlikte K5'in "en az 5 kod kalitesi / PEP 8 türü" hedefi karşılanıyor (`docs/pylint-comparison.md`).
+Bu dönemde düzeltilen flake8 türleri: `E722` (FIND-109, PR #16), `E501`, `E226`, `E302` ve `W391` (FIND-117, PR #26). Toplam **5 PEP 8 türü**; Pylint'teki 7 türle birlikte K5'in "en az 5 kod kalitesi / PEP 8 türü" hedefi karşılanıyor (`docs/5-karsilastirma/pylint-comparison.md`).
 
 Toplam ihlalin yalnızca 16 azalması beklenen bir sonuç: K5 gereği toplu biçimlendirme yapılmadı. Seçilen tek dosya (`jinjia.py`) elle ve lisans başlığı korunarak temizlendi.
 

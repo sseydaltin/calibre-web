@@ -1,6 +1,6 @@
 # Bandit özeti
 
-Bu dosya `scripts/summarize_bandit_reports.py` ile `reports/baseline/` altındaki ham JSON raporlarından üretilmiştir; elle düzenlemeyin. Manuel değerlendirme: `docs/review-bandit.md`, bulgu kaydı: `docs/findings-register.csv`.
+Bu dosya `scripts/summarize_bandit_reports.py` ile `reports/baseline/` altındaki ham JSON raporlarından üretilmiştir; elle düzenlemeyin. Manuel değerlendirme: `docs/3-inceleme/review-bandit.md`, bulgu kaydı: `docs/findings-register.csv`.
 
 ## Rapor bilgileri
 

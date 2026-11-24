@@ -3,13 +3,15 @@
 Bu dosya tüm rollerin ortak kullandığı akışları anlatır. Kendi rol rehberinle birlikte oku.
 Kurallar ve kararlar (K1–K8) için tek kaynak `CLAUDE.md`'dir; burası "nasıl yapılır" kısmıdır.
 
-## Projenin şu anki durumu (28 Ekim 2026)
+## Projenin şu anki durumu (24 Kasım 2026 — tamamlandı)
 
 - ✅ Fork, roller, `project-analysis` dalı, sabit ortam (`requirements-lock.txt`)
 - ✅ Başlangıç taramaları `reports/baseline/`: Pylint 6.42/10, flake8 3409 ihlal, Bandit 43 bulgu (0 HIGH, 14 MEDIUM)
-- ✅ `docs/project-scope.md`, `docs/architecture.md`
-- ✅ Bandit bulgu kaydı FIND-001…044 (`docs/findings-register.csv`), inceleme notları `docs/review-bandit.md`
-- ⏳ Manuel incelemeler (3. ve 4. kişi), Pylint/PEP 8 kayıtları (1. kişi), düzeltmeler, son taramalar, rapor
+- ✅ `docs/1-kapsam/project-scope.md`, `docs/1-kapsam/architecture.md`
+- ✅ Bulgu kaydı (137 satır; `docs/findings-register.csv`), manuel incelemeler `docs/3-inceleme/`
+- ✅ Düzeltmeler PR #16–#18, #20–#26 (K10 kod dondurması: 24 Kasım 16:00, commit `830d3a80`)
+- ✅ Son taramalar `reports/final/`: Pylint 6.44/10, flake8 3393 ihlal, Bandit 38 bulgu (0 HIGH, 9 MEDIUM); karşılaştırmalar `docs/5-karsilastirma/`
+- ✅ Final rapor `docs/final-report.md`; proje giriş sayfası `ANALIZ.md`
 
 Bu bölümü güncel tutmak 1. kişinin işidir.
 
@@ -23,14 +25,14 @@ git pull
 ```
 
 Claude Code'a ilk mesaj olarak hangi kişi olduğunu ve bugünkü işini söyle. Örnek:
-> Ben 3. kişiyim (Emre). docs/guides/rol-3-yetki.md'yi oku, bugün review-auth.md'nin 2. adımına devam edeceğiz.
+> Ben 3. kişiyim (Emre). docs/surec/guides/rol-3-yetki.md'yi oku, bugün review-auth.md'nin 2. adımına devam edeceğiz.
 
 ## Bir işi yapma akışı (her iş için aynı)
 
 1. `project-analysis` güncel mi? `git pull`
 2. Yeni dal aç: `git switch -c <tür>/<kısa-ad>` (örn. `docs/review-auth`, `fix/find-047`)
 3. İşi yap. Sık sık `git status` ile ne değiştiğine bak.
-4. Dosyaları **adıyla** ekle (`git add docs/review-auth.md`), `git add .` kullanma.
+4. Dosyaları **adıyla** ekle (`git add docs/3-inceleme/review-auth.md`), `git add .` kullanma.
 5. Commit: `<tür>: <kısa açıklama>` (CLAUDE.md'deki biçim)
 6. Push: `git push -u origin <dal-adı>`
 7. PR'ı **yalnızca** şu linkle aç:

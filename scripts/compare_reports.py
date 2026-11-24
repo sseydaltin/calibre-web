@@ -11,16 +11,16 @@ Girdi (değiştirilmez, ham raporlar):
     docs/findings-register.csv   (FIND-ID / PR eşleştirmesi için, salt okunur)
 
 Çıktı:
-    docs/pylint-comparison.md
-    docs/pep8-comparison.md
-    docs/bandit-comparison.md
+    docs/5-karsilastirma/pylint-comparison.md
+    docs/5-karsilastirma/pep8-comparison.md
+    docs/5-karsilastirma/bandit-comparison.md
 
 Eşleştirme yöntemi (CLAUDE.md → "Önce-sonra karşılaştırması"):
     Satır numaraları kayar, bu yüzden her uyarı şu anahtarla eşleştirilir:
         normalize yol ('\\' -> '/') + kural kodu + kod parçası
     Kod parçası, uyarının işaret ettiği kaynak satırın boşlukları kırpılmış
     metnidir; ilgili commit'teki dosyadan `git show <commit>:<yol>` ile okunur
-    (başlangıç: docs/baseline-commit.txt, son: --final-commit).
+    (başlangıç: docs/1-kapsam/baseline-commit.txt, son: --final-commit).
     Aynı anahtar birden çok kez geçebilir; eşleştirme çoklu küme (multiset)
     farkıyla yapılır.
     İkinci geçiş: kapanan ve yeni çıkan listelerinde aynı yol + kod + mesaj
@@ -307,12 +307,12 @@ def header_block(title, baseline_commit, final_commit, extra=""):
             "Bu dosya `scripts/compare_reports.py` ile ham raporlardan üretilir; "
             "elle düzenlenmez. Ham raporlar değiştirilmez.\n\n"
             f"- Başlangıç: `reports/baseline/` · commit `{baseline_commit[:8]}` "
-            "(upstream `master`, `docs/baseline-commit.txt`)\n"
+            "(upstream `master`, `docs/1-kapsam/baseline-commit.txt`)\n"
             f"- Son: `reports/final/` · commit `{final_commit[:8]}` "
             "(`project-analysis`, 24 Kasım 2026, K10)\n"
             "- Aynı araç sürümü, aynı kapsam (`cps/` + `cps.py`), aynı "
             "parametreler (CLAUDE.md → \"Tarama komutları\"; "
-            "`docs/environment-notes.md` → \"Tarama kayıtları\").\n"
+            "`docs/surec/environment-notes.md` → \"Tarama kayıtları\").\n"
             "- Eşleştirme: normalize yol + kural kodu + kod parçası (kaynak "
             "satırın metni). Satırı yeniden biçimlenip aynı mesajla süren "
             "uyarılar \"devam eden (satırı değişti)\" sayılır.\n"
@@ -485,7 +485,7 @@ def write_pylint(bi_all, bs, fi_all, fs, register, scores, bc, fc):
         out.append("Yeni çıkan mesaj yok: düzeltmeler hiçbir dosyada yeni "
                    "Pylint uyarısı doğurmadı.")
     out.append(PYLINT_TAIL)
-    (DOCS / "pylint-comparison.md").write_text("\n".join(out) + "\n",
+    (DOCS / "5-karsilastirma" / "pylint-comparison.md").write_text("\n".join(out) + "\n",
                                                encoding="utf-8", newline="\n")
     return closed, persisting, moved, new
 
@@ -512,7 +512,7 @@ K5, en az 5 kod kalitesi / PEP 8 bulgu **türünün** düzeltilmesini istiyor. B
 | `W1514` | unspecified-encoding | FIND-069 | #25 | Kapandı (6/10; kalan 4 kapsam dışı) |
 | `W3101` | missing-timeout | FIND-085 | #21 | Kapandı |
 
-Toplam **7 Pylint türü**. Buna ek olarak flake8'de 5 PEP 8 türü (E722, E501, E226, E302, W391) düzeltildi (`docs/pep8-comparison.md`). Hedef karşılanıyor.
+Toplam **7 Pylint türü**. Buna ek olarak flake8'de 5 PEP 8 türü (E722, E501, E226, E302, W391) düzeltildi (`docs/5-karsilastirma/pep8-comparison.md`). Hedef karşılanıyor.
 
 Sayım notu: `W0702` (Pylint) ile `E722` (flake8) aynı satırın iki aracın gözünden görünümü; tek değişiklikle kapandılar. Karşılaştırmada ayrı uyarı olarak sayılırlar, ama ayrı düzeltme sayılmazlar. Aynı şekilde `W3101`, B113 düzeltmesinin (PR #21) yan etkisidir.
 
@@ -602,7 +602,7 @@ def write_pep8(bi, fi, register, bc, fc):
         out.append("Yok.")
     out.append(PEP8_TAIL.format(w503b=kb["W503"], w503a=ka["W503"],
                                 w504b=kb["W504"], w504a=ka["W504"]))
-    (DOCS / "pep8-comparison.md").write_text("\n".join(out) + "\n",
+    (DOCS / "5-karsilastirma" / "pep8-comparison.md").write_text("\n".join(out) + "\n",
                                              encoding="utf-8", newline="\n")
     return closed, persisting, moved, new
 
@@ -616,7 +616,7 @@ Bu iki kod düzeltme hedefi olarak seçilmedi: birini düzeltmek diğerini doğu
 
 ## K5 gerekçesi (PEP 8 kısmı)
 
-Bu dönemde düzeltilen flake8 türleri: `E722` (FIND-109, PR #16), `E501`, `E226`, `E302` ve `W391` (FIND-117, PR #26). Toplam **5 PEP 8 türü**; Pylint'teki 7 türle birlikte K5'in "en az 5 kod kalitesi / PEP 8 türü" hedefi karşılanıyor (`docs/pylint-comparison.md`).
+Bu dönemde düzeltilen flake8 türleri: `E722` (FIND-109, PR #16), `E501`, `E226`, `E302` ve `W391` (FIND-117, PR #26). Toplam **5 PEP 8 türü**; Pylint'teki 7 türle birlikte K5'in "en az 5 kod kalitesi / PEP 8 türü" hedefi karşılanıyor (`docs/5-karsilastirma/pylint-comparison.md`).
 
 Toplam ihlalin yalnızca 16 azalması beklenen bir sonuç: K5 gereği toplu biçimlendirme yapılmadı. Seçilen tek dosya (`jinjia.py`) elle ve lisans başlığı korunarak temizlendi.
 """
@@ -710,12 +710,12 @@ def write_bandit(bi, btot, fi, ftot, register, bc, fc):
     out.append("\nDevam eden bulguların test_id dağılımı: "
                + ", ".join(f"`{c}` ×{n}" for c, n in sorted(pers.items()))
                + ". Bu bulguların her biri kayıtta kodla incelendi "
-               "(`docs/review-bandit.md`, `docs/findings-register.csv`): "
+               "(`docs/3-inceleme/review-bandit.md`, `docs/findings-register.csv`): "
                "yanlış pozitif ya da düşük öncelikli olarak kabul edildi.\n")
     fp = sum(1 for r in register if r["kaynak"] == "Bandit"
              and r["dogrulama_sonucu"] == "Yanlış pozitif")
     out.append(BANDIT_TAIL.replace("{bandit_fp}", str(fp)))
-    (DOCS / "bandit-comparison.md").write_text("\n".join(out) + "\n",
+    (DOCS / "5-karsilastirma" / "bandit-comparison.md").write_text("\n".join(out) + "\n",
                                                encoding="utf-8", newline="\n")
     return closed, persisting, moved, new
 
@@ -756,7 +756,7 @@ def main():
                     help="Dosya bazlı puanlar için JSON önbellek (varsa okunur, "
                          "yoksa hesaplanıp yazılır)")
     args = ap.parse_args()
-    bc = (ROOT / "docs" / "baseline-commit.txt").read_text().strip()
+    bc = (DOCS / "1-kapsam" / "baseline-commit.txt").read_text().strip()
     fc = subprocess.run(["git", "rev-parse", args.final_commit], cwd=ROOT,
                         capture_output=True, text=True, check=True).stdout.strip()
     sb, sf = Source(bc), Source(fc)

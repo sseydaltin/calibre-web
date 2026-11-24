@@ -1,6 +1,6 @@
 # 1. kişi rehberi — Şeyda Altın: Repo, mimari, Pylint ve PEP 8
 
-Önce `docs/guides/ortak.md`'yi oku.
+Önce `docs/surec/guides/ortak.md`'yi oku.
 
 ## Sorumlulukların
 
@@ -51,8 +51,8 @@ Diğerlerinin PR'larını da gözden geçir; repo sahibi olarak birleştirme sen
 ### 4) Son tarama ve karşılaştırma — 7–8 Kasım
 
 - Pylint ve flake8 son taramalarını sen değil, düzeltme yapmamış biri çalıştırsın ya da sen çalıştırıp o kişi kontrol etsin.
-- `docs/pylint-comparison.md`: puan 6.42 → yeni puan; kategori dağılımı önce/sonra; kapanan / devam eden / yeni çıkan kodlar.
-- `docs/pep8-comparison.md`: toplam ihlal önce/sonra; düzeltilen türler; düzeltilen dosyalardaki değişim.
+- `docs/5-karsilastirma/pylint-comparison.md`: puan 6.42 → yeni puan; kategori dağılımı önce/sonra; kapanan / devam eden / yeni çıkan kodlar.
+- `docs/5-karsilastirma/pep8-comparison.md`: toplam ihlal önce/sonra; düzeltilen türler; düzeltilen dosyalardaki değişim.
 - 8 Kasım akşamı: kod dondurma. Sonrasında `cps/` PR'ı birleştirme.
 
 ## Bitti tanımı
@@ -64,6 +64,6 @@ Diğerlerinin PR'larını da gözden geçir; repo sahibi olarak birleştirme sen
 
 ## Claude Code'a örnek mesajlar
 
-> Ben 1. kişiyim. docs/guides/rol-1-pylint-pep8.md'yi oku. 1. adım için önce plan çıkar, dosyaya yazma: hangi kodlar ayrı satır olacak, E0611 gerekçesi, 5–7 düzeltme adayı.
+> Ben 1. kişiyim. docs/surec/guides/rol-1-pylint-pep8.md'yi oku. 1. adım için önce plan çıkar, dosyaya yazma: hangi kodlar ayrı satır olacak, E0611 gerekçesi, 5–7 düzeltme adayı.
 
 > fix/find-0XX dalında W1514 (unspecified-encoding) düzeltmesini cps/<dosya>.py için yap. Yalnızca open() çağrılarına encoding="utf-8" ekle; dosyanın gerçekten metin olduğunu ve önceki davranışın UTF-8 varsaydığını kontrol et. py_compile ve dosya bazlı pylint çıktısını göster, commit etme.

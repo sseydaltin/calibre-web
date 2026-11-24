@@ -25,13 +25,13 @@
 | Toplam satır | 37.831 |
 | Kod satırı (boş satır ve tam satır yorumlar hariç) | 31.597 |
 
-Uygulama katmanlı bir yapıya sahiptir. Rota katmanı (`web.py`, `admin.py`, `editbooks.py`, `opds.py`, `shelf.py`, `kobo.py`) HTTP isteklerini ve yetki dekoratörlerini taşır. `ub.py` kullanıcı ve oturum veritabanını, `db.py` Calibre'nin `metadata.db` dosyasını modeller. `services/` isteğe bağlı dış entegrasyonları, `tasks/` ise dönüştürme ve e-posta gibi arka plan işlerini içerir. `cps/cw_login/` ve `cps/cw_advocate/` uygulamaya gömülü üçüncü taraf koddur. Bu iki dizin taramaya dahil edildi, ancak içlerinde düzeltme yapılmadı. Dizin yapısı ve güvenlik açısından kritik bölgelerin haritası `docs/architecture.md` dosyasındadır.
+Uygulama katmanlı bir yapıya sahiptir. Rota katmanı (`web.py`, `admin.py`, `editbooks.py`, `opds.py`, `shelf.py`, `kobo.py`) HTTP isteklerini ve yetki dekoratörlerini taşır. `ub.py` kullanıcı ve oturum veritabanını, `db.py` Calibre'nin `metadata.db` dosyasını modeller. `services/` isteğe bağlı dış entegrasyonları, `tasks/` ise dönüştürme ve e-posta gibi arka plan işlerini içerir. `cps/cw_login/` ve `cps/cw_advocate/` uygulamaya gömülü üçüncü taraf koddur. Bu iki dizin taramaya dahil edildi, ancak içlerinde düzeltme yapılmadı. Dizin yapısı ve güvenlik açısından kritik bölgelerin haritası `docs/1-kapsam/architecture.md` dosyasındadır.
 
 **Çözülmek istenen problem.** Statik analiz araçları çok sayıda uyarı üretir. Bu uyarıların önemli bir kısmı yanlış pozitif ya da düşük önceliklidir; bazı gerçek sorunlar ise araçlar tarafından hiç görülmez. Projenin sorusu şudur: araç çıktısı ile elle yapılan kod incelemesi birlikte kullanıldığında gerçek riskler nasıl ayırt edilir, hangileri güvenle düzeltilebilir ve düzeltmenin etkisi aynı araçlarla nasıl ölçülür?
 
 ## 2. Yöntem
 
-**Araçlar ve ortam.** Tüm taramalar Windows üzerinde, PowerShell'de ve sabitlenmiş bir sanal ortamda (`requirements-lock.txt`) yapıldı. Araç sürümleri ve görevleri Tablo 2'de verilmiştir. Uygulamanın bağımlılıkları da Pylint'in importları çözebilmesi için kuruldu; ancak uygulama hiçbir aşamada çalıştırılmadı. Windows'ta derlenemeyen iki LDAP paketi (`python-ldap`, `Flask-SimpleLDAP`) kurulamadı. Bu paketlerden kaynaklanan 2 `E0401 import-error` mesajı bulgu sayılmadı, ortam sorunu olarak `docs/environment-notes.md` dosyasına kaydedildi.
+**Araçlar ve ortam.** Tüm taramalar Windows üzerinde, PowerShell'de ve sabitlenmiş bir sanal ortamda (`requirements-lock.txt`) yapıldı. Araç sürümleri ve görevleri Tablo 2'de verilmiştir. Uygulamanın bağımlılıkları da Pylint'in importları çözebilmesi için kuruldu; ancak uygulama hiçbir aşamada çalıştırılmadı. Windows'ta derlenemeyen iki LDAP paketi (`python-ldap`, `Flask-SimpleLDAP`) kurulamadı. Bu paketlerden kaynaklanan 2 `E0401 import-error` mesajı bulgu sayılmadı, ortam sorunu olarak `docs/surec/environment-notes.md` dosyasına kaydedildi.
 
 **Tablo 2.** Kullanılan araçlar
 
@@ -95,7 +95,7 @@ Başlangıç Bandit raporları ilk denemede yanlışlıkla 1.8.6 sürümüyle ü
 
 ### 3.3 Önemli güvenlik bulgularının kod üzerinden incelenmesi
 
-**Bandit bulguları.** 14 MEDIUM bulgunun tamamı kod parçasıyla incelendi (`docs/review-bandit.md`):
+**Bandit bulguları.** 14 MEDIUM bulgunun tamamı kod parçasıyla incelendi (`docs/3-inceleme/review-bandit.md`):
 
 - **B704 (4):** XSS'e yol açmıyor. `Markup` ile işaretlenen yorum HTML'i önce `nh3` kütüphanesiyle temizleniyor. Yalıtılmış denemede betik, olay öznitelikleri ve `javascript:` adresleri temizlendi. Bu bulgular yanlış pozitif olarak işaretlendi.
 - **B103 (2):** Unix soketine verilen `0o660` izni diğer kullanıcılara erişim vermiyor; tasarım gereği olduğu için yanlış pozitif sayıldı.
@@ -114,7 +114,7 @@ Başlangıç Bandit raporları ilk denemede yanlışlıkla 1.8.6 sürümüyle ü
 - **FIND-151:** Yöneticinin "yüklemeye izin ver" ayarı yalnızca arayüzde uygulanıyor, sunucu tarafında kontrol edilmiyor.
 - **FIND-152:** Google Drive kurulumlarında seri küçük resmi üretimi, dosya içeriğini URL sanıp `urlopen()`'a verdiği için her zaman hata veriyor (işlev hatası).
 
-Ayrıca B113 düzeltmesi incelenirken aynı türden ama Bandit'in görmediği zaman aşımsız istekler bulundu. `amazon.py`'de iki (FIND-116), `douban.py`'de üç (FIND-160) `requests.Session` çağrısı vardı. Bandit B113 kuralı `Session` nesnesi üzerinden yapılan çağrıları tanımıyor. Ayrıntılar `docs/report-part-auth.md` ve `docs/report-part-file-handling.md` dosyalarındadır.
+Ayrıca B113 düzeltmesi incelenirken aynı türden ama Bandit'in görmediği zaman aşımsız istekler bulundu. `amazon.py`'de iki (FIND-116), `douban.py`'de üç (FIND-160) `requests.Session` çağrısı vardı. Bandit B113 kuralı `Session` nesnesi üzerinden yapılan çağrıları tanımıyor. Ayrıntılar `docs/3-inceleme/report-part-auth.md` ve `docs/3-inceleme/report-part-file-handling.md` dosyalarındadır.
 
 ### 3.4 PEP 8 uygunluk analizi
 
@@ -293,7 +293,7 @@ Tablo 8'deki puanlar, her dosyanın başlangıç ve son commit'te ayrı ayrı `p
 - **`R0401` oynaması:** Pylint'in döngüsel import mesajı aynı kod üzerinde çalıştırmadan çalıştırmaya değişiyor (başlangıç commit'inde 43 ve 48, son commit'te 49 ve 44). Başlangıç ile son arasında hiçbir import satırı değişmediği halde ham rapor 43 → 49 gösteriyor. Bu nedenle `R0401` eşleştirmenin dışında tutuldu. Puan ve diğer mesajlar tekrarlarda birebir aynıydı.
 - **Pylint kapsam boşluğu:** `cps/metadata_provider/` dizininde `__init__.py` olmadığı için Pylint bu dizindeki 6 dosyayı resmi taramada atlıyor. Bu yüzden B113 düzeltmesinin bu dizindeki 4 `W3101` etkisi yalnızca dosya bazlı taramada (Tablo 8) görülebiliyor. Tarama parametreleri başlangıçla aynı kalsın diye kapsam değiştirilmedi.
 - **Araç kuralının kör noktası:** Bandit `B113` kuralı `requests.Session` çağrılarını tanımıyor. Bu türden çağrılar elle bulundu ve kayda eklendi (FIND-116 düzeltildi, FIND-160 öneri olarak kaldı).
-- **Yeni uyarı doğuran düzeltme adayları:** FIND-078'de `.format()` kullanmak yeni bir `C0209` uyarısı doğurduğu için f-string seçildi. FIND-069'da uzayan iki satır, yeni `E501`/`C0301` doğurmasın diye bölündü. FIND-057'de (istisna sırası) iki `except` bloğunun yer değiştirmesi Pylint uyarısını kapatmadı: `E0701` ayna biçimde geri geldi, `W0705` sürdü. Bunun nedeni, ilgili kütüphaneler kurulu değilken iki istisna adının da `BaseException`'a bağlanmasıdır (`helper.py:53, 80`). Bu sonuç önce Hasan Kurt'un denemesinde görüldü (`docs/report-part-file-handling.md`), rapor için geçici bir kopyada dosya bazlı Pylint ile yeniden ölçüldü. Düzeltme K10 kapsamında uygulanmadı.
+- **Yeni uyarı doğuran düzeltme adayları:** FIND-078'de `.format()` kullanmak yeni bir `C0209` uyarısı doğurduğu için f-string seçildi. FIND-069'da uzayan iki satır, yeni `E501`/`C0301` doğurmasın diye bölündü. FIND-057'de (istisna sırası) iki `except` bloğunun yer değiştirmesi Pylint uyarısını kapatmadı: `E0701` ayna biçimde geri geldi, `W0705` sürdü. Bunun nedeni, ilgili kütüphaneler kurulu değilken iki istisna adının da `BaseException`'a bağlanmasıdır (`helper.py:53, 80`). Bu sonuç önce Hasan Kurt'un denemesinde görüldü (`docs/3-inceleme/report-part-file-handling.md`), rapor için geçici bir kopyada dosya bazlı Pylint ile yeniden ölçüldü. Düzeltme K10 kapsamında uygulanmadı.
 - **Takvim kayması (K10):** Kod dondurma ekip kararıyla 24 Kasım'a alındı. Kapsama yalnızca o tarihe kadar açılmış düzeltmeler dahil edildi.
 
 ## 5. Değerlendirme ve Sonuç

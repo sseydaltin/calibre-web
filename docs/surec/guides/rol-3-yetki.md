@@ -1,11 +1,11 @@
 # 3. kişi rehberi — Emre Bulut: Kimlik doğrulama, oturum ve yetkilendirme
 
-Önce `docs/guides/ortak.md`'yi oku.
+Önce `docs/surec/guides/ortak.md`'yi oku.
 
 ## Sorumlulukların
 
 - Giriş/çıkış, parola, oturum, kullanıcı ve yönetici yetkilerinin manuel kod incelemesi (ders gereksinimi 4 ve 6)
-- `docs/review-auth.md` ve kayda eklenen manuel bulgular
+- `docs/3-inceleme/review-auth.md` ve kayda eklenen manuel bulgular
 - Seçilirse bu alandaki düzeltmeler
 - Final raporda 5. bölümün yetki kısmı
 
@@ -13,7 +13,7 @@ Bu iş bir **kod okuma** işidir; uygulamayı çalıştırmazsın (K2). Amaç "a
 
 ## Başlangıç noktası
 
-`docs/architecture.md` 5. bölüm (yetki tablosu). İlgili dosyalar arasında: `cps/usermanagement.py`, `cps/web.py` (login/logout), `cps/admin.py`, `cps/ub.py`, `cps/oauth_bb.py`, `cps/kobo_auth.py`, `cps/remotelogin.py`, `cps/render_template.py` ve `__init__.py`'deki uygulama ayarları. `cps/cw_login/` gömülü Flask-Login kopyasıdır (K7): incele, düzeltme.
+`docs/1-kapsam/architecture.md` 5. bölüm (yetki tablosu). İlgili dosyalar arasında: `cps/usermanagement.py`, `cps/web.py` (login/logout), `cps/admin.py`, `cps/ub.py`, `cps/oauth_bb.py`, `cps/kobo_auth.py`, `cps/remotelogin.py`, `cps/render_template.py` ve `__init__.py`'deki uygulama ayarları. `cps/cw_login/` gömülü Flask-Login kopyasıdır (K7): incele, düzeltme.
 
 Bandit kayıtlarından seni ilgilendirenler:
 
@@ -60,7 +60,7 @@ Her madde için: ilgili dosya:satır, ne gördün, sonuç (sorun yok / düşük 
 
 Her şeyi bitiremezsen öncelik sırası: A → B → C → D → E.
 
-## Çıktı: `docs/review-auth.md` şablonu
+## Çıktı: `docs/3-inceleme/review-auth.md` şablonu
 
 ```markdown
 # Yetki ve oturum incelemesi (3. kişi — Emre Bulut)
@@ -111,7 +111,7 @@ Gerçek sorun veya düşük öncelikli uyarı bulduğunda kendi ID bloğundan (F
 
 ## Claude Code'a örnek mesajlar
 
-> Ben 3. kişiyim (Emre). docs/guides/rol-3-yetki.md'yi oku. docs/review-auth dalını aç. Kontrol listesinin A bölümü için cps/admin.py'deki tüm route'ları, dekoratörlerini ve yaptıkları işi tablo olarak çıkar. Dekoratörsüz ya da beklenenden zayıf korunan route'ları ayrıca işaretle. Henüz dosyaya yazma, bana göster.
+> Ben 3. kişiyim (Emre). docs/surec/guides/rol-3-yetki.md'yi oku. docs/review-auth dalını aç. Kontrol listesinin A bölümü için cps/admin.py'deki tüm route'ları, dekoratörlerini ve yaptıkları işi tablo olarak çıkar. Dekoratörsüz ya da beklenenden zayıf korunan route'ları ayrıca işaretle. Henüz dosyaya yazma, bana göster.
 
 > Kontrol listesi C maddesi: SECRET_KEY'in kaynağını ve oturum çerezi ayarlarını kodda bul, dosya:satır ile göster. Ayar yapılmıyorsa Flask varsayılanının ne olduğunu belirt.
 
