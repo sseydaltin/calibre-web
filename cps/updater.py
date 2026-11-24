@@ -152,7 +152,8 @@ class Updater(threading.Thread):
 
     @classmethod
     def file_to_list(cls, filelist):
-        return [x.strip() for x in open(filelist, 'r') if not x.startswith('#EXT')]
+        return [x.strip() for x in open(filelist, 'r', encoding='utf-8')
+                if not x.startswith('#EXT')]
 
     @classmethod
     def one_minus_two(cls, one, two):
@@ -408,7 +409,7 @@ class Updater(threading.Thread):
             os.sep + 'gmail.json', os.sep + 'exclude.txt', os.sep + 'cps' + os.sep + 'cache'
         ]
         try:
-            with open(os.path.join(constants.BASE_DIR, "exclude.txt"), "r") as f:
+            with open(os.path.join(constants.BASE_DIR, "exclude.txt"), "r", encoding="utf-8") as f:
                 lines = f.readlines()
             for line in lines:
                 processed_line = line.strip("\n\r ").strip("\"'").lstrip("\\/ ").\

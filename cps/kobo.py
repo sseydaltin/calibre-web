@@ -1155,7 +1155,7 @@ def NATIVE_KOBO_RESOURCES():
     kobo_file = os.path.join(BASE_DIR, "kobo_resources.txt")
     try:
         if os.path.isfile(kobo_file):
-            with open(kobo_file, "r") as f:
+            with open(kobo_file, "r", encoding="utf-8") as f:
                 lines = f.read()
             return json.loads(lines)
     except Exception as e:

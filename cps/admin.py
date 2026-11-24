@@ -1166,7 +1166,8 @@ def _configuration_gdrive_helper(to_save):
         if gdrive_support:
             gdrive_error = gdriveutils.get_error_text(gdrive_secrets)
         if "config_use_google_drive" in to_save and not config.config_use_google_drive and not gdrive_error:
-            with open(gdriveutils.CLIENT_SECRETS, 'r') as settings:
+            with open(gdriveutils.CLIENT_SECRETS, 'r',
+                      encoding='utf-8') as settings:
                 gdrive_secrets = json.load(settings)['web']
             if not gdrive_secrets:
                 return _configuration_result(_('client_secrets.json Is Not Configured For Web Application'))

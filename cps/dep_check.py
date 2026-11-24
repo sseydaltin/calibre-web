@@ -26,7 +26,7 @@ def load_dependencies(optional=False):
     if getattr(sys, 'frozen', False):
         pip_installed = os.path.join(BASE_DIR, ".pip_installed")
         if os.path.exists(pip_installed):
-            with open(pip_installed) as f:
+            with open(pip_installed, encoding='utf-8') as f:
                 exe_deps = json.loads("".join(f.readlines()))
         else:
             return deps
@@ -36,7 +36,7 @@ def load_dependencies(optional=False):
         else:
             req_path = os.path.join(BASE_DIR, "requirements.txt")
         if os.path.exists(req_path):
-            with open(req_path, 'r') as f:
+            with open(req_path, 'r', encoding='utf-8') as f:
                 for line in f:
                     if not line.startswith('#') and not line == '\n' and not line.startswith('git'):
                         res = re.match(r'(.*?)([<=>\s]+)([\d\.]+),?\s?([<=>\s]+)?([\d\.]+)?(?:\s?;\s?'
