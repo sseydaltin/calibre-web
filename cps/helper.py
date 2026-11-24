@@ -299,7 +299,7 @@ def get_sorted_author(value):
             value2 = value
     except Exception as ex:
         log.error("Sorting author %s failed: %s", value, ex)
-        if isinstance(list, value2):
+        if isinstance(value, list):
             value2 = value[0]
         else:
             value2 = value
