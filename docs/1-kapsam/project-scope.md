@@ -39,7 +39,7 @@ Analiz, dersin 9 maddelik gereksinim listesine göre planlanmıştır (bkz. böl
 
 ## 3. Analiz edilen commit ve tarih
 
-- **Upstream commit:** `6e840acbda8d62fdd159bf3855c01872d629a914` (bkz. `docs/baseline-commit.txt`)
+- **Upstream commit:** `6e840acbda8d62fdd159bf3855c01872d629a914` (bkz. `docs/1-kapsam/baseline-commit.txt`)
 - **Commit tarihi:** 2026-09-20
 - **Dal:** upstream `master` (bu depoda `project-analysis` üzerinden çalışılır)
 - **Analiz başlangıç tarihi:** 24 Ekim 2026
@@ -79,7 +79,7 @@ Düzeltmelerin doğruluğu bunun yerine şu şekilde doğrulanır: `python -m py
 | 6 | Gerçek problem / düşük öncelikli / yanlış pozitif ayrımı | Her bulgu için `dogrulama_sonucu` + `gerekce` alanları zorunlu | Herkes | `findings-register.csv` |
 | 7 | Seçilen sorunların düzeltilmesi; önceki ve yeni kod karşılaştırması | `fix/find-XXX` dalları; PR açıklamasında önceki kod / yeni kod / gerekçe | Herkes | PR'lar, `final-report.md` |
 | 8 | Araçların yeniden çalıştırılması ve karşılaştırma | Aynı sürüm, aynı kapsam ve aynı parametrelerle son tarama | 1. ve 2. kişi | `reports/final/`, `*-comparison.md` |
-| 9 | Rapor: araçlar, önemli bulgular, düzeltmeler, yeniden analiz | Final raporu bu 9 maddeye göre bölümlenir (iskelet: `docs/guides/ortak.md`) | Ortak | `final-report.md` |
+| 9 | Rapor: araçlar, önemli bulgular, düzeltmeler, yeniden analiz | Final raporu bu 9 maddeye göre bölümlenir (iskelet: `docs/surec/guides/ortak.md`) | Ortak | `final-report.md` |
 
 (Tam ders kararları ve K1–K8 gerekçeleri: `CLAUDE.md` → "Ders gereksinimleri ve ekip kararları".)
 
@@ -87,10 +87,10 @@ Düzeltmelerin doğruluğu bunun yerine şu şekilde doğrulanır: `python -m py
 
 | Kişi | GitHub | Alan | Ana teslim | Rehber |
 | --- | --- | --- | --- | --- |
-| 1. kişi — Şeyda Altın (repo sahibi) | `sseydaltin` | Repo/dallar/PR birleştirme, mimari ve kapsam dokümanı, Pylint ve PEP 8 (flake8) başlangıç/son taraması, seçilmiş kod kalitesi/PEP 8 düzeltmeleri | `project-scope.md`, `architecture.md`, Pylint/PEP 8 raporları, özetleri ve karşılaştırmaları | `docs/guides/rol-1-pylint-pep8.md` |
-| 2. kişi — Dilara Yıldırım | `dilarayldrmm` | Bandit taramaları, risk sınıflandırması, **bulgu kaydının sahibi** (ID dağıtımı, biçim kontrolü), B113 güvenlik düzeltme planı | Bandit raporları, `findings-register.csv`, `bandit-summary.md`, `bandit-comparison.md` | `docs/guides/rol-2-bandit-kayit.md` |
-| 3. kişi — Emre Bulut | `emjebulut` | Kimlik doğrulama, oturum, parola, kullanıcı/yönetici yetkilendirmesi, CSRF | `review-auth.md`, ilgili bulgu satırları ve düzeltmeler | `docs/guides/rol-3-yetki.md` |
-| 4. kişi — Hasan Kurt | `kurtmhasan` | Kitap yükleme/indirme, dosya yolları, arşivler, dönüştürme, harici süreç ve ağ çağrıları | `review-file-handling.md`, ilgili bulgu satırları ve düzeltmeler | `docs/guides/rol-4-dosya-surec.md` |
+| 1. kişi — Şeyda Altın (repo sahibi) | `sseydaltin` | Repo/dallar/PR birleştirme, mimari ve kapsam dokümanı, Pylint ve PEP 8 (flake8) başlangıç/son taraması, seçilmiş kod kalitesi/PEP 8 düzeltmeleri | `project-scope.md`, `architecture.md`, Pylint/PEP 8 raporları, özetleri ve karşılaştırmaları | `docs/surec/guides/rol-1-pylint-pep8.md` |
+| 2. kişi — Dilara Yıldırım | `dilarayldrmm` | Bandit taramaları, risk sınıflandırması, **bulgu kaydının sahibi** (ID dağıtımı, biçim kontrolü), B113 güvenlik düzeltme planı | Bandit raporları, `findings-register.csv`, `bandit-summary.md`, `bandit-comparison.md` | `docs/surec/guides/rol-2-bandit-kayit.md` |
+| 3. kişi — Emre Bulut | `emjebulut` | Kimlik doğrulama, oturum, parola, kullanıcı/yönetici yetkilendirmesi, CSRF | `review-auth.md`, ilgili bulgu satırları ve düzeltmeler | `docs/surec/guides/rol-3-yetki.md` |
+| 4. kişi — Hasan Kurt | `kurtmhasan` | Kitap yükleme/indirme, dosya yolları, arşivler, dönüştürme, harici süreç ve ağ çağrıları | `review-file-handling.md`, ilgili bulgu satırları ve düzeltmeler | `docs/surec/guides/rol-4-dosya-surec.md` |
 
 Not: Bandit başlangıç envanteri ve `review-bandit.md` 3. kişi (Emre Bulut) tarafından hazırlandı; 2. kişi bulgu kaydı sorumluluğunu sürdürür.
 
@@ -98,7 +98,7 @@ Rol eşleşmesi ve kurallar için tek kaynak `CLAUDE.md` → "Ekip ve sorumluluk
 
 ## 8. Sınırlılıklar
 
-- **LDAP paketleri kurulamadı:** `python-ldap` ve `Flask-SimpleLDAP`, Windows analiz ortamında OpenLDAP C başlık dosyaları (`lber.h`) eksik olduğu için derlenemedi; `.venv`'e kurulmadılar (bkz. `docs/environment-notes.md`). Bu nedenle `cps/services/simpleldap.py` dosyasında Pylint'in çözemediği 2 `E0401 import-error` oluşur; bu ortam kısıtıdır, güvenlik veya kod kalitesi bulgusu sayılmaz (CLAUDE.md madde 9).
+- **LDAP paketleri kurulamadı:** `python-ldap` ve `Flask-SimpleLDAP`, Windows analiz ortamında OpenLDAP C başlık dosyaları (`lber.h`) eksik olduğu için derlenemedi; `.venv`'e kurulmadılar (bkz. `docs/surec/environment-notes.md`). Bu nedenle `cps/services/simpleldap.py` dosyasında Pylint'in çözemediği 2 `E0401 import-error` oluşur; bu ortam kısıtıdır, güvenlik veya kod kalitesi bulgusu sayılmaz (CLAUDE.md madde 9).
 - **Statik analiz çalışma zamanını görmez:** Bandit/Pylint/flake8 kodu çalıştırmadan okur; girdi doğrulama, yetkilendirme kontrolü gibi davranışların *gerçekte* hangi koşullarda tetiklendiğini veya tetiklenmediğini göstermezler. Bu yüzden her önemli bulgu, kod üzerinden elle gerekçelendirilir (CLAUDE.md madde 8); araç çıktısı kabul kriteri değildir.
-- **252 adet `E0611 no-name-in-module` uyarısı — çoğu yanlış pozitif adayı:** Pylint başlangıç taramasında (`reports/baseline/pylint.txt`) tespit edilen 252 `E0611` uyarısı LDAP ile ilgili değildir ve üç gruptadır. **250 adedi** (`simpleldap.py` içindeki 2 uyarı dahil), `cps/__init__.py` içinde alt modüllerin (`logger`, `db`, `ub`, `helper`, `services` vb.) paketin kendisine çalışma zamanında öznitelik olarak atanmasından kaynaklanır. 1 adedi `lxml.etree` C uzantısının astroid tarafından görülememesidir (`cps/clean_html.py:20`, yanlış pozitif adayı). 1 adedi gömülü üçüncü taraf kodda (K7) bir hata adayıdır (`cps/cw_advocate/api.py:175`; düzeltilmez, 1. kişi doğrulayıp kayıtta gerekçelendirecek). Aşağıdaki açıklama 250'lik grup içindir: Pylint'in statik çözümleyicisi bu dinamik atama örüntüsünü göremediği için gerçekte var olan isimleri "yok" sanar. Bu, **gerçek bir hata olmadığı değerlendirilen ama henüz `findings-register.csv`'ye resmî olarak işlenip "Yanlış pozitif" damgası vurulmamış bir adaydır** — ekip kararı ve kayıt, bulgu envanteri aşamasında (CLAUDE.md takvimi: 31 Ekim) tamamlanacaktır. Ayrıntı: `docs/pylint-baseline-summary.md` → "Ortamdan kaynaklanan mesajlar".
+- **252 adet `E0611 no-name-in-module` uyarısı — çoğu yanlış pozitif adayı:** Pylint başlangıç taramasında (`reports/baseline/pylint.txt`) tespit edilen 252 `E0611` uyarısı LDAP ile ilgili değildir ve üç gruptadır. **250 adedi** (`simpleldap.py` içindeki 2 uyarı dahil), `cps/__init__.py` içinde alt modüllerin (`logger`, `db`, `ub`, `helper`, `services` vb.) paketin kendisine çalışma zamanında öznitelik olarak atanmasından kaynaklanır. 1 adedi `lxml.etree` C uzantısının astroid tarafından görülememesidir (`cps/clean_html.py:20`, yanlış pozitif adayı). 1 adedi gömülü üçüncü taraf kodda (K7) bir hata adayıdır (`cps/cw_advocate/api.py:175`; düzeltilmez, 1. kişi doğrulayıp kayıtta gerekçelendirecek). Aşağıdaki açıklama 250'lik grup içindir: Pylint'in statik çözümleyicisi bu dinamik atama örüntüsünü göremediği için gerçekte var olan isimleri "yok" sanar. Bu, **gerçek bir hata olmadığı değerlendirilen ama henüz `findings-register.csv`'ye resmî olarak işlenip "Yanlış pozitif" damgası vurulmamış bir adaydır** — ekip kararı ve kayıt, bulgu envanteri aşamasında (CLAUDE.md takvimi: 31 Ekim) tamamlanacaktır. Ayrıntı: `docs/2-baslangic/pylint-baseline-summary.md` → "Ortamdan kaynaklanan mesajlar".
 - **Gömülü üçüncü taraf kod (K7):** `cps/cw_login/` ve `cps/cw_advocate/` gömülü üçüncü taraf koddur. Kapsamda kalır (başlangıç taraması bunları içeriyor), bulgu kaydında "Gömülü üçüncü taraf (K7): kapsamda, incelendi, düzeltme yapılmaz." olarak işaretlenir, bu klasörlerde düzeltme yapılmaz; yalnızca incelenir.

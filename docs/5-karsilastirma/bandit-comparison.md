@@ -2,9 +2,9 @@
 
 Bu dosya `scripts/compare_reports.py` ile ham raporlardan üretilir; elle düzenlenmez. Ham raporlar değiştirilmez.
 
-- Başlangıç: `reports/baseline/` · commit `6e840acb` (upstream `master`, `docs/baseline-commit.txt`)
+- Başlangıç: `reports/baseline/` · commit `6e840acb` (upstream `master`, `docs/1-kapsam/baseline-commit.txt`)
 - Son: `reports/final/` · commit `830d3a80` (`project-analysis`, 24 Kasım 2026, K10)
-- Aynı araç sürümü, aynı kapsam (`cps/` + `cps.py`), aynı parametreler (CLAUDE.md → "Tarama komutları"; `docs/environment-notes.md` → "Tarama kayıtları").
+- Aynı araç sürümü, aynı kapsam (`cps/` + `cps.py`), aynı parametreler (CLAUDE.md → "Tarama komutları"; `docs/surec/environment-notes.md` → "Tarama kayıtları").
 - Eşleştirme: normalize yol + kural kodu + kod parçası (kaynak satırın metni). Satırı yeniden biçimlenip aynı mesajla süren uyarılar "devam eden (satırı değişti)" sayılır.
 - Susturma: bu dönemde `# nosec`, `# noqa` veya `# pylint: disable` eklenmedi (K6); aşağıdaki tüm kapanışlar kod düzeltmesidir.
 - Bandit varsayılan ayarlarla, tüm testler (K4). İki rapor birlikte değerlendirildi: `bandit-cps.json` (`-r cps`) ve `bandit-entrypoint.json` (`cps.py`).
@@ -86,7 +86,7 @@ Hepsi PR #21'de `timeout=(5, 30)` eklenerek kod düzeyinde kapandı (susturma yo
 - Yeni çıkan: **0**.
 
 
-Devam eden bulguların test_id dağılımı: `B101` ×12, `B103` ×2, `B104` ×1, `B105` ×8, `B107` ×1, `B110` ×4, `B112` ×1, `B307` ×1, `B310` ×1, `B403` ×1, `B404` ×1, `B606` ×1, `B704` ×4. Bu bulguların her biri kayıtta kodla incelendi (`docs/review-bandit.md`, `docs/findings-register.csv`): yanlış pozitif ya da düşük öncelikli olarak kabul edildi.
+Devam eden bulguların test_id dağılımı: `B101` ×12, `B103` ×2, `B104` ×1, `B105` ×8, `B107` ×1, `B110` ×4, `B112` ×1, `B307` ×1, `B310` ×1, `B403` ×1, `B404` ×1, `B606` ×1, `B704` ×4. Bu bulguların her biri kayıtta kodla incelendi (`docs/3-inceleme/review-bandit.md`, `docs/findings-register.csv`): yanlış pozitif ya da düşük öncelikli olarak kabul edildi.
 
 ## 6. Güvenlik düzeltmeleri ve K5 (en az 3 güvenlik bulgusu)
 

@@ -1,9 +1,9 @@
 # Yetki ve oturum incelemesi (3. kişi — Emre Bulut)
 
-- **İncelenen commit:** `6e840acbda8d62fdd159bf3855c01872d629a914` (`docs/baseline-commit.txt`)
+- **İncelenen commit:** `6e840acbda8d62fdd159bf3855c01872d629a914` (`docs/1-kapsam/baseline-commit.txt`)
 - **Tarih:** 29–30 Ekim 2026
 - **Yöntem:** Kod okuma; uygulama çalıştırılmadı (K2). Route listesi `cps/*.py` üzerinde AST ile çıkarıldı (her fonksiyonun `@*.route` ve diğer dekoratörleri), ardından her kontrol noktası kodda izlendi.
-- **Kapsam:** `docs/guides/rol-3-yetki.md` kontrol listesi A–E. `cps/cw_login/` (K7) yalnızca davranışı anlamak için okundu.
+- **Kapsam:** `docs/surec/guides/rol-3-yetki.md` kontrol listesi A–E. `cps/cw_login/` (K7) yalnızca davranışı anlamak için okundu.
 
 ## Özet
 

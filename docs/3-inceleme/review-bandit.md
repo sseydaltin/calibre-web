@@ -1,7 +1,7 @@
 # Bandit bulguları — manuel değerlendirme notları (hazırlayan: 3. kişi — Emre Bulut; gözden geçiren: 1. kişi — Şeyda Altın)
 
 - **Kapsam:** `cps/` ve `cps.py` (K1). Ham raporlar: `reports/baseline/bandit-cps.json`, `reports/baseline/bandit-entrypoint.json`.
-- **Otomatik özet:** `docs/bandit-summary.md` (`scripts/summarize_bandit_reports.py` ile üretilir).
+- **Otomatik özet:** `docs/2-baslangic/bandit-summary.md` (`scripts/summarize_bandit_reports.py` ile üretilir).
 - **Bulgu kaydı:** `docs/findings-register.csv` → FIND-001 … FIND-044.
 - **Yöntem:** Her uyarının satırı ve çağrıldığı yer kodda okundu. Girdinin nereden geldiğine (HTTP isteği mi, yapılandırma mı, sabit mi) ve hangi yetkiyle ulaşılabildiğine bakıldı. Uygulama çalıştırılmadı (K2), yani sonuçlar kod okumasına dayanır. CLAUDE.md madde 8 gereği hiçbir uyarı, kodla gerekçelendirilmeden "açık" sayılmadı.
 - **İnceleyen:** 3. kişi (Emre Bulut). Kayıtta `inceleyen = Emre Bulut`; `gozden_geciren` FIND-001…043 için `Şeyda Altın` (PR #4 incelemesi), FIND-044 için `-` (karar `review-auth.md` PR'ında verilecek, gözden geçiren orada yazılacak). Yetki bulguları başlangıçta 3. kişiye atanmıştı; rol düzeltmesiyle (Emre Bulut = 3. kişi) inceleyen ve gözden geçiren aynı kişi olacağı için 1. kişiye alındı (`inceleyen ≠ gozden_geciren`). Bulgu kaydının sahibi 2. kişidir (Dilara Yıldırım).

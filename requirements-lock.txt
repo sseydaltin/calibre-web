@@ -16,7 +16,7 @@
 #                                        PyPI'de hazır wheel yok.
 #   Flask-SimpleLDAP>=1.4.0,<2.2.0   -> python-ldap'e bağımlı, aynı nedenle
 #                                        kurulamıyor.
-# Ayrıntı: docs/environment-notes.md ("Kurulamayan paketler").
+# Ayrıntı: docs/surec/environment-notes.md ("Kurulamayan paketler").
 
 alabaster==1.0.0
 anyio==4.15.1

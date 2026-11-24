@@ -2,9 +2,9 @@
 
 Bu dosya `scripts/compare_reports.py` ile ham raporlardan üretilir; elle düzenlenmez. Ham raporlar değiştirilmez.
 
-- Başlangıç: `reports/baseline/` · commit `6e840acb` (upstream `master`, `docs/baseline-commit.txt`)
+- Başlangıç: `reports/baseline/` · commit `6e840acb` (upstream `master`, `docs/1-kapsam/baseline-commit.txt`)
 - Son: `reports/final/` · commit `830d3a80` (`project-analysis`, 24 Kasım 2026, K10)
-- Aynı araç sürümü, aynı kapsam (`cps/` + `cps.py`), aynı parametreler (CLAUDE.md → "Tarama komutları"; `docs/environment-notes.md` → "Tarama kayıtları").
+- Aynı araç sürümü, aynı kapsam (`cps/` + `cps.py`), aynı parametreler (CLAUDE.md → "Tarama komutları"; `docs/surec/environment-notes.md` → "Tarama kayıtları").
 - Eşleştirme: normalize yol + kural kodu + kod parçası (kaynak satırın metni). Satırı yeniden biçimlenip aynı mesajla süren uyarılar "devam eden (satırı değişti)" sayılır.
 - Susturma: bu dönemde `# nosec`, `# noqa` veya `# pylint: disable` eklenmedi (K6); aşağıdaki tüm kapanışlar kod düzeltmesidir.
 
@@ -133,7 +133,7 @@ K5, en az 5 kod kalitesi / PEP 8 bulgu **türünün** düzeltilmesini istiyor. B
 | `W1514` | unspecified-encoding | FIND-069 | #25 | Kapandı (6/10; kalan 4 kapsam dışı) |
 | `W3101` | missing-timeout | FIND-085 | #21 | Kapandı |
 
-Toplam **7 Pylint türü**. Buna ek olarak flake8'de 5 PEP 8 türü (E722, E501, E226, E302, W391) düzeltildi (`docs/pep8-comparison.md`). Hedef karşılanıyor.
+Toplam **7 Pylint türü**. Buna ek olarak flake8'de 5 PEP 8 türü (E722, E501, E226, E302, W391) düzeltildi (`docs/5-karsilastirma/pep8-comparison.md`). Hedef karşılanıyor.
 
 Sayım notu: `W0702` (Pylint) ile `E722` (flake8) aynı satırın iki aracın gözünden görünümü; tek değişiklikle kapandılar. Karşılaştırmada ayrı uyarı olarak sayılırlar, ama ayrı düzeltme sayılmazlar. Aynı şekilde `W3101`, B113 düzeltmesinin (PR #21) yan etkisidir.
 

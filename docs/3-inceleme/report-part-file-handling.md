@@ -1,6 +1,6 @@
 # Final rapor payı — 4. kişi (Hasan Kurt): dosya işleme, harici süreçler ve düzeltmeler
 
-Bu dosya `docs/final-report.md` içine aktarılmak üzere hazırlandı. 5. bölümün dosya işleme ve harici süreç kısmını, 8. bölümdeki FIND-150 ve FIND-080 düzeltmelerini ve 10. bölüm için sınırlılık notlarını içerir. Ayrıntılı kanıtlar: `docs/review-file-handling.md`, `docs/findings-register.csv`, PR #16, #17, #21.
+Bu dosya `docs/final-report.md` içine aktarılmak üzere hazırlandı. 5. bölümün dosya işleme ve harici süreç kısmını, 8. bölümdeki FIND-150 ve FIND-080 düzeltmelerini ve 10. bölüm için sınırlılık notlarını içerir. Ayrıntılı kanıtlar: `docs/3-inceleme/review-file-handling.md`, `docs/findings-register.csv`, PR #16, #17, #21.
 
 ---
 

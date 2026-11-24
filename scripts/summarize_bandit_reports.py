@@ -8,7 +8,7 @@ Girdi (değiştirilmez, ham raporlar):
     reports/baseline/bandit-entrypoint.json
 
 Çıktı:
-    docs/bandit-summary.md
+    docs/2-baslangic/bandit-summary.md
 
 Kullanım:
     python scripts/summarize_bandit_reports.py
@@ -67,7 +67,7 @@ def build_markdown(results, meta, report_dir: Path) -> str:
         "# Bandit özeti",
         "",
         f"Bu dosya `scripts/summarize_bandit_reports.py` ile `{rel_dir}/` altındaki ham JSON raporlarından "
-        "üretilmiştir; elle düzenlemeyin. Manuel değerlendirme: `docs/review-bandit.md`, "
+        "üretilmiştir; elle düzenlemeyin. Manuel değerlendirme: `docs/3-inceleme/review-bandit.md`, "
         "bulgu kaydı: `docs/findings-register.csv`.",
         "",
         "## Rapor bilgileri",
@@ -127,7 +127,7 @@ def build_markdown(results, meta, report_dir: Path) -> str:
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[1])
     parser.add_argument("--report-dir", default="reports/baseline")
-    parser.add_argument("--output", default="docs/bandit-summary.md")
+    parser.add_argument("--output", default="docs/2-baslangic/bandit-summary.md")
     args = parser.parse_args()
 
     report_dir = (ROOT / args.report_dir).resolve()

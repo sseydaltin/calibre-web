@@ -128,7 +128,7 @@ POST /upload
 | `cps/oauth.py`, `cps/oauth_bb.py` | OAuth blueprint ve geri çağırma (callback) rotaları | Üçüncü taraf kimlik sağlayıcılarıyla oturum eşleştirmesi. |
 | `cps/kobo_auth.py` | Kobo'ya özel token tabanlı kimlik doğrulama | Cihaz senkronizasyonu için ayrı bir kimlik doğrulama yolu. |
 | `cps/remotelogin.py` | "Magic Link" uzaktan giriş | Parolasız, token tabanlı alternatif giriş yolu. |
-| `cps/services/simpleldap.py` | LDAP bağlama (`bind_user`) | Harici dizin sunucusuna kimlik bilgisi iletimi; bu ortamda `flask_simpleldap` eksik olduğundan test edilemedi (bkz. bölüm 6 ve `docs/environment-notes.md`). |
+| `cps/services/simpleldap.py` | LDAP bağlama (`bind_user`) | Harici dizin sunucusuna kimlik bilgisi iletimi; bu ortamda `flask_simpleldap` eksik olduğundan test edilemedi (bkz. bölüm 6 ve `docs/surec/environment-notes.md`). |
 | `cps/__init__.py` | Oturum çerezi ayarları (satır 88–95: `SESSION_COOKIE_HTTPONLY`, `SESSION_COOKIE_SAMESITE`, `WTF_CSRF_SSL_STRICT=False`), `CSRFProtect` kurulumu (satır 103–106, 129–130) | Oturum/CSRF güvenlik ayarlarının merkezi tanımı. `WTF_CSRF_SSL_STRICT=False` özellikle incelenmeye değer. |
 
 ### 5.2 Dosya işleme ve harici süreç çağrıları (4. kişi)
@@ -148,7 +148,7 @@ POST /upload
 
 ## 6. `E0611 no-name-in-module` notu (ortam sorunu, dinamik atama)
 
-Pylint başlangıç taramasında 252 adet `E0611` uyarısı bulundu (bkz. `docs/pylint-baseline-summary.md`). Pylint'in bildirdiği modüle göre üç grup vardır:
+Pylint başlangıç taramasında 252 adet `E0611` uyarısı bulundu (bkz. `docs/2-baslangic/pylint-baseline-summary.md`). Pylint'in bildirdiği modüle göre üç grup vardır:
 
 - **250 adet — `in module 'cps'`:** Bu bölümün konusu. `cps/services/simpleldap.py` içindeki 2 uyarı da bu gruptadır (`constants`, `logger`); LDAP paketinin eksikliğiyle ilgisi yoktur.
 - **1 adet — `cps/clean_html.py:20`, `lxml.etree`:** `lxml.etree` derlenmiş bir C uzantısıdır; astroid içini göremez. `ParserError` kurulu ortamda mevcuttur → yanlış pozitif adayı.

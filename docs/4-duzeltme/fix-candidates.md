@@ -1,11 +1,13 @@
 # Düzeltme adayları ve önerilen dağılım
 
+> **Tarihsel belge.** Bu dosya 31 Ekim 2026'daki aday listesidir ve olduğu gibi korunmuştur. Uygulanan düzeltmeler, PR numaraları ve kapsam dışı kalanlar (K10) için: `docs/final-report.md` → bölüm 3.6, Tablo 6.
+
 Hazırlayan: Şeyda Altın · Tarih: 31 Ekim 2026 · Durum: **taslak, grupta karar bekliyor** (1 Kasım toplantısı yapılmayacak; karar grupta alınacak)
 
 Kaynaklar:
 - `docs/findings-register.csv` içindeki tüm `Gerçek sorun` satırları;
-- `docs/review-auth.md` ve `docs/review-file-handling.md` → "Düzeltme önerileri";
-- `docs/review-bandit.md` → "B113 düzeltme planı".
+- `docs/3-inceleme/review-auth.md` ve `docs/3-inceleme/review-file-handling.md` → "Düzeltme önerileri";
+- `docs/3-inceleme/review-bandit.md` → "B113 düzeltme planı".
 
 K7 klasörlerinden (`cps/cw_login/`, `cps/cw_advocate/`) aday yok. Büyüklükler kodu okuyarak verildi:
 - **küçük:** ≤ 5 satır, tek fonksiyon;
@@ -117,7 +119,7 @@ Takvim: PR'lar 2–5 Kasım arasında açılıp birleşir, 6 Kasım'da dosya baz
 ## 7. Gruba atılacak özet
 
 ```
-Düzeltme adayları hazır: docs/fix-candidates.md (taslak, onayınızı bekliyor).
+Düzeltme adayları hazır: docs/4-duzeltme/fix-candidates.md (taslak, onayınızı bekliyor).
 Öneri:
 • Dilara: B113 FIND-010–014 + FIND-116 (amazon.py) (timeout=(5, 30), 7 satır) → gözden geçiren Hasan
 • Hasan: FIND-150 (send_to_ereader filtresi), FIND-057 (helper.py except sırası), FIND-080 (file_helper bare except) → gözden geçiren Emre

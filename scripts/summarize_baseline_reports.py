@@ -9,8 +9,8 @@ Girdi (değiştirilmez, ham raporlar):
     reports/baseline/pep8.txt
 
 Çıktı:
-    docs/pylint-baseline-summary.md
-    docs/pep8-baseline-summary.md
+    docs/2-baslangic/pylint-baseline-summary.md
+    docs/2-baslangic/pep8-baseline-summary.md
 
 Kullanım:
     python scripts/summarize_baseline_reports.py
@@ -27,8 +27,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PYLINT_REPORT = ROOT / "reports" / "baseline" / "pylint.txt"
 PEP8_REPORT = ROOT / "reports" / "baseline" / "pep8.txt"
-PYLINT_SUMMARY = ROOT / "docs" / "pylint-baseline-summary.md"
-PEP8_SUMMARY = ROOT / "docs" / "pep8-baseline-summary.md"
+PYLINT_SUMMARY = ROOT / "docs" / "2-baslangic" / "pylint-baseline-summary.md"
+PEP8_SUMMARY = ROOT / "docs" / "2-baslangic" / "pep8-baseline-summary.md"
 
 CATEGORY_NAMES = {
     "C": "convention",
@@ -204,7 +204,7 @@ def render_pylint_summary(data: dict) -> str:
     lines.append(
         "CLAUDE.md madde 9: import/bağımlılık hataları (`E0401 import-error` vb.) "
         "güvenlik bulgusu sayılmaz; ortam sorunu olarak burada ve "
-        "`docs/environment-notes.md` içinde kayıtlıdır. `E0611 no-name-in-module` "
+        "`docs/surec/environment-notes.md` içinde kayıtlıdır. `E0611 no-name-in-module` "
         "uyarıları da burada, Pylint'in bildirdiği modüle göre gruplanarak gösterilir."
     )
     lines.append("")

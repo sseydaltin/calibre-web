@@ -1,9 +1,9 @@
 # Dosya işleme ve harici süreç incelemesi (4. kişi — Hasan Kurt)
 
-İncelenen commit: `6e840acbda8d62fdd159bf3855c01872d629a914` (`docs/baseline-commit.txt`)
+İncelenen commit: `6e840acbda8d62fdd159bf3855c01872d629a914` (`docs/1-kapsam/baseline-commit.txt`)
 Tarih: 28 Ekim 2026 (E5 eki: 31 Ekim 2026)
 Yöntem: kod okuma; uygulama çalıştırılmadı (K2). İki noktada uygulama dışı, yalıtılmış kütüphane davranışı doğrulandı: `nh3.clean()` (A7) ve standart kütüphane `urllib.request.urlopen()` (E3). Bu çağrılar Calibre-Web kodunu çalıştırmaz, yalnızca kodun dayandığı kütüphanenin davranışını gösterir.
-Rehber: `docs/guides/rol-4-dosya-surec.md`. Satır numaraları baseline commit'e aittir.
+Rehber: `docs/surec/guides/rol-4-dosya-surec.md`. Satır numaraları baseline commit'e aittir.
 
 ## Özet
 
