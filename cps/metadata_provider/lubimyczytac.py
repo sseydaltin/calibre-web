@@ -118,7 +118,8 @@ class LubimyCzytac(Metadata):
     ) -> Optional[List[MetaRecord]]:
         if self.active:
             try:
-                result = requests.get(self._prepare_query(title=query))
+                result = requests.get(self._prepare_query(title=query),
+                                      timeout=(5, 30))
                 result.raise_for_status()
             except Exception as e:
                 log.warning(e)
@@ -212,7 +213,7 @@ class LubimyCzytacParser:
         self, match: MetaRecord, generic_cover: str, locale: str
     ) -> MetaRecord:
         try:
-            response = requests.get(match.url)
+            response = requests.get(match.url, timeout=(5, 30))
             response.raise_for_status()
         except Exception as e:
             log.warning(e)
