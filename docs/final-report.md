@@ -1,130 +1,245 @@
-# Calibre-Web Üzerinde Güvenlik İçin Statik Kod Analizi
+**Proje Başlığı:** Calibre-Web Üzerinde Güvenlik İçin Statik Kod Analizi
+**Gruptaki Öğrencilerin Adı – Soyadı:** Şeyda Altın, Dilara Yıldırım, Mustafa Emre Bulut, Muhammed Hasan Kurt
+**Gruptaki Öğrencilerin Numarası:** 230290046, 230290018, 230290001, 230290033
 
-**Fırat Üniversitesi Mühendislik Fakültesi Yazılım Mühendisliği · YMÜ 415 Yazılım Geçerleme ve Sınama · Proje Raporu**
+# 1. Giriş
 
-| Öğrenci | Numara |
-| --- | --- |
-| Şeyda Altın | [numara] |
-| Dilara Yıldırım | [numara] |
-| Hasan Kurt | [numara] |
-| Emre Bulut | [numara] |
+**Amaç.** Statik kod analizi, kaynak kodun çalıştırılmadan incelenerek güvenlik riskleri, olası çalışma hataları ve kodlama standardı ihlallerinin bulunmasıdır. Bu projede gerçek ve yeterli büyüklükte bir açık kaynak Python uygulaması Bandit (güvenlik), Pylint (kod kalitesi) ve flake8 (PEP 8) ile incelendi; bulgular elle doğrulandı, seçilen sorunlar düzeltildi ve araçlar aynı koşullarda yeniden çalıştırılarak başlangıç ve son durum karşılaştırıldı.
 
-## 1. Giriş
+**İncelenen proje.** Calibre-Web, bir Calibre e-kitap kitaplığını web arayüzü üzerinden tarama, okuma, indirme ve yönetme olanağı sunan Flask tabanlı bir uygulamadır [1]. Proje; kimlik doğrulama, erişim denetimi, dosya işleme, harici süreç çağrısı ve dış ağ isteği gibi web uygulamalarında sık görülen risk alanlarını [2] tek bir kod tabanında bir araya getirdiği için seçildi. Calibre-Web GPL v3 lisanslıdır; lisans dosyası ve kaynak dosyalardaki telif bildirimleri değiştirilmedi. Çalışmanın bütün çıktıları ekip deposunda bulunmaktadır [3].
 
-**Amaç.** Bu projede gerçek ve yeterli büyüklükte bir açık kaynak Python uygulaması, kod **çalıştırılmadan** statik analiz araçlarıyla incelendi. Güvenlik için Bandit, kod kalitesi için Pylint, PEP 8 uygunluğu için flake8 kullanıldı. Araç bulguları elle doğrulandı ve gerçek sorun, düşük öncelikli uyarı ya da yanlış pozitif olarak sınıflandırıldı. Seçilen sorunlar küçük, davranışı koruyan değişikliklerle düzeltildi. Son olarak araçlar aynı sürüm ve parametrelerle yeniden çalıştırılıp başlangıç ile son durum karşılaştırıldı.
+**Kapsam.** Analiz, Calibre-Web ana deposunun 20 Eylül 2026 tarihli `6e840acb` sürümü (commit) üzerinde yapıldı. Tarama kapsamı uygulama paketi `cps/` ile giriş noktası `cps.py` dosyasıdır; testler, örnek veri, şablonlar ve çeviri dosyaları Python statik analizinin hedefi olmadığından kapsam dışında bırakıldı. Taranan kodun büyüklüğü Tablo 1'de verilmiştir.
 
-**İncelenen proje.** Calibre-Web, bir Calibre e-kitap kitaplığını web üzerinden tarama, okuma, indirme ve yönetme imkânı veren bir Flask uygulamasıdır [1]. Kullanıcı ve yönetici yetkilendirmesi, OPDS beslemesi, kitap yükleme ve biçim dönüştürme (harici Calibre ikili dosyalarıyla), harici servislerden metadata indirme, Kobo senkronizasyonu, Google Drive entegrasyonu ile LDAP/OAuth girişi gibi özellikler içerir. Kimlik doğrulama, dosya işleme, harici süreç çağrısı ve ağ isteği gibi güvenlik açısından kritik alanları bir arada barındırdığı için seçildi. Proje GPL v3 lisanslıdır; lisans ve telif bildirimlerine dokunulmadı.
-
-**Kapsam.** Analiz, upstream [1] `master` dalının `6e840acb` commit'i (20 Eylül 2026) üzerinde yapıldı. Otomatik tarama kapsamı uygulama paketi `cps/` ile giriş noktası `cps.py`'dir. `test/`, örnek kitaplık verisi ve JavaScript/CSS/HTML şablonları Python statik analizinin hedefi olmadığı için kapsam dışında bırakıldı. Taranan kodun büyüklüğü Tablo 1'de verilmiştir. En büyük dosya, otomatik üretilmiş bir dil adı sözlüğü olan `iso_language_names.py`'dir (11.732 satır). İş mantığı ağırlıkla `admin.py` (2.211), `editbooks.py` (1.762), `web.py` (1.675), `kobo.py` (1.320), `db.py` (1.206) ve `helper.py` (1.165) dosyalarındadır.
-
-**Tablo 1.** Taranan kapsamın büyüklüğü (`cps/` + `cps.py`)
+**Tablo 1.** Taranan kapsamın büyüklüğü (`cps/` ve `cps.py`, başlangıç sürümü)
 
 | Ölçü | Değer |
 | --- | --- |
 | Python dosyası | 101 |
 | Toplam satır | 37.831 |
-| Kod satırı (boş satır ve tam satır yorumlar hariç) | 31.597 |
+| Kod satırı (boş satırlar ve tam satır yorumlar hariç) | 31.597 |
 
-Uygulama katmanlı bir yapıya sahiptir. Rota katmanı (`web.py`, `admin.py`, `editbooks.py`, `opds.py`, `shelf.py`, `kobo.py`) HTTP isteklerini ve yetki dekoratörlerini taşır. `ub.py` kullanıcı ve oturum veritabanını, `db.py` Calibre'nin `metadata.db` dosyasını modeller. `services/` isteğe bağlı dış entegrasyonları, `tasks/` ise dönüştürme ve e-posta gibi arka plan işlerini içerir. `cps/cw_login/` ve `cps/cw_advocate/` uygulamaya gömülü üçüncü taraf koddur. Bu iki dizin taramaya dahil edildi, ancak içlerinde düzeltme yapılmadı. Dizin yapısı ve güvenlik açısından kritik bölgelerin haritası `docs/1-kapsam/architecture.md` dosyasındadır.
+En büyük dosya, dil kodlarını dil adlarına eşleyen otomatik üretilmiş bir sözlük olan `iso_language_names.py`'dir (11.732 satır); büyüklüğü iş mantığını değil veri hacmini yansıtır. Uygulama mantığı ağırlıklı olarak `admin.py` (2.211), `editbooks.py` (1.762), `web.py` (1.675), `kobo.py` (1.320), `db.py` (1.206) ve `helper.py` (1.165) dosyalarında toplanmıştır.
 
-**Çözülmek istenen problem.** Statik analiz araçları çok sayıda uyarı üretir. Bu uyarıların önemli bir kısmı yanlış pozitif ya da düşük önceliklidir; bazı gerçek sorunlar ise araçlar tarafından hiç görülmez. Projenin sorusu şudur: araç çıktısı ile elle yapılan kod incelemesi birlikte kullanıldığında gerçek riskler nasıl ayırt edilir, hangileri güvenle düzeltilebilir ve düzeltmenin etkisi aynı araçlarla nasıl ölçülür?
+**Mimari yapı.** Uygulama katmanlıdır: rota katmanı HTTP isteklerini karşılar ve yetki denetimlerini dekoratörlerle uygular; `ub.py` kullanıcı ve oturum veritabanını, `db.py` Calibre'nin üst veri veritabanını modeller; `services/` dış entegrasyonları, `tasks/` arka plan işlerini içerir. `cps/cw_login/` ve `cps/cw_advocate/` uygulamaya gömülmüş üçüncü taraf kütüphanelerdir; taramaya dahil edildi, ancak içlerinde düzeltme yapılmadı. Güvenlik açısından kritik modüller Tablo 2'de özetlenmiştir.
 
-## 2. Yöntem
+**Tablo 2.** Güvenlik açısından kritik modüller
 
-**Araçlar ve ortam.** Tüm taramalar Windows üzerinde, PowerShell'de ve sabitlenmiş bir sanal ortamda (`requirements-lock.txt`) yapıldı. Araç sürümleri ve görevleri Tablo 2'de verilmiştir. Uygulamanın bağımlılıkları da Pylint'in importları çözebilmesi için kuruldu; ancak uygulama hiçbir aşamada çalıştırılmadı. Windows'ta derlenemeyen iki LDAP paketi (`python-ldap`, `Flask-SimpleLDAP`) kurulamadı. Bu paketlerden kaynaklanan 2 `E0401 import-error` mesajı bulgu sayılmadı, ortam sorunu olarak `docs/surec/environment-notes.md` dosyasına kaydedildi.
+| Modül | Görevi | Güvenlik açısından önemi |
+| --- | --- | --- |
+| `web.py`, `admin.py`, `editbooks.py` | Kullanıcı, yönetici ve kitap rotaları | Erişim denetimi |
+| `usermanagement.py`, `ub.py` | Giriş, parola, oturum, roller | Kimlik doğrulama |
+| `uploader.py`, `helper.py`, `file_helper.py` | Yükleme, indirme, arşiv okuma | Dizin geçişi, bozuk arşiv |
+| `subproc_wrapper.py`, `tasks/convert.py` | Harici program çağrıları | Komut enjeksiyonu |
+| `metadata_provider/`, `services/` | Dış servislerden üst veri | Kaynak tüketimi |
 
-**Tablo 2.** Kullanılan araçlar
+**Problemin tanımı.** Statik analiz araçlarının ürettiği uyarıların bir kısmı yanlış pozitif ya da düşük önceliklidir; bazı gerçek sorunlar ise araçların kurallarına hiç takılmaz. Projenin yanıtladığı soru şudur: Araç çıktısı ile elle yapılan kod incelemesi birlikte kullanıldığında gerçek riskler nasıl ayırt edilir, bunların hangileri küçük ve davranışı korumaya yönelik değişikliklerle düzeltilebilir ve düzeltmelerin etkisi aynı araçlarla nasıl ölçülür?
 
-| Araç | Sürüm | Ölçtüğü | Parametreler |
-| --- | --- | --- | --- |
-| Python | 3.12.10 | – | `.venv` |
-| Bandit [3] | 1.9.4 | Güvenlik açığı örüntüleri; önem × güven | Varsayılan, tüm testler; `-r cps` ve `cps.py` ayrı |
-| Pylint [4] | 4.1.3 (astroid 4.3.4) | Kod kalitesi; 10 üzerinden puan | Varsayılan (yapılandırma dosyası yok) |
-| flake8 [5] | 7.4.1 | PEP 8 [6] stil kuralları | `--isolated --select=E,W`, satır uzunluğu 79 |
+**Projenin hedefleri.**
 
-**Çalışma ilkeleri.** Ekip kararları kayıt altına alındı (K1–K10, `CLAUDE.md`).
+- **H1.** Kapsamın başlangıç durumunu, kaynak kodda hiçbir değişiklik yapılmadan önce Bandit, Pylint ve flake8 ile ölçüp kayıt altına almak.
+- **H2.** MEDIUM ve HIGH önem düzeyindeki bütün Bandit bulgularını kod satırları üzerinden incelemek.
+- **H3.** Kimlik doğrulama/yetki ile dosya işleme/harici süreç/ağ alanlarını elle inceleyerek araçların göremediği sorunları ortaya çıkarmak.
+- **H4.** Her bulguyu kodla desteklenen bir gerekçeyle gerçek sorun, düşük öncelikli uyarı veya yanlış pozitif olarak sınıflandırmak.
+- **H5.** Seçilen gerçek sorunları davranışı korumaya yönelik küçük değişikliklerle düzeltmek; her düzeltmeyi, yapandan farklı bir ekip üyesine teknik olarak inceletmek.
+- **H6.** Araçları aynı sürüm, kapsam ve parametrelerle yeniden çalıştırıp kapanan, devam eden ve yeni oluşan uyarıları ayrı ayrı ölçmek.
 
-- **Değişmeyen tarama:** Başlangıç ve son taramada aynı araç sürümü, aynı kapsam ve aynı komutlar kullanıldı. Başlangıç raporları (`reports/baseline/`) kaynak kodda herhangi bir değişiklik yapılmadan önce commit edildi ve sonradan değiştirilmedi.
-- **Statik doğrulama:** Kod çalıştırılmadı (K2). Bir kütüphanenin davranışını doğrulamak gerektiğinde, uygulamayı başlatmadan yalnızca o kütüphane veya fonksiyon küçük bir Python parçasıyla denendi (K9 "yalıtılmış deneme"; ör. `zipfile`'ın bozuk arşivde hangi istisnaları fırlattığı).
-- **Bulgu kaydı:** Her bulgu `docs/findings-register.csv` dosyasında tek satır oldu. Her satırda doğrulama sonucu, kodla desteklenmiş gerekçe, inceleyen ve gözden geçiren kişi yer alır. Yüzlerce benzer stil uyarısı kural koduna göre gruplandı.
-- **Sınıflandırma ölçütü:** "Gerçek sorun" için kod yolunun izlenip zararın gösterilebilmesi gerekti. "Düşük öncelikli uyarı", etkisi sınırlı ya da başka bir korumayla örtülü durumlar için kullanıldı. "Yanlış pozitif" kararı için uyarının bu kodda oluşamayacağının kodla gösterilmesi şart koşuldu.
-- **Düzeltme yaklaşımı:** Yalnızca seçilmiş, anlamlı bulgular küçük ve davranışı koruyan değişikliklerle düzeltildi. Projenin black/autopep8 gibi araçlarla toplu biçimlendirilmesi bilinçli olarak yapılmadı, çünkü binlerce satırlık bir diff önce-sonra karşılaştırmasını anlamsızlaştırır (K5). Bu yaklaşım ders yürütücüsüyle teyit edildi. Hedef en az 3 güvenlik bulgusu ile en az 5 kod kalitesi/PEP 8 türüydü.
-- **Susturma düzeltme değildir:** `# nosec`, `# noqa` veya `# pylint: disable` eklenmedi (K6). Raporda görülen bütün kapanışlar kod düzeltmesidir.
-- **Değişiklik süreci:** Her düzeltme ayrı bir dalda yapıldı ve Pull Request ile birleştirildi. Düzeltmeyi yapan kişiden farklı bir ekip üyesi her değişikliği inceledi. Doğrulama için `py_compile` ve ilgili araçla dosya bazlı önce/sonra taraması kullanıldı.
-- **Karşılaştırma yöntemi:** Önce-sonra eşleştirmesi `scripts/compare_reports.py` ile yapıldı. Satır numaraları kaydığı için her uyarı "normalize dosya yolu + kural kodu + kaynak satırın metni" anahtarıyla eşlendi. Satırı değişen ama aynı uyarıyı taşıyan durumlar "devam eden" sayıldı.
-- **Bağımsız tekrar:** Son taramalar `830d3a80` commit'i üzerinde yapıldı. Emre Bulut aynı taramaları kendi bilgisayarında, aynı commit ve aynı sürümlerle bağımsız olarak tekrarladı ve birebir aynı sonuçları aldı.
-- **Yapay zekâ desteği:** Analiz, doğrulama ve dokümantasyon sürecinde yapay zekâ destekli kodlama asistanı (Claude Code) [12] kullanılmıştır. Araç çıktıları, bulgu gerekçeleri ve düzeltmeler ekip üyelerince gözden geçirilmiş; her düzeltme farklı bir ekip üyesi tarafından incelenmiştir.
+# 2. Yöntem
 
-**İş bölümü.** Şeyda Altın: depo yönetimi, kapsam ve mimari, Pylint/PEP 8 analizi ve düzeltmeleri. Dilara Yıldırım: Bandit taramaları, bulgu kaydı, B113 düzeltmesi. Emre Bulut: kimlik doğrulama ve yetki incelemesi. Hasan Kurt: dosya işleme, harici süreç ve ağ çağrıları incelemesi. Ekip deposu [2]'dir.
+Çalışmanın genel akışı Şekil 1'de gösterilmiştir.
 
-## 3. Uygulama / Geliştirim Aşamaları
+![Şekil 1](figures/sekil-1-surec.png)
 
-Çalışma altı adımda ilerledi. İlk adımda başlangıç taramaları yapıldı (3.1, 3.2, 3.4). Ardından Bandit bulguları ve iki kritik alan elle incelendi (3.3). Tüm bulgular kayda alınıp sınıflandırıldı (3.5). Seçilen sorunlar düzeltildi (3.6). Son adımda araçlar yeniden çalıştırıldı (bölüm 4).
+**Şekil 1.** Analiz sürecinin akış diyagramı
 
-### 3.1 Pylint ile başlangıç kalite analizi
+- **Araçlar.** Kullanılan araçlar Tablo 3'te verilmiştir. Bandit bilinen güvensiz örüntüleri arayıp her bulguya önem ve güven düzeyi atar [4]; Pylint olası hataları ve biçim kurallarını denetleyip 10 üzerinden puan üretir [5]; flake8 [6] ise kodun PEP 8 [7] kurallarına uygunluğunu denetler.
 
-Başlangıç taraması **6.42/10** puan ve **3999** mesaj verdi (Tablo 3). Mesajların yaklaşık üçte ikisi biçim ve adlandırma kurallarına ilişkin `convention` mesajlarıdır. En sık kodlar `C0301` line-too-long (911), `C0116` missing-function-docstring (779), `C0209` consider-using-f-string (303) ve `E0611` no-name-in-module (252) oldu. En çok mesaj alan dosyalar `admin.py` (336) ve `web.py` (333) idi.
+**Tablo 3.** Kullanılan araçlar ve parametreler
 
-**Tablo 3.** Pylint başlangıç kategori dağılımı
+| Araç | Sürüm | Ölçtüğü | Ölçmediği | Parametreler |
+| --- | --- | --- | --- | --- |
+| Bandit | 1.9.4 | Güvensiz kod örüntüleri; önem × güven | Veri akışı, yetki mantığı | Varsayılan, tüm testler; JSON |
+| Pylint | 4.1.3 (astroid 4.3.4) | Olası hatalar, biçim; 10 üzerinden puan | Güvenlik; dinamik öznitelikler | Varsayılan |
+| flake8 | 7.4.1 | PEP 8 ihlalleri (E, W) | Kodun anlamı | `--isolated --select=E,W` (79 karakter) |
 
-| Kategori | Adet |
+- **Ortam.** Taramalar Windows üzerinde Python 3.12.10 ile, sürümleri bir kilit dosyasında sabitlenmiş bir sanal ortamda yapıldı. Pylint'in içe aktarmaları çözebilmesi için bağımlılıklar kuruldu; uygulama hiçbir aşamada başlatılmadı. İsteğe bağlı 30 paketten ikisi (`python-ldap`, `Flask-SimpleLDAP`) Windows'ta derlenemedi; bunun sonucu olan 2 `E0401` mesajı ortam kısıtı olarak kaydedildi, LDAP kodu yine tarandı.
+- **Değişmeyen başlangıç.** Başlangıç raporları kaynak kodda herhangi bir değişiklik yapılmadan önce depoya eklendi. Başlangıç ve son taramada aynı araç sürümleri, aynı kapsam ve aynı komutlar kullanıldı.
+- **Bulgu kaydı.** Bütün bulgular tek bir kayıtta (`docs/findings-register.csv`) tutuldu; her bulguya yeniden kullanılmayan bir kimlik numarası verildi (ör. FIND-014; raporda bulgulara bu numaralarla atıf yapılır) ve doğrulama sonucu, kodla desteklenen gerekçe ve inceleyen kişi yazıldı. 137 satırın 74'ünde inceleyenden farklı bir gözden geçiren vardır; kalan 63 satır düzeltilmeyen Pylint ve flake8 bulgularıdır ve gözden geçiren atanmamıştır.
+- **Sınıflandırma ölçütleri.** Her bulgu Tablo 4'teki ölçütlerden birine göre sınıflandırıldı. "Araç uyardığına göre açık vardır" ya da "kimse istismar etmez" gibi kodla desteklenmeyen gerekçeler kabul edilmedi.
+
+**Tablo 4.** Bulgu sınıflandırma ölçütleri
+
+| Sonuç | Verildiği koşul |
 | --- | --- |
-| convention (C) | 2646 |
-| refactor (R) | 537 |
-| warning (W) | 454 |
-| error (E) | 324 |
-| information (I) | 38 |
-| **Toplam** | **3999** |
+| Gerçek sorun | Kod yolu izlenerek hatalı ya da kötü niyetli bir girdinin ilgili noktaya ulaşıp zarar verebileceği gösterilebiliyor; kalite bulgularında uyarı gerçek bir çalışma hatasına yol açıyor. |
+| Düşük öncelikli uyarı | Sorun teorik olarak var, ancak etkisi küçük, yalnızca yöneticinin erişebildiği bir yerde ya da başka bir korumayla sınırlanmış. |
+| Yanlış pozitif | Aracın uyardığı durumun bu kodda oluşamayacağı kodla gösterilebiliyor (ör. değer sabit, girdi önceden temizleniyor, araç dinamik yapıyı çözemiyor). |
 
-`error` kategorisindeki mesajların büyük kısmı gerçek hata değildir. 252 `E0611` mesajının 250'si, `cps/__init__.py`'nin alt modülleri çalışma zamanında paket özniteliği olarak atamasından kaynaklanır: astroid bu dinamik atamayı göremediği için var olan adları "yok" sayar. Bu mesajlar yanlış pozitif olarak tek satırda kaydedildi (FIND-045). Buna karşılık bazı `warning` ve `error` mesajları gerçek hatalara işaret etti. Örneğin `get_sorted_author` içindeki ters `isinstance` çağrısı (`W1116`), hata işleyicisinin her durumda kendisinin çökmesine yol açıyordu (FIND-081).
+- **Düzeltme ilkeleri.** Yalnızca gerçek sorun olarak sınıflandırılan ve seçilen bulgular, davranışı korumaya yönelik küçük değişikliklerle düzeltildi. Hedef en az üç güvenlik bulgusu ve en az beş kod kalitesi/PEP 8 türüydü. Proje otomatik araçlarla (black, autopep8) toplu biçimlendirilmedi; binlerce satırlık bir değişiklik önce-sonra karşılaştırmasını anlamsızlaştırırdı. Bu yaklaşım ders yürütücüsüyle teyit edildi. Uyarıları susturan yorumlar (`# nosec`, `# noqa`, `# pylint: disable`) eklenmedi. Gömülü üçüncü taraf dizinlerde düzeltme yapılmadı.
+- **Doğrulama.** Üç düzey ayrı tutuldu: (1) sözdizimi — değiştirilen dosyalar `py_compile` ile derlendi; (2) statik analiz — dosyalar üç araçla yeniden tarandı, hedef uyarının kapanması ve yeni uyarı oluşmaması arandı; (3) yalıtılmış deneme — gerektiğinde uygulama başlatılmadan yalnızca ilgili kütüphane işlevi küçük bir Python parçasıyla denendi. Çalışma zamanı testi yapılmadı; davranışın korunduğu kod okuma ve yalıtılmış denemelerle desteklendi, çalışan uygulamada gösterilmedi. Her düzeltme, yapandan farklı bir üye tarafından incelendi ya da GitHub üzerinden onaylandı (Tablo 14).
+- **Karşılaştırma yöntemi.** Satır numaraları düzeltmelerle kaydığı için uyarılar "dosya yolu + kural kodu + kaynak satırın metni" anahtarıyla eşleştirildi ve kapanan, devam eden, yeni oluşan olarak sayıldı.
+- **Tekrarlanabilirlik.** Son taramalar kod dondurulduktan sonraki `830d3a80` sürümü üzerinde yapıldı. Taramalar ikinci bir ekip üyesince kendi bilgisayarında aynı sürümlerle tekrarlandı; Bandit bulgu sayısı ve önem dağılımı, Pylint puanı ve flake8 ihlal sayısı aynı çıktı (Pylint'in döngüsel içe aktarma mesajı R0401'in çalıştırmalar arasındaki değişkenliği için bkz. Tablo 25).
+- **Görev dağılımı.** Katkılar, izlenebilir kanıtlarıyla birlikte Tablo 5'te verilmiştir; doküman yolları ekip deposunun `docs/` klasörüne göredir. Raporda "teknik inceleme" düzeltmenin kod ve araç çıktıları üzerinden yayımlanmış yazılı kontrolünü, "onay" birleştirme isteğine GitHub üzerinden verilen onayı ifade eder.
 
-### 3.2 Bandit ile güvenlik analizi ve risk sınıflandırması
+**Tablo 5.** Görev dağılımı
 
-Bandit `cps/` dizininde 42, `cps.py` dosyasında 1 olmak üzere toplam **43** bulgu verdi. Bunların **0'ı HIGH**, **14'ü MEDIUM** ve 29'u LOW önemdedir. Önem × güven dağılımı Tablo 4'te verilmiştir. MEDIUM bulgular şu kurallardan geldi: `B113` zaman aşımsız dış istek (5), `B704` `Markup` ile olası XSS (4), `B103` dosya izni (2), `B104` tüm arayüzlerde dinleme (1), `B307` `eval` (1) ve `B310` `urlopen` (1). LOW bulguların en sık kuralları `B101` assert (12; 9'u gömülü üçüncü taraf kodda) ve `B105` sabit parola dizgisi (8) idi. Upstream kodunda önceden eklenmiş 10 `# nosec` satırı vardı. Bu satırlar Bandit raporunda görünmediği için ayrıca elle incelendi.
+| Öğrenci | Analiz alanı | Bulgu kaydına katkı | Düzeltmeler | Gözden geçirme / doğrulama | Kaynak doküman / katkı kanıtı |
+| --- | --- | --- | --- | --- | --- |
+| Şeyda Altın | Kapsam ve mimari; Pylint ve PEP 8; depo yönetimi | Pylint/flake8 bulguları (FIND-045–117); Bandit ve dosya işleme kayıtlarını gözden geçirme | FIND-056, 069, 078, 081, 117 | FIND-126 ve 049 onayı; son taramalar ve karşılaştırma | `1-kapsam/`, `2-baslangic/`, `4-duzeltme/`, `5-karsilastirma/`; Bandit 1.9.4 raporlarının commit'i |
+| Dilara Yıldırım | Bandit başlangıç taramaları; B113 analizi ve düzeltme planı | Kaydın sorumluluğu: kimlik dağıtımı, biçim ve bütünlük kontrolü | FIND-010–014, 116 (+085) | Kalite/PEP 8 düzeltmelerinin (FIND-049 dahil) teknik incelemesi; FIND-159 teknik incelemesi; final raporun hazırlanması | `evidence/bandit-1.8.6-original/`, `3-inceleme/review-bandit.md`, `surec/28-ekim-kontrol-dilara.md`, `final-report.md` |
+| Mustafa Emre Bulut | Bandit bulgularının değerlendirilmesi; kimlik doğrulama ve yetki | Bandit (FIND-001–044) ve yetki (FIND-125–133) bulguları | FIND-126 (kısmi), 049 | FIND-080 ve 150 teknik incelemesi ve onayı; FIND-159 teknik incelemesi; son taramanın tekrarı | `3-inceleme/review-bandit.md`, `review-auth.md`, `report-part-auth.md`, `surec/environment-notes.md` |
+| Muhammed Hasan Kurt | Dosya işleme, harici süreç ve ağ çağrıları | Dosya işleme bulguları (FIND-150–160); yetki kayıtlarını gözden geçirme | FIND-150, 080 (+109) | Zaman aşımı düzeltmesinin teknik incelemesi ve onayı | `3-inceleme/review-file-handling.md`, `report-part-file-handling.md` |
 
-**Tablo 4.** Bandit başlangıç önem × güven matrisi
+# 3. Uygulama / Geliştirim Aşamaları
+
+Çalışma Şekil 1'deki sırayla yürütüldü: kod değiştirilmeden başlangıç taramaları yapıldı (3.1, 3.2, 3.4), önemli bulgular ve iki kritik alan elle incelendi (3.3), bulgular sınıflandırıldı (3.5) ve seçilen sorunlar düzeltildi (3.6).
+
+## 3.1 Pylint ile başlangıç kalite analizi
+
+Pylint başlangıç taraması 6,42/10 puan ve 3.999 mesaj üretti. Tablo 6'da görüldüğü gibi mesajların yaklaşık üçte ikisi convention (biçim, adlandırma, belgelendirme) mesajıdır.
+
+**Tablo 6.** Pylint başlangıç kategori dağılımı
+
+| Kategori | Adet | Oran |
+| --- | --- | --- |
+| convention (C) | 2.646 | %66,2 |
+| refactor (R) | 537 | %13,4 |
+| warning (W) | 454 | %11,4 |
+| error (E) | 324 | %8,1 |
+| information (I) | 38 | %1,0 |
+| **Toplam** | **3.999** | **%100** |
+
+En sık on mesaj kodu Tablo 7'dedir. En çok mesaj alan dosyalar `admin.py` (336), `web.py` (333), `editbooks.py` (255), `helper.py` (218) ve `db.py` (212) oldu.
+
+**Tablo 7.** En sık görülen on Pylint mesaj kodu (C: convention, R: refactor, W: warning, E: error)
+
+| Kod | Ad | Kat. | Adet | Kod | Ad | Kat. | Adet |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| C0301 | line-too-long | C | 911 | C0411 | wrong-import-order | C | 105 |
+| C0116 | missing-function-docstring | C | 779 | R1705 | no-else-return | R | 96 |
+| C0209 | consider-using-f-string | C | 303 | C0114 | missing-module-docstring | C | 92 |
+| E0611 | no-name-in-module | E | 252 | C0115 | missing-class-docstring | C | 90 |
+| C0103 | invalid-name | C | 209 | W0718 | broad-exception-caught | W | 83 |
+
+Error mesajlarının çoğu gerçek hata değildir: 252 E0611 mesajının 250'si, `cps/__init__.py` dosyasının alt modülleri çalışma zamanında paket özniteliği olarak atamasından doğar; Pylint bu dinamik atamayı izleyemez. Bu mesajlar tek kayıtta yanlış pozitif olarak işlendi (FIND-045). Buna karşılık iki mesaj, kod okunarak doğrulanan gerçek hatalara işaret etti. W1116'da (FIND-081) `isinstance` argümanları ters yazılmıştır; ikinci argüman tür olmadığından hata işleyicisi her çalıştığında `TypeError` fırlatır. E1305'te (FIND-056) tek yer tutuculu dizgiye iki argüman verilir ve aranan dosyanın adı günlük kaydından düşer.
+
+```
+cps/helper.py:302
+    if isinstance(list, value2):
+cps/helper.py:416–417
+    log.error("File {} not found on gdrive"
+              .format(old_path, file_format.name + '.' + file_format.format.lower()))
+```
+
+## 3.2 Bandit ile güvenlik analizi ve risk sınıflandırması
+
+Bandit, `cps/` dizininde 42 ve `cps.py` dosyasında 1 olmak üzere 43 bulgu üretti. Tablo 8'de görüldüğü gibi HIGH önemli bulgu yoktur; 14 bulgu MEDIUM, 29 bulgu LOW önemdedir.
+
+**Tablo 8.** Bandit başlangıç önem × güven matrisi
 
 | Önem \ Güven | HIGH | MEDIUM | LOW | Toplam |
 | --- | --- | --- | --- | --- |
 | HIGH | 0 | 0 | 0 | 0 |
 | MEDIUM | 8 | 1 | 5 | 14 |
 | LOW | 19 | 10 | 0 | 29 |
-| **Toplam** | 27 | 11 | 5 | 43 |
+| **Toplam** | **27** | **11** | **5** | **43** |
 
-Başlangıç Bandit raporları ilk denemede yanlışlıkla 1.8.6 sürümüyle üretilmişti. Bu fark, kod değişikliği yapılmadan önce fark edildi. Raporlar aynı commit ve aynı parametrelerle 1.9.4 sürümüyle yeniden üretildi, eski raporlar kanıt olarak saklandı (K8, `evidence/bandit-1.8.6-original/`).
+Kurallara göre dağılım Tablo 9'dadır. B101 bulgularının 9'u gömülü üçüncü taraf kod olan `cps/cw_advocate/` dizinindedir.
 
-### 3.3 Önemli güvenlik bulgularının kod üzerinden incelenmesi
+**Tablo 9.** Bandit bulgularının kurallara göre dağılımı
 
-**Bandit bulguları.** 14 MEDIUM bulgunun tamamı kod parçasıyla incelendi (`docs/3-inceleme/review-bandit.md`):
+| Kural | Açıklama | Önem | Güven | Adet |
+| --- | --- | --- | --- | --- |
+| B113 | Zaman aşımı olmadan dış HTTP isteği | MEDIUM | LOW | 5 |
+| B704 | `Markup` kullanımıyla olası XSS | MEDIUM | HIGH | 4 |
+| B103 | Geniş dosya izni (`chmod`) | MEDIUM | HIGH | 2 |
+| B307 | `eval` kullanımı | MEDIUM | HIGH | 1 |
+| B310 | Şeması denetlenmeyen `urlopen` | MEDIUM | HIGH | 1 |
+| B104 | Tüm ağ arayüzlerinde dinleme | MEDIUM | MEDIUM | 1 |
+| B101 | `assert` kullanımı | LOW | HIGH | 12 |
+| B105 | Sabit parola dizgisi | LOW | MEDIUM | 8 |
+| B110 | `try/except/pass` | LOW | HIGH | 4 |
+| Diğer | B107, B112, B403, B404, B606 (birer adet) | LOW | HIGH/MEDIUM | 5 |
 
-- **B704 (4):** XSS'e yol açmıyor. `Markup` ile işaretlenen yorum HTML'i önce `nh3` kütüphanesiyle temizleniyor. Yalıtılmış denemede betik, olay öznitelikleri ve `javascript:` adresleri temizlendi. Bu bulgular yanlış pozitif olarak işaretlendi.
-- **B103 (2):** Unix soketine verilen `0o660` izni diğer kullanıcılara erişim vermiyor; tasarım gereği olduğu için yanlış pozitif sayıldı.
-- **B310 (1):** `urlopen`'a ulaşan değer kullanıcıdan gelmiyor; yanlış pozitif sayıldı.
-- **B307 ve B104 (birer):** Sömürülebilir bir yol bulunmadı; düşük öncelikli uyarı olarak kaydedildi. B104'ün varsayılan yönetici hesabıyla (FIND-044) birlikte riski artırdığı not edildi.
-- **B113 (5):** Metadata sağlayıcılarındaki ve Goodreads servisindeki zaman aşımsız `requests.get` çağrıları **gerçek sorun** olarak değerlendirildi (FIND-010–014). Dış servis yanıt vermezse istek süresiz bekler ve sunucu kaynağı tükenebilir (CWE-400 [7]). Goodreads çağrısı, anonim gezinme açıksa girişsiz de tetiklenebiliyor.
+Kaynak kodda proje geliştiricilerinin önceden eklediği 10 `# nosec` yorumu vardı; Bandit bu satırları raporlamadığı için hepsi elle incelendi. Dördünde MD5 güvenlik dışı amaçla (önbellek anahtarı, geçici ad, sağlama toplamı), dördünde "token" adlı dizgi başlık adı veya sabit metin olarak kullanılır; biri `shell=False` ile yapılan `Popen` çağrısıdır. Kalan satır varsayılan yönetici parolasıdır ve gerçek sorun olarak kaydedildi (FIND-044).
 
-**Kimlik doğrulama ve yetki (Emre Bulut).** Bu alanda 20 kontrol noktası incelendi: 2 gerçek sorun, 7 düşük öncelikli uyarı ve 11 noktada sorun yok. Yönetici rotalarının 49'unun 46'sı giriş ve yönetici dekoratörleriyle korunuyor; kalan üçü varsayılan olarak kapalı ya da yalnızca kullanıcının kendi verisine dokunuyor. Parolalar `scrypt` ile saklanıyor, `next` parametresi üzerinden açık yönlendirme yapılamıyor. Bulunan iki gerçek sorun şunlardır:
+Başlangıç Bandit raporları ilk denemede yanlışlıkla Bandit 1.8.6 ile üretilmişti. Fark kod değişikliğinden önce fark edildi (1.9.4 sürümü üç ek B105 bulgusu veriyordu); raporlar aynı kod üzerinde 1.9.4 ile yeniden üretildi ve eski raporlar ayrıca saklandı.
 
-- **FIND-044:** İlk kurulumda `admin`/`admin123` hesabı açılıyor ve parola değişikliği zorlanmıyor. Bu satır upstream'de `# nosec` ile susturulduğu için Bandit raporunda görünmüyor.
-- **FIND-126:** "Parolamı unuttum" seçeneği var olan ve olmayan kullanıcı adına farklı mesaj gösteriyor. Bu fark kullanıcı adlarının tahmin edilmesine izin veriyor (CWE-204 [8]).
+## 3.3 Önemli güvenlik bulgularının kod üzerinden incelenmesi
 
-**Dosya işleme, harici süreçler ve ağ (Hasan Kurt).** Bu alanda 23 kontrol noktası incelendi: 3 gerçek sorun, 8 düşük öncelikli uyarı ve 12 noktada sorun yok. İndirmede dizin geçişi (path traversal) yok, çünkü dosya yolu veritabanından geliyor ve gönderim `send_from_directory` ile yapılıyor. Arşivler diske açılmadığı için "zip slip" saldırısı mümkün değil. Tek `Popen` çağrısı `shell=False` ve liste argümanla çalışıyor; URL'den kapak indirmede SSRF koruması etkin. Bulunan gerçek sorunlar şunlardır:
+**MEDIUM önemli Bandit bulguları.** On dört MEDIUM bulgunun tamamı, uyarı satırına ulaşan girdi kodda izlenerek incelendi. Her kural türü için temsilî satır ve sonuç aşağıdadır.
 
-- **FIND-150:** E-okuyucuya gönderme rotası kitabı filtresiz `get_book()` ile alıyor. Bu yüzden içerik kısıtlaması olan bir kullanıcı, göremediği bir kitabı kitap numarasını vererek kendi e-posta adresine gönderebiliyor (CWE-285 [9]).
-- **FIND-151:** Yöneticinin "yüklemeye izin ver" ayarı yalnızca arayüzde uygulanıyor, sunucu tarafında kontrol edilmiyor.
-- **FIND-152:** Google Drive kurulumlarında seri küçük resmi üretimi, dosya içeriğini URL sanıp `urlopen()`'a verdiği için her zaman hata veriyor (işlev hatası).
+```
+B113 · cps/services/goodreads_support.py:89
+    resp = requests.get(self.host+self.path, params=self.params, headers={...})
+```
 
-Ayrıca B113 düzeltmesi incelenirken aynı türden ama Bandit'in görmediği zaman aşımsız istekler bulundu. `amazon.py`'de iki (FIND-116), `douban.py`'de üç (FIND-160) `requests.Session` çağrısı vardı. Bandit B113 kuralı `Session` nesnesi üzerinden yapılan çağrıları tanımıyor. Ayrıntılar `docs/3-inceleme/report-part-auth.md` ve `docs/3-inceleme/report-part-file-handling.md` dosyalarındadır.
+Beş dış istekte zaman aşımı yoktur; Requests kütüphanesi bu durumda yanıtı süresiz bekleyebilir [8] ve yanıt vermeyen bir servis iş parçacıklarını kilitleyerek kaynak tükenmesine yol açabilir (CWE-400 [9]). Çağrılar oturum açmış kullanıcılar, Goodreads çağrısı ise anonim gezinme açıksa girişsiz tetiklenebilir. Sonuç: gerçek sorun (FIND-010–014).
 
-### 3.4 PEP 8 uygunluk analizi
+```
+B704 · cps/editbooks.py:706
+    modify_date |= edit_book_comments(Markup(to_save.get('comments')).unescape(), book)
+```
 
-flake8 başlangıçta **3409** ihlal ve 42 farklı ihlal kodu verdi. Bu ihlallerin **2879'u (%84) `E501`** satır uzunluğu ihlalidir; PEP 8'in 79 karakter sınırı, projede yaygın olan 100–120 karakterlik satırlarla çakışıyor. Sonraki sıklar `E221` operatör öncesi fazla boşluk (63), `E231` virgül sonrası eksik boşluk (63), `E128` devam satırı girintisi (56) ve `E302` iki boş satır kuralı (33) oldu. En çok ihlal içeren dosyalar `web.py` (398), `admin.py` (337) ve `editbooks.py` (290) idi. PEP 8 ihlalleri büyük ölçüde okunabilirlik sorunudur; tek gerçek davranış etkisi olan ihlal, çıplak `except:` kullanımıydı (`E722`, FIND-109).
+`Markup(x).unescape()` düz dizgi döndürür; metin ardından `nh3` temizleyicisinden geçer. Aynı ayarlarla yapılan yalıtılmış denemede betik etiketleri, olay öznitelikleri ve `javascript:` adresleri temizlendi. Sonuç: yanlış pozitif (FIND-002–005).
 
-### 3.5 Bulguların değerlendirilmesi
+```
+B103 · cps/server.py:129
+    os.chmod(unix_socket_file, 0o660)
+B307 · cps/dep_check.py:48
+    if not eval(str(sys.version_info[0]) + "." + ... + res.group(7) + val[0] + ...):
+B310 · cps/tasks/thumbnail.py:386
+    stream = urlopen(web_content_link)
+B104 · cps/server.py:138
+    self.listen_address = '0.0.0.0'
+```
 
-Bulgu kaydında 137 satır bulunuyor (Tablo 5). Pylint ve flake8 satırları kural koduna göre gruplanmıştır; örneğin tek bir satır 2879 `E501` ihlalini temsil eder. Bu yüzden satır sayısı mesaj sayısı değil, değerlendirilmiş bulgu grubu sayısıdır. Gömülü üçüncü taraf kodda 11 satır var; bunlar incelendi ama düzeltilmedi (K7). Her satırda gerekçe kodla destekleniyor ve inceleyen kişi ile gözden geçiren kişi farklı.
+B103: izin yalnızca isteğe bağlı Unix soketine uygulanır, diğer kullanıcılara hak vermez; yanlış pozitif (FIND-006, 007). B307: `eval` metni kurulum dosyasından gelir ve düzenli ifadeyle sınırlanır; düşük öncelikli (FIND-001). B310: değer kullanıcıdan değil Google Drive API'sinden gelir; yanlış pozitif (FIND-008), ancak değerin URL değil dosya içeriği olduğu ayrı bir işlev hatası olarak kaydedildi (FIND-152). B104: tüm arayüzlerde dinleme olağan ve değiştirilebilir bir varsayılandır; düşük öncelikli (FIND-009), ancak FIND-044 ile birlikte ilk kurulumda ağa açık bir yönetici hesabı anlamına gelebilir.
 
-**Tablo 5.** Bulgu kaydında kaynağa göre doğrulama sonuçları
+**Elle incelenen alanlar.** Bandit yetki mantığını izlemediği için kimlik doğrulama/yetki ve dosya işleme/harici süreç/ağ alanları ayrıca elle incelendi (Tablo 10).
+
+**Tablo 10.** Elle yapılan incelemelerin sonuç dağılımı
+
+| Alan | Kontrol noktası | Gerçek sorun | Düşük öncelikli | Sorun yok |
+| --- | --- | --- | --- | --- |
+| Kimlik doğrulama ve yetki | 20 | 2 | 7 | 11 |
+| Dosya işleme, harici süreç ve ağ | 23 | 3 | 8 | 12 |
+| **Toplam** | **43** | **5** | **15** | **23** |
+
+Sorun bulunmayan noktalar da kodla gerekçelendirildi: parolalar `scrypt` özeti olarak saklanır, `next` parametresi açık yönlendirmeye izin vermez, indirmede yol veritabanından alınıp `send_from_directory` ile gönderilir, arşivler diske açılmaz ve tek `Popen` çağrısı kabuksuzdur. Bu iki incelemede 5 gerçek sorun bulundu; sonraki incelemelerde bulunan FIND-116 ve FIND-160 ile toplam 7'ye ulaştı. Bunlar Bandit uyarısı olarak raporlanmadı (FIND-152'nin satırındaki B310 uyarısı farklı bir riske işaret eder):
+
+- **FIND-044.** İlk kurulumda tam yetkili `admin` hesabı bilinen bir parolayla açılır ve parola değişikliği zorlanmaz (CWE-1188 [10]); satır geliştiricilerce susturulduğu için Bandit raporlamaz: `constants.py:140  DEFAULT_PASSWORD = "admin123"  # nosec`.
+- **FIND-126.** "Parolamı unuttum" var olan ve olmayan kullanıcı adına farklı mesaj döndürür (CWE-204 [11]); parola onay bağlantısı istenmeden sıfırlanır: `web.py:1438  flash(_(u"Please enter valid username to reset password"), ...)`.
+- **FIND-150.** İndirme yolu içerik kısıtlamalarını uygulayan filtreli sorguyu kullanırken gönderme yolu kitabı filtresiz alır; kısıtlı kullanıcı göremediği bir kitabı kendine gönderebilir (CWE-285 [12]): `web.py:1265  book = calibre_db.get_book(book_id)`.
+- **FIND-151.** "Yüklemeye izin ver" ayarı yalnızca şablonlarda okunur; yükleme rotası sadece kullanıcı rolüne bakar: `editbooks.py:60  if current_user.role_upload():`.
+- **FIND-152.** Seri küçük resmi üretimi dosya içeriğini URL sanıp `urlopen()`'a verir (B310 satırı); hata yalıtılmış denemeyle doğrulandı. Güvenlik açığı değil işlev hatasıdır.
+- **FIND-116 ve FIND-160.** `amazon.py`'de iki, `douban.py`'de üç zaman aşımsız istek bulundu. Bunlar `requests.Session` üzerinden yapıldığı için Bandit'in B113 kuralınca tanınmaz: `amazon.py:61  r = session.get(f"https://www.amazon.com/{link}")`.
+
+Düşük öncelikli FIND-159'da Google Drive bildirim geri çağrısının gizli olmayan sabit bir başlıkla korunduğu ve MD5 karşılaştırmasının dosya yerine yol metnine uygulandığı belirlendi; bulgu düzeltilmedi; inceleme dokümanı birleştirmeden önce iki üyenin yazılı teknik incelemesi ve onayını aldı (biri ilk, biri son sürüm üzerinde).
+
+## 3.4 PEP 8 uygunluk analizi
+
+flake8, 42 farklı kodla 3.409 ihlal raporladı. Tablo 11'de görüldüğü gibi ihlallerin 2.879'u (%84,5) E501 satır uzunluğu ihlalidir; PEP 8'in 79 karakterlik sınırı [7] projedeki 100–120 karakterlik satırlarla çakışır.
+
+**Tablo 11.** En sık görülen sekiz flake8 ihlal kodu
+
+| Kod | Kural | Adet | Oran |
+| --- | --- | --- | --- |
+| E501 | Satır 79 karakterden uzun | 2.879 | %84,5 |
+| E221 | Operatörden önce birden çok boşluk | 63 | %1,8 |
+| E231 | Virgülden sonra boşluk eksik | 63 | %1,8 |
+| E128 | Devam satırının girintisi eksik | 56 | %1,6 |
+| E302 | Tanımdan önce iki boş satır beklenir | 33 | %1,0 |
+| W503 | İkili operatörden önce satır sonu | 28 | %0,8 |
+| E127 | Devam satırının girintisi fazla | 26 | %0,8 |
+| E126 | Asılı girintide fazla girinti | 22 | %0,6 |
+
+En çok ihlal içeren dosyalar `web.py` (398), `admin.py` (337), `editbooks.py` (290), `kobo.py` (240) ve `helper.py` (210) oldu. Pylint'in convention kategorisi bu ihlallerle kısmen örtüşür; ancak Pylint satır sınırını 100 karakter kabul ettiği için C0301 911, E501 ise 2.879 kez görülür ve Pylint ayrıca belgelendirme ve adlandırma kurallarını denetler. Bütün E/W kodları seçildiğinden birbirini dışlayan W503 ve W504 birlikte etkindir; ikili operatör çevresinde bölünen her satır birini ihlal ettiği için bu 49 ihlal (28 + 21) hedef yapılmadı. Çalışma davranışını etkileyebilecek tek ihlal çıplak `except:` kullanımıdır (E722, FIND-109).
+
+## 3.5 Bulguların değerlendirilmesi
+
+Bütün bulgular bulgu kaydına işlendi; kaynağa göre doğrulama sonuçları Tablo 12'de ve Şekil 2'de verilmiştir.
+
+**Tablo 12.** Bulgu kaydında kaynağa göre doğrulama sonuçları
 
 | Kaynak | Gerçek sorun | Düşük öncelikli | Yanlış pozitif | Toplam |
 | --- | --- | --- | --- | --- |
@@ -134,209 +249,324 @@ Bulgu kaydında 137 satır bulunuyor (Tablo 5). Pylint ve flake8 satırları kur
 | Manuel inceleme | 7 | 15 | 0 | 22 |
 | **Toplam** | **24** | **70** | **43** | **137** |
 
-Bandit bulgularının 31'i (%72) kodla gerekçelendirilmiş yanlış pozitiftir. Buna karşılık manuel incelemede bulunan 7 gerçek sorunun hiçbiri Bandit uyarısı olarak görünmedi. Bunların kimi yetki veya mantık hatası (FIND-126, 150, 151), biri işlev hatası (FIND-152), biri `# nosec` ile susturulmuş (FIND-044), ikisi de aracın kuralının kapsamadığı türden (FIND-116, 160). 24 gerçek sorunun 17'si düzeltildi (3.6). Kalan 7'si (FIND-044, 057, 082, 101, 151, 152, 160) ve 70 düşük öncelikli uyarının tamamı K10 kod dondurması ve kapsam nedeniyle "Kabul edildi (düzeltilmeyecek)" olarak kapatıldı; bunlar raporda öneri olarak yer alıyor (bölüm 5).
+![Şekil 2](figures/sekil-2-dogrulama.png)
 
-### 3.6 Düzeltmeler
+**Şekil 2.** Bulgu kaydında kaynağa göre doğrulama sonuçları
 
-Tablo 6, birleştirilen düzeltmeleri özetler. Her biri ayrı bir PR'dır ve her birinde `py_compile` ile ilgili araçların dosya bazlı önce/sonra taraması çalıştırıldı. Hedeflenen uyarıların hepsi kapandı ve hiçbir PR yeni bir uyarı doğurmadı.
+Bandit bulguları tek tek kaydedildi; Pylint ve flake8 mesajları ise kural koduna göre gruplandı ve yalnızca seçilen ya da ayrı gerekçe gerektiren mesajlar ayrı satır olarak açıldı (ör. FIND-104 satırı 2.879 E501 ihlalini temsil eder). Bu nedenle Tablo 12'deki sayılar araç mesajı değil, değerlendirilmiş bulgu satırı sayısıdır. Gömülü üçüncü taraf koda ait 11 satır incelendi ancak düzeltilmedi. Her sınıftan örnekler Tablo 13'tedir.
 
-**Tablo 6.** Düzeltmeler
+**Tablo 13.** Doğrulama sonuçlarına ilişkin örnekler
 
-| Bulgu | Tür | PR | Düzelten | Gözden geçiren |
-| --- | --- | --- | --- | --- |
-| FIND-010–014, 116, 085 | Güvenlik (B113, `Session` zaman aşımı) / kalite (W3101) | #21 | Dilara Yıldırım | Hasan Kurt |
-| FIND-150 | Güvenlik (yetki) | #17 | Hasan Kurt | Emre Bulut |
-| FIND-126 | Güvenlik (bilgi sızıntısı) | #18 | Emre Bulut | Şeyda Altın |
-| FIND-080 (+FIND-109) | Kalite (W0702, E722) | #16 | Hasan Kurt | Emre Bulut |
-| FIND-049 | Kalite (E1101) | #20 | Emre Bulut | Dilara Yıldırım |
-| FIND-078 | Kalite (W0715) | #22 | Şeyda Altın | Dilara Yıldırım |
-| FIND-081 | Kalite (W1116) | #23 | Şeyda Altın | Dilara Yıldırım |
-| FIND-056 | Kalite (E1305) | #24 | Şeyda Altın | Dilara Yıldırım |
-| FIND-069 | Kalite (W1514) | #25 | Şeyda Altın | Dilara Yıldırım |
-| FIND-117 | PEP 8 (`jinjia.py`) | #26 | Şeyda Altın | Dilara Yıldırım |
+| Bulgu | Araç / kural | Sonuç | Gerekçe |
+| --- | --- | --- | --- |
+| FIND-010 | Bandit B113 | Gerçek sorun | İstek süresiz bekleyebilir. |
+| FIND-081 | Pylint W1116 | Gerçek sorun | Hata işleyicisi her çalışmada çöker. |
+| FIND-001 | Bandit B307 | Düşük öncelikli | Girdi kurulum dosyasından gelir, sınırlıdır. |
+| FIND-104 | flake8 E501 | Düşük öncelikli | Yalnızca okunabilirliği etkiler. |
+| FIND-045 | Pylint E0611 | Yanlış pozitif | Adlar çalışma zamanında atanır. |
+| FIND-110 | flake8 E711 | Yanlış pozitif | SQLAlchemy ifadesi; `is None` sorguyu bozar. |
 
-**FIND-010–014, FIND-116 (PR #21): dış isteklere zaman aşımı.** 5 dosyada 7 çağrıya aynı değer eklendi (örnek `lubimyczytac.py:215`):
+Bandit bulgularının 31'i (%72) kodla gerekçelendirilmiş yanlış pozitiftir (10'u gömülü kodda); elle bulunan 7 gerçek sorunun ise hiçbiri Bandit'in raporladığı riskle örtüşmez. Kayıttaki 24 gerçek sorunun 17 satırı "düzeltildi" durumundadır. Bunlardan FIND-085 ve FIND-109, FIND-014 ve FIND-080 ile aynı kod değişikliğinin başka araçtaki karşılığıdır; dolayısıyla 17 satır 15 ayrı soruna karşılık gelir. Bu 15 sorunun 12'si tamamen, 3'ü (FIND-069, 117, 126) kısmen giderilmiştir; kayıt kısmi düzeltmeler için de "düzeltildi" durumunu kullanmaktadır. Kalan 7 gerçek sorun (FIND-044, 057, 082, 101, 151, 152, 160) ve 70 düşük öncelikli uyarı, kod dondurma tarihi ve kapsam nedeniyle "kabul edildi (düzeltilmeyecek)" olarak kapatıldı.
 
-```python
-response = requests.get(match.url)                       # önce
-response = requests.get(match.url, timeout=(5, 30))      # sonra
-```
+## 3.6 Düzeltmeler
 
-Bağlantı için 5 saniye, okuma için 30 saniye sınır kondu [10]. Zaman aşımında fırlatılan istisna her yolda zaten mevcut `except` bloklarıyla yakalanıyor ve fonksiyon boş sonuç dönüyor; bu yüzden davranış değişmedi, yalnızca süresiz bekleme kalktı. Bandit'te 5 `B113`, Pylint'te 1 `W3101` kapandı.
+Düzeltmeler on birleştirme isteğiyle (pull request, PR) yapıldı (Tablo 14).
 
-**FIND-150 (PR #17): e-okuyucuya göndermede içerik kısıtlaması.**
+**Tablo 14.** Uygulanan düzeltmeler
 
-```python
-book = calibre_db.get_book(book_id)                                        # önce
-book = calibre_db.get_filtered_book(book_id, allow_show_archived=True)     # sonra
-```
-
-Gönderme rotası artık indirme rotasıyla aynı filtreyi (dil, etiket ve özel sütun kısıtlamaları) uyguluyor. Kısıtlı bir kitap için mevcut "biçim desteklenmiyor" yanıtı dönüyor; yeni bir hata yolu eklenmedi.
-
-**FIND-126 (PR #18): parola sıfırlamada tek mesaj.**
-
-```python
-flash(_(u"Please enter valid username to reset password"), category="error")  # önce (kullanıcı yoksa)
-flash(_(u"New Password was sent to your email address"), category="info")      # sonra (her durumda)
-```
-
-Var olan kullanıcı, olmayan kullanıcı ve hata durumlarında artık aynı mesaj ve aynı HTTP kodu dönüyor. Yöneticinin gerçek durumu görebilmesi için log satırları korundu. Kullanıcı adı tahmini kapandı. Onay bağlantısı olmadan parola sıfırlanması sorunu ise büyük bir değişiklik gerektirdiği için öneri olarak kaldı.
-
-**FIND-080 / FIND-109 (PR #16): çıplak `except` daraltıldı** (`file_helper.py:85`).
-
-```python
-        except:                                                                  # önce
-        except (zipfile.BadZipFile, OSError, ValueError, NotImplementedError):  # sonra
-```
-
-İstisna listesi standart kütüphane `zipfile` [11] üzerinde yalıtılmış denemeyle doğrulandı: 60.000 bozuk ZIP örneğinde bu dört tür dışında istisna çıkmadı. Değişiklik Pylint `W0702` ve flake8 `E722` uyarılarını birlikte kapattı.
-
-**FIND-049 (PR #20): hata işleyicisinde `AttributeError`** (`admin.py:1374, 1377`, `shelf.py:287`).
-
-```python
-flash(_("Oops! Database Error: %(error)s.", error=e.orig), ...)                  # önce
-flash(_("Oops! Database Error: %(error)s.", error=getattr(e, 'orig', e)), ...)   # sonra
-```
-
-Yakalanan istisnanın `orig` özniteliği yoksa kullanıcıya hata mesajı yerine 500 hatası dönüyordu. Yeni kod, projede `editbooks.py`'de zaten kullanılan örüntüyle aynıdır.
-
-**FIND-078 (PR #22): hata mesajı biçimlendirilmiyordu** (`admin.py:2206`).
-
-```python
-raise Exception("Could Not Parse LDAP Userfield: {}", user)    # önce
-raise Exception(f"Could Not Parse LDAP Userfield: {user}")     # sonra
-```
-
-`.format()` kullanmak yeni bir `C0209` uyarısı doğurduğu için f-string tercih edildi.
-
-**FIND-081 (PR #23): ters `isinstance`** (`helper.py:302`).
-
-```python
-if isinstance(list, value2):    # önce: her zaman TypeError
-if isinstance(value, list):     # sonra
-```
-
-**FIND-056 (PR #24): eksik yer tutucu** (`helper.py:417`). Log mesajı iki argüman alıyor ama biçim dizgisinde tek yer tutucu vardı, bu yüzden dosya adı kayboluyordu.
-
-```python
-log.error("File {} not found on gdrive".format(old_path, name))      # önce
-log.error("File {}/{} not found on gdrive".format(old_path, name))   # sonra
-```
-
-**FIND-069 (PR #25): açık dosya kodlaması.** 4 dosyada 6 `open()` çağrısına `encoding='utf-8'` eklendi (örnek `dep_check.py:39`):
-
-```python
-with open(req_path, 'r') as f:                     # önce
-with open(req_path, 'r', encoding='utf-8') as f:   # sonra
-```
-
-Kodlama belirtilmediğinde Windows'ta yerel ayarın kodlaması kullanılır (Türkçe Windows'ta cp1254). Açılan dosyaların hepsinin ASCII ya da JSON (UTF-8) olduğu doğrulandı. Google Drive modüllerindeki 4 çağrıya dokunulmadı, çünkü karşı tarafı okuyan PyDrive2 kodlama belirtmiyor ve tek tarafı değiştirmek davranışı korumazdı.
-
-**FIND-117 (PR #26): `jinjia.py` PEP 8 temizliği.** Dosya elle temizlendi: uzun satırlar parantez içinde bölündü, operatörlere boşluk eklendi, boş satır kuralları uygulandı (örnek):
-
-```python
-suml += nchar+3      # önce (E226)
-suml += nchar + 3    # sonra
-```
-
-İhlal sayısı 16'dan 4'e indi. Kalan 4 `E501` GPL lisans başlığındadır ve lisans bildirimlerine dokunulmaması kuralı gereği değiştirilmedi.
-
-## 4. Sonuçlar
-
-Son taramalar 24 Kasım 2026'da `830d3a80` commit'i üzerinde, başlangıçla aynı sürüm, kapsam ve parametrelerle yapıldı. Emre Bulut'un bağımsız tekrarı birebir aynı sonucu verdi. Özet Tablo 7'de verilmiştir.
-
-**Tablo 7.** Başlangıç ve son tarama karşılaştırması
-
-| Araç | Ölçü | Başlangıç | Son | Kapanan | Yeni çıkan |
+| Bulgu | Tür | Dosya | Düzelten | Gözden geçiren | İnceleme | PR |
 | --- | --- | --- | --- | --- | --- |
-| Pylint | Puan | 6.42/10 | 6.44/10 | – | – |
-| Pylint | Mesaj (`R0401` hariç) | 3956 | 3936 | 20 | 0 |
-| flake8 | İhlal | 3409 | 3393 | 16 | 0 |
-| Bandit | Bulgu | 43 | 38 | 5 | 0 |
-| Bandit | MEDIUM önem | 14 | 9 | 5 | 0 |
-| Bandit | `# nosec` satırı | 10 | 10 | – | – |
+| FIND-010–014, 116 (+085) | Güvenlik: zaman aşımı | 5 dosya, 7 çağrı | Dilara Yıldırım | Muhammed Hasan Kurt | TO | #21 |
+| FIND-150 | Güvenlik: yetki | `web.py` | Muhammed Hasan Kurt | Mustafa Emre Bulut | TO | #17 |
+| FIND-126 (kısmi) | Güvenlik: bilgi sızıntısı | `web.py` | Mustafa Emre Bulut | Şeyda Altın | O | #18 |
+| FIND-080 (+109) | Kalite: W0702, E722 | `file_helper.py` | Muhammed Hasan Kurt | Mustafa Emre Bulut | TO | #16 |
+| FIND-049 | Kalite: E1101 | `admin.py`, `shelf.py` | Mustafa Emre Bulut | Dilara Yıldırım | TSᵃ | #20 |
+| FIND-078 | Kalite: W0715 | `admin.py` | Şeyda Altın | Dilara Yıldırım | TS | #22 |
+| FIND-081 | Kalite: W1116 | `helper.py` | Şeyda Altın | Dilara Yıldırım | TS | #23 |
+| FIND-056 | Kalite: E1305 | `helper.py` | Şeyda Altın | Dilara Yıldırım | TS | #24 |
+| FIND-069 (kısmi) | Kalite: W1514 | 4 dosya, 6 çağrı | Şeyda Altın | Dilara Yıldırım | TS | #25 |
+| FIND-117 (kısmi) | PEP 8: E501, E226, E302, W391 | `jinjia.py` | Şeyda Altın | Dilara Yıldırım | TS | #26 |
 
-- **Bandit:** Kapanan 5 bulgunun hepsi `B113`'tür (FIND-010–014). HIGH bulgu başlangıçta da sonda da yoktu. Kalan 38 bulgunun her biri kayıtta kodla incelenmiş ve yanlış pozitif ya da düşük öncelikli olarak kabul edilmiştir.
-- **Pylint:** Kapanan 20 mesajın 13'ü doğrudan hedeflenen uyarılardır: `W1514` ×6, `E1101` ×2, `W0702`, `W0715`, `W1116`, `E1305` ve `W3101`. Kalan 7'si düzeltilen satırların yan etkisiyle kapandı (`C0301` ×4, `W1406` ×2, `C0305` ×1). Ayrıca 2 mesaj, değişen satırda aynı haliyle sürüyor (`W0719`, `C0209`). Kategori bazında `warning` 454'ten 442'ye, `error` 324'ten 321'e, `convention` 2646'dan 2641'e indi.
-- **flake8:** Kapanan 16 ihlalin 12'si `jinjia.py`'den (`E501` ×7, `E226` ×3, `E302`, `W391`), 1'i `file_helper.py`'deki `E722`'den geldi; 3'ü (`E501`) düzeltilen satırların yan etkisiyle kapandı.
+İnceleme: TO, birleştirme öncesi yayımlanmış yazılı teknik inceleme ve GitHub onayı; O, birleştirme öncesi yalnızca GitHub onayı; TS, birleştirme sonrası yayımlanmış yazılı teknik inceleme. ᵃ FIND-049 için birleştirmeden önce Şeyda Altın'ın GitHub onayı vardır; Dilara Yıldırım'ın teknik incelemesi birleştirmeden sonra belgelenmiştir.
 
-**Tablo 8.** Düzeltilen dosyalarda dosya bazlı Pylint puanı
+Değiştirilen dosyalar `py_compile` ile derlendi ve üç araçla dosya bazında yeniden tarandı; hedeflenen uyarıların hepsi kapandı ve hiçbir düzeltme yeni uyarı doğurmadı.
 
-| Dosya | Düzeltme (PR) | Önce | Sonra | Mesaj önce → sonra |
+**Dış isteklere zaman aşımı (FIND-010–014, 116; aynı değişiklikle FIND-085).** Beş dosyadaki yedi çağrıya `timeout=(5, 30)` eklendi. Bu değer bağlantı kurma için 5, sunucudan veri beklemek için 30 saniyelik ayrı sınırlardır; isteğin toplam süresine bir üst sınır koymaz [8]. Kod okunarak izlenen hata yollarında zaman aşımı istisnası mevcut bloklarca yakalanır: dört çağrı boş liste, iki çağrı `None` döndürür (çağıran taraf `None` sonuçları ayıklar), Goodreads çağrısında istisna `get_author_info` içinde yakalanır; bu yollar çalışma zamanında denenmedi. Dosya bazında 5 B113 ve 5 W3101 kapandı; W3101'lerin dördü resmi Pylint taramasının kapsamadığı `metadata_provider/` dizinindedir.
+
+```
+cps/metadata_provider/lubimyczytac.py:215
+Önce:   response = requests.get(match.url)
+Sonra:  response = requests.get(match.url, timeout=(5, 30))
+```
+
+**E-okuyucuya göndermede içerik kısıtlaması (FIND-150).** Gönderme rotası artık indirme rotasıyla aynı filtreli sorguyu kullanır. Koda göre filtreye takılan kitapta mevcut "biçim desteklenmiyor" yanıtı döner; yeni hata yolu eklenmedi. Araç uyarısı olmadığından kapanan uyarı yoktur, yeni uyarı da oluşmadı.
+
+```
+cps/web.py:1265
+Önce:   book = calibre_db.get_book(book_id)
+Sonra:  book = calibre_db.get_filtered_book(book_id, allow_show_archived=True)
+```
+
+**Parola sıfırlamada tek mesaj (FIND-126, kısmi).** Dallardaki üç mesaj kaldırıldı ve bütün durumlarda mevcut başarı mesajı gösterilir; yeni çeviri metni eklenmedi, günlük kayıtları korundu. Böylece yanıt mesajı üzerinden kullanıcı adı tespiti engellendi. Yanıt süresi farkı üzerinden tespit olasılığı ve onay bağlantısı istenmeden parola sıfırlanması sürdüğü için bulgu kısmen giderildi.
+
+```
+cps/web.py:1438, başlangıç (kullanıcı bulunamadığında)
+Önce:   flash(_(u"Please enter valid username to reset password"), category="error")
+cps/web.py:1438, son sürüm (dalların ardından, tüm durumlarda)
+Sonra:  flash(_(u"New Password was sent to your email address"), category="info")
+```
+
+**Çıplak `except` ifadesinin daraltılması (FIND-080; aynı değişiklikle FIND-109).** Olası istisnalar `zipfile` belgesine [13] dayanılarak belirlendi ve yalıtılmış denemeyle doğrulandı: geçerli EPUB/ZIP örnekleri 60.000 kez bozulduğunda listedeki dört tür dışında istisna oluşmadı; gözden geçiren 20.000 örnekle bağımsız olarak aynı sonucu aldı. `except Exception` yeni bir W0718 doğuracağı için seçilmedi. Tek değişiklik W0702 ve E722'yi birlikte kapattı.
+
+```
+cps/file_helper.py:85
+Önce:   except:
+Sonra:  except (zipfile.BadZipFile, OSError, ValueError, NotImplementedError):
+```
+
+**Hata işleyicisinde `AttributeError` (FIND-049).** `orig` özniteliği yalnızca bazı SQLAlchemy istisnalarında bulunur; yoksa kullanıcı hata mesajı yerine sunucu hatası (500) alıyordu (kurulu SQLAlchemy sürümüyle yalıtılmış olarak doğrulandı). Öznitelik varsa üretilen mesaj öncekiyle aynıdır; iki E1101 kapandı.
+
+```
+cps/admin.py:1374, 1377; cps/shelf.py:287
+Önce:   flash(_("Oops! Database Error: %(error)s.", error=e.orig), category="error")
+Sonra:  flash(_("Oops! Database Error: %(error)s.", error=getattr(e, 'orig', e)),
+              category="error")
+```
+
+**Hata mesajı biçimlendirme (FIND-078), ters `isinstance` (FIND-081) ve eksik yer tutucu (FIND-056).** FIND-078'de `.format()` unutulduğu için mesaj demet olarak taşınıyordu; `.format()` yeni bir C0209 doğuracağı için f-string seçildi. Diğer iki değişiklikle hata işleyicisi amaçlanan kontrolü yapar ve günlük kaydı aranan dosyanın adını da gösterir. W0715, W1116 ve E1305 kapandı.
+
+```
+cps/admin.py:2206
+Önce:   raise Exception("Could Not Parse LDAP Userfield: {}", user)
+Sonra:  raise Exception(f"Could Not Parse LDAP Userfield: {user}")
+cps/helper.py:302
+Önce:   if isinstance(list, value2):
+Sonra:  if isinstance(value, list):
+cps/helper.py:416
+Önce:   log.error("File {} not found on gdrive"
+Sonra:  log.error("File {}/{} not found on gdrive"
+```
+
+**Açık dosya kodlaması (FIND-069, kısmi).** Kodlama belirtilmediğinde Python yerel kodlamayı kullanır (Türkçe Windows'ta cp1254). Dört dosyadaki altı çağrıya `encoding='utf-8'` eklendi. Depodaki üç dosyanın (`requirements.txt`, `optional-requirements.txt`, `exclude.txt`) ASCII olduğu doğrulandı; kurulumda oluşan üç dosya (`client_secrets.json`, `.pip_installed`, `kobo_resources.txt`) depoda olmadığından doğrulanamadı; kod bunları JSON olarak ayrıştırdığı için UTF-8 olmaları beklenir; `updater.py:155`'teki çağrının taranan kodda çağıranı yoktur. Google Drive modüllerindeki dört çağrıya, karşı tarafı okuyan kütüphane kodlama belirtmediği için dokunulmadı; on W1514'ün altısı kapandı.
+
+```
+cps/dep_check.py:39
+Önce:   with open(req_path, 'r') as f:
+Sonra:  with open(req_path, 'r', encoding='utf-8') as f:
+```
+
+**jinjia.py PEP 8 temizliği (FIND-117, kısmi).** Dosya otomatik araç kullanılmadan elle düzenlendi (ör. `jinjia.py:67`'de `suml += nchar+3` → `suml += nchar + 3`); uzun satırlar bölündü, boş satır kuralları uygulandı. İhlal sayısı 16'dan 4'e indi; kalan dört E501 GPL lisans başlığındadır ve lisans bildirimleri değiştirilmediği için bırakıldı.
+
+**Kod dondurma ve değişiklik yönetimi.** Kod ekip kararıyla 24 Kasım 2026 saat 16.00'da donduruldu; son taramaların yapıldığı `830d3a80` sürümü etiketlendi ve sonrasında `cps/` ile `cps.py` değiştirilmedi. Seçilen `helper.py` istisna sırası düzeltmesi (FIND-057, ikizi FIND-082) uygulanmadı: blokların yer değiştirmesi, ilgili kütüphaneler kurulu değilken iki istisna adı da `BaseException`'a bağlandığı için Pylint uyarısını kapatmadı; uyarıyı kapatan alternatif ise plan dışı bir davranış farkı taşıyordu. Bu iki bulgu kayıtta "kabul edildi (düzeltilmeyecek)" durumundadır.
+
+# 4. Sonuçlar
+
+Son taramalar 24 Kasım 2026'da kod dondurma sürümü (`830d3a80`) üzerinde, başlangıçla aynı koşullarda yapıldı (Tablo 15). Çalıştırmadan çalıştırmaya değişen R0401 mesajı eşleştirmeye katılmamış, ham sayısıyla ayrıca gösterilmiştir.
+
+**Tablo 15.** Başlangıç ve son taramanın genel karşılaştırması
+
+| Araç | Ölçü | Başlangıç | Son | Fark | Değişim | Kapanan | Yeni |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Bandit | Toplam bulgu | 43 | 38 | −5 | %−11,6 | 5 | 0 |
+| Bandit | MEDIUM önem | 14 | 9 | −5 | %−35,7 | 5 | 0 |
+| Bandit | HIGH / LOW önem | 0 / 29 | 0 / 29 | 0 | %0 | 0 | 0 |
+| Pylint | Puan (10 üzerinden) | 6,42 | 6,44 | +0,02 | %+0,3 | – | – |
+| Pylint | Mesaj (R0401 hariç) | 3.956 | 3.936 | −20 | %−0,5 | 20 | 0 |
+| Pylint | R0401 (ham) | 43 | 49 | +6 | – | – | – |
+| flake8 | Toplam ihlal | 3.409 | 3.393 | −16 | %−0,5 | 16 | 0 |
+| Tümü | Susturma yorumuᵇ | 20 | 20 | 0 | %0 | – | – |
+
+ᵇ `# nosec` (10), `noqa` (2) ve `pylint: disable` (8) yorumlarının toplamı; her biri değişmedi.
+
+Bandit önem × güven dağılımının değişimi Tablo 16'da ve Şekil 3'te verilmiştir; tek değişiklik MEDIUM önem ve LOW güven hücresindedir.
+
+**Tablo 16.** Bandit önem × güven matrisi (başlangıç → son)
+
+| Önem \ Güven | HIGH | MEDIUM | LOW | Toplam |
 | --- | --- | --- | --- | --- |
-| `admin.py` | #20, #22, #25 | 5.29 | 5.34 | 401 → 398 |
-| `shelf.py` | #20 | 5.98 | 6.12 | 126 → 125 |
-| `helper.py` | #23, #24 | 5.16 | 5.24 | 246 → 244 |
-| `file_helper.py` | #16 | 5.74 | 5.93 | 19 → 18 |
-| `web.py` | #17, #18 | 3.06 | 3.08 | 392 → 389 |
-| `dep_check.py` | #25 | 6.88 | 7.08 | 26 → 24 |
-| `kobo.py` | #25 | 5.75 | 5.77 | 207 → 206 |
-| `updater.py` | #25 | 7.83 | 7.87 | 97 → 95 |
-| `jinjia.py` | #26 | 6.28 | 6.70 | 31 → 27 |
-| `services/goodreads_support.py` | #21 | 7.31 | 7.41 | 27 → 26 |
-| `metadata_provider/comicvine.py` | #21 | 5.91 | 6.14 | 10 → 9 |
-| `metadata_provider/google.py` | #21 | 6.03 | 6.18 | 15 → 14 |
-| `metadata_provider/lubimyczytac.py` | #21 | 8.34 | 8.43 | 24 → 22 |
-| `metadata_provider/amazon.py` | #21 | 5.60 | 5.60 | 25 → 25 |
+| HIGH | 0 → 0 | 0 → 0 | 0 → 0 | 0 → 0 |
+| MEDIUM | 8 → 8 | 1 → 1 | 5 → 0 | 14 → 9 |
+| LOW | 19 → 19 | 10 → 10 | 0 → 0 | 29 → 29 |
+| **Toplam** | **27 → 27** | **11 → 11** | **5 → 0** | **43 → 38** |
 
-Tablo 8'deki puanlar, her dosyanın başlangıç ve son commit'te ayrı ayrı `pylint <dosya>` ile taranmasıyla elde edildi.
+![Şekil 3](figures/sekil-3-bandit-onem.png)
 
-**Ders hedefleriyle karşılaştırma (K5):**
+**Şekil 3.** Bandit önem dağılımının başlangıç ve son taramada karşılaştırılması
 
-- **Güvenlik:** 8 güvenlik bulgusu düzeltildi: B113 ×5, FIND-116, FIND-150 ve FIND-126 (kısmi). Buna ek olarak 31 Bandit bulgusu kodla yanlış pozitif olarak gösterildi. Hedef en az 3 bulguydu.
-- **Kod kalitesi / PEP 8:** 7 Pylint türü (`W0702`, `E1101`, `W0715`, `W1116`, `E1305`, `W1514`, `W3101`) ve 5 flake8 türü (`E722`, `E501`, `E226`, `E302`, `W391`) düzeltildi. Hedef en az 5 türdü.
+Kapanan beş Bandit bulgusunun hepsi B113 (MEDIUM/LOW) kuralına aittir ve zaman aşımı düzeltmesiyle kapanmıştır (Tablo 17).
 
-**Karşılaşılan sorunlar ve çözümleri:**
+**Tablo 17.** Son taramada kapanan Bandit bulguları
 
-- **Yanlış Bandit sürümü (K8):** İlk başlangıç raporları sürüm belirtilmeden kurulan Bandit 1.8.6 ile üretilmişti. Kod değişikliğinden önce 1.9.4 ile yeniden üretildi. Bundan sonra her taramadan önce araç sürümleri doğrulandı.
-- **LDAP paketleri:** Windows'ta derlenemedikleri için kurulamadılar. Kaynaklandıkları 2 `E0401` mesajı ortam sorunu olarak kaydedildi; LDAP kodu yine de tarandı.
-- **`R0401` oynaması:** Pylint'in döngüsel import mesajı aynı kod üzerinde çalıştırmadan çalıştırmaya değişiyor (başlangıç commit'inde 43 ve 48, son commit'te 49 ve 44). Başlangıç ile son arasında hiçbir import satırı değişmediği halde ham rapor 43 → 49 gösteriyor. Bu nedenle `R0401` eşleştirmenin dışında tutuldu. Puan ve diğer mesajlar tekrarlarda birebir aynıydı.
-- **Pylint kapsam boşluğu:** `cps/metadata_provider/` dizininde `__init__.py` olmadığı için Pylint bu dizindeki 6 dosyayı resmi taramada atlıyor. Bu yüzden B113 düzeltmesinin bu dizindeki 4 `W3101` etkisi yalnızca dosya bazlı taramada (Tablo 8) görülebiliyor. Tarama parametreleri başlangıçla aynı kalsın diye kapsam değiştirilmedi.
-- **Araç kuralının kör noktası:** Bandit `B113` kuralı `requests.Session` çağrılarını tanımıyor. Bu türden çağrılar elle bulundu ve kayda eklendi (FIND-116 düzeltildi, FIND-160 öneri olarak kaldı).
-- **Yeni uyarı doğuran düzeltme adayları:** FIND-078'de `.format()` kullanmak yeni bir `C0209` uyarısı doğurduğu için f-string seçildi. FIND-069'da uzayan iki satır, yeni `E501`/`C0301` doğurmasın diye bölündü. FIND-057'de (istisna sırası) iki `except` bloğunun yer değiştirmesi Pylint uyarısını kapatmadı: `E0701` ayna biçimde geri geldi, `W0705` sürdü. Bunun nedeni, ilgili kütüphaneler kurulu değilken iki istisna adının da `BaseException`'a bağlanmasıdır (`helper.py:53, 80`). Bu sonuç önce Hasan Kurt'un denemesinde görüldü (`docs/3-inceleme/report-part-file-handling.md`), rapor için geçici bir kopyada dosya bazlı Pylint ile yeniden ölçüldü. Düzeltme K10 kapsamında uygulanmadı.
-- **Takvim kayması (K10):** Kod dondurma ekip kararıyla 24 Kasım'a alındı. Kapsama yalnızca o tarihe kadar açılmış düzeltmeler dahil edildi.
+| Konum (başlangıç) | Kural | Bulgu |
+| --- | --- | --- |
+| `metadata_provider/comicvine.py:53` | B113 | FIND-010 |
+| `metadata_provider/google.py:54` | B113 | FIND-011 |
+| `metadata_provider/lubimyczytac.py:121`, `:215` | B113 | FIND-012, FIND-013 |
+| `services/goodreads_support.py:89` | B113 | FIND-014 |
 
-## 5. Değerlendirme ve Sonuç
+Pylint kategori dağılımı Tablo 18'de ve Şekil 4'te verilmiştir. Warning kategorisi 12, error 3, convention 5 mesaj azaldı; refactor kategorisindeki +6 R0401 değişiminden kaynaklanır.
 
-Proje, dersin istediği adımların tamamını tamamladı: yeterli büyüklükte bir projenin seçilip tanıtılması, Pylint ve Bandit başlangıç analizleri, önemli bulguların kod üzerinden incelenmesi, PEP 8 analizi, bulguların sınıflandırılması, seçilmiş düzeltmeler ve aynı koşullarda yeniden analiz. Güvenlik ve kalite düzeltme hedeflerinin ikisi de aşıldı. Hiçbir düzeltme yeni bir uyarı doğurmadı ve hiçbir uyarı susturularak kapatılmadı.
+**Tablo 18.** Pylint kategori dağılımı (başlangıç → son)
 
-En önemli çıkarım, araç sayıları ile gerçek riskin örtüşmemesidir. Bandit bulgularının yaklaşık dörtte üçü kodla incelendiğinde yanlış pozitif çıktı. Buna karşılık en anlamlı güvenlik sorunları araçların hiç görmediği yerlerdeydi: yetki mantığı (FIND-150), bilgi sızıntısı (FIND-126), susturulmuş bir varsayılan parola (FIND-044) ve aracın kuralının kapsamadığı çağrılar (FIND-116, 160). Bu yüzden Bandit sayısındaki 43 → 38 düşüş, yapılan güvenlik iyileştirmesinin yalnızca bir kısmını gösteriyor. Aynı şekilde Pylint puanındaki küçük artış (6.42 → 6.44), toplu biçimlendirme yapılmamasının beklenen sonucudur; düzeltilen dosyalarda etki daha belirgindir (Tablo 8). Statik analiz, ancak elle yapılan kod incelemesi ve gerekçeli bir bulgu kaydıyla birlikte kullanıldığında güvenilir sonuç veriyor.
+| Kategori | Başlangıç | Son | Fark |
+| --- | --- | --- | --- |
+| convention (C) | 2.646 | 2.641 | −5 |
+| refactor (R) | 537 | 543 | +6 |
+| warning (W) | 454 | 442 | −12 |
+| error (E) | 324 | 321 | −3 |
+| information (I) | 38 | 38 | 0 |
+| **Toplam** | **3.999** | **3.985** | **−14** |
 
-**Sınırlılıklar.** Analiz tamamen statiktir; düzeltmelerin çalışma zamanı davranışı test edilmedi, kod okuma ve yalıtılmış kütüphane denemeleriyle doğrulandı. Pylint `cps/metadata_provider/` dizinini taramadı ve `R0401` sayısı tekrarlanabilir değildi. LDAP paketleri kurulamadığı için ilgili kod importları çözülmeden tarandı. Gömülü üçüncü taraf kod yalnızca incelendi. Araç sayıları, bulgu kaydındaki gruplama nedeniyle satır sayısıyla birebir karşılaştırılamaz.
+![Şekil 4](figures/sekil-4-pylint-kategori.png)
 
-**Geliştirilebilecek yönler.** Kabul edilip düzeltilmeyen gerçek sorunlar öncelikli adaylardır:
+**Şekil 4.** Pylint kategori dağılımının başlangıç ve son taramada karşılaştırılması (logaritmik eksen)
 
-- İlk girişte varsayılan yönetici parolasının değiştirilmesinin zorunlu kılınması (FIND-044).
-- Parola sıfırlamanın onay bağlantısıyla yapılması (FIND-126'nın kalan kısmı).
-- `douban.py`'deki üç isteğe zaman aşımı eklenmesi (FIND-160).
-- Yükleme ayarının sunucu tarafında da uygulanması (FIND-151).
-- Google Drive seri küçük resmi hatasının giderilmesi (FIND-152).
-- `helper.py`'deki istisna sırasının düzeltilmesi (FIND-057/082).
+Kapanan 20 Pylint mesajı Tablo 19'da hedeflenen uyarılar ve yan etkiler olarak ayrılmıştır. Ayrıca 2 mesaj (W0719, C0209) düzeltilen satırda aynı biçimde devam etmektedir.
 
-Araç tarafında `cps/metadata_provider/` dizinine `__init__.py` eklenmesi Pylint kapsamını tamamlar. Bandit, `Session` çağrılarını da kapsayan ek bir kural ya da bir semgrep kuralıyla desteklenebilir.
+**Tablo 19.** Son taramada kapanan Pylint mesajları
 
-## Kaynakça
+| Tür | Adet | Kod (adet) ve ilgili bulgu |
+| --- | --- | --- |
+| Hedeflenen | 13 | W1514 ×6 (FIND-069), E1101 ×2 (FIND-049), W0702 (FIND-080), W0715 (FIND-078), W1116 (FIND-081), E1305 (FIND-056), W3101 (FIND-085) |
+| Yan etki | 7 | C0301 ×4 (FIND-117: 3, FIND-126: 1), W1406 ×2 (FIND-126), C0305 (FIND-117) |
+| **Toplam** | **20** | |
 
-[1] janeczku, "Calibre-Web," GitHub. [Çevrimiçi]. Erişim: https://github.com/janeczku/calibre-web (Erişim tarihi: 24 Kasım 2026).
+Düzeltilen dosyalar başlangıç ve son sürümde ayrı ayrı Pylint ile tarandı (Tablo 20, Şekil 5). Bu ölçüm resmi taramanın parçası değildir; `metadata_provider/` dosyaları yalnızca burada görünür.
 
-[2] Ş. Altın, D. Yıldırım, H. Kurt ve E. Bulut, "calibre-web (ekip çatalı, `project-analysis` dalı)," GitHub. [Çevrimiçi]. Erişim: https://github.com/sseydaltin/calibre-web (Erişim tarihi: 24 Kasım 2026).
+**Tablo 20.** Düzeltilen dosyalarda dosya bazlı Pylint puanı ve mesaj sayısı (başlangıç → son)
 
-[3] PyCQA, "Bandit documentation," sürüm 1.9.4. [Çevrimiçi]. Erişim: https://bandit.readthedocs.io/ (Erişim tarihi: 24 Kasım 2026).
+| Dosya | Puan | Mesaj | Dosya | Puan | Mesaj |
+| --- | --- | --- | --- | --- | --- |
+| `admin.py` | 5,29 → 5,34 | 401 → 398 | `updater.py` | 7,83 → 7,87 | 97 → 95 |
+| `shelf.py` | 5,98 → 6,12 | 126 → 125 | `jinjia.py` | 6,28 → 6,70 | 31 → 27 |
+| `helper.py` | 5,16 → 5,24 | 246 → 244 | `goodreads_support.py` | 7,31 → 7,41 | 27 → 26 |
+| `file_helper.py` | 5,74 → 5,93 | 19 → 18 | `comicvine.py` | 5,91 → 6,14 | 10 → 9 |
+| `web.py` | 3,06 → 3,08 | 392 → 389 | `google.py` | 6,03 → 6,18 | 15 → 14 |
+| `dep_check.py` | 6,88 → 7,08 | 26 → 24 | `lubimyczytac.py` | 8,34 → 8,43 | 24 → 22 |
+| `kobo.py` | 5,75 → 5,77 | 207 → 206 | `amazon.py` | 5,60 → 5,60 | 25 → 25 |
 
-[4] PyCQA, "Pylint documentation," sürüm 4.1. [Çevrimiçi]. Erişim: https://pylint.readthedocs.io/ (Erişim tarihi: 24 Kasım 2026).
+![Şekil 5](figures/sekil-5-dosya-puan.png)
 
-[5] PyCQA, "Flake8: Your Tool For Style Guide Enforcement," sürüm 7.4. [Çevrimiçi]. Erişim: https://flake8.pycqa.org/ (Erişim tarihi: 24 Kasım 2026).
+**Şekil 5.** Düzeltilen dosyalarda dosya bazlı Pylint puanının başlangıç ve son değerleri
 
-[6] G. van Rossum, B. Warsaw ve A. Coghlan, "PEP 8 – Style Guide for Python Code," Python Enhancement Proposals, 2001. [Çevrimiçi]. Erişim: https://peps.python.org/pep-0008/ (Erişim tarihi: 24 Kasım 2026).
+flake8'de sayısı değişen kodlar Tablo 21'dedir. Kapanan 16 ihlalin 12'si `jinjia.py`'de (16 → 4), 1'i `file_helper.py`'dedir; 3 E501 ihlali `web.py` ve `updater.py`'de düzeltilen satırların yan etkisi olarak kapanmıştır.
 
-[7] MITRE, "CWE-400: Uncontrolled Resource Consumption," Common Weakness Enumeration. [Çevrimiçi]. Erişim: https://cwe.mitre.org/data/definitions/400.html (Erişim tarihi: 24 Kasım 2026).
+**Tablo 21.** flake8 ihlallerinin kod bazında değişimi (yalnızca değişen kodlar)
 
-[8] MITRE, "CWE-204: Observable Response Discrepancy," Common Weakness Enumeration. [Çevrimiçi]. Erişim: https://cwe.mitre.org/data/definitions/204.html (Erişim tarihi: 24 Kasım 2026).
+| Kod | Başlangıç | Son | Fark | `jinjia.py` | Diğer dosyalar |
+| --- | --- | --- | --- | --- | --- |
+| E501 | 2.879 | 2.869 | −10 | −7 | −3 (yan etki) |
+| E226 | 20 | 17 | −3 | −3 | 0 |
+| E302 | 33 | 32 | −1 | −1 | 0 |
+| W391 | 10 | 9 | −1 | −1 | 0 |
+| E722 | 1 | 0 | −1 | 0 | −1 (`file_helper.py`) |
+| **Toplam** | **3.409** | **3.393** | **−16** | **−12** | **−4** |
 
-[9] MITRE, "CWE-285: Improper Authorization," Common Weakness Enumeration. [Çevrimiçi]. Erişim: https://cwe.mitre.org/data/definitions/285.html (Erişim tarihi: 24 Kasım 2026).
+Düzeltme sonuçları Tablo 22'de dört ayrı ölçüyle verilmiştir: kapanan araç uyarısı, "düzeltildi" durumundaki bulgu kaydı satırı, ayrı sorun (aynı değişikliğin başka araçtaki karşılığı çıkarılarak) ve düzeltme PR'ı; son üçü tam/kısmi olarak bölünmüştür.
 
-[10] Python Software Foundation, "Requests: Timeouts," Requests documentation. [Çevrimiçi]. Erişim: https://requests.readthedocs.io/en/latest/user/advanced/#timeouts (Erişim tarihi: 24 Kasım 2026).
+**Tablo 22.** Düzeltme sonuçlarının sayımı (tam / kısmi)
 
-[11] Python Software Foundation, "zipfile — Work with ZIP archives," Python 3.12 documentation. [Çevrimiçi]. Erişim: https://docs.python.org/3.12/library/zipfile.html (Erişim tarihi: 24 Kasım 2026).
+| Grup | Kapanan araç uyarısı | Bulgu kaydı satırı | Ayrı sorun | Düzeltme PR'ı |
+| --- | --- | --- | --- | --- |
+| Güvenlik | Bandit 5, Pylint 1 | 9 (8 / 1) | 8 (7 / 1) | 3 (2 / 1) |
+| Kod kalitesi / PEP 8 | Pylint 12, flake8 13 | 8 (6 / 2) | 7 (5 / 2) | 7 (5 / 2) |
+| Yan etki | Pylint 7, flake8 3 | – | – | – |
+| **Toplam** | **41** | **17 (14 / 3)** | **15 (12 / 3)** | **10 (7 / 3)** |
 
-[12] Anthropic, "Claude Code overview," Claude Docs. [Çevrimiçi]. Erişim: https://docs.claude.com/en/docs/claude-code/overview (Erişim tarihi: 24 Kasım 2026).
+Hedeflerin gerçekleşme durumu Tablo 23'te verilmiştir.
+
+**Tablo 23.** Hedeflerin karşılaştırılması
+
+| Hedef | Ölçüt | Hedeflenen | Gerçekleşen | Durum |
+| --- | --- | --- | --- | --- |
+| H1 | Kod değişikliğinden önce rapor | 3 araç | 3 araç | Karşılandı |
+| H2 | İncelenen MEDIUM/HIGH bulgu | 14 | 14 | Karşılandı |
+| H3 | Elle inceleme | İki alan | 43 kontrol noktası; araçta görünmeyen 7 gerçek sorun | Karşılandı |
+| H4 | Gerekçeli sınıflandırılan satır | 137 | 137 | Karşılandı |
+| H5 | Düzeltme ve farklı üyece yazılı teknik inceleme | 10 PR | 7 tam, 3 kısmi; 9'unda teknik inceleme (3 öncesi, 6 sonrası), 1'inde yalnızca onay; FIND-057/082 uygulanmadı | Kısmen |
+| H6 | Aynı koşullarda son tarama | 3 araç | 3 araç; kapanan/devam eden/yeni ayrı | Karşılandı |
+| Güvenlik | Düzeltilen bulgu | ≥ 3 | 8 (7 tam, 1 kısmi) | Karşılandı |
+| Kalite / PEP 8 | Düzeltilen uyarı türü | ≥ 5 | Pylint 6, flake8 5 tür | Karşılandı |
+| Yeni uyarı | Oluşan yeni uyarı | 0 | 0 | Karşılandı |
+| Susturma | Eklenen susturma yorumu | 0 | 0 | Karşılandı |
+
+Ders gereksinimlerinin raporda karşılandığı yerler Tablo 24'te, çalışma sırasında karşılaşılan sorunlar ve çözümleri Tablo 25'te verilmiştir.
+
+**Tablo 24.** Ders gereksinimlerinin karşılanması
+
+| # | Gereksinim | Raporda karşılandığı yer |
+| --- | --- | --- |
+| 1 | Proje seçimi ve yapısının tanıtımı | Bölüm 1; Tablo 1, 2 |
+| 2 | Pylint ile kalite analizi ve başlangıç sonuçları | Bölüm 3.1; Tablo 6, 7 |
+| 3 | Bandit ile güvenlik analizi ve risk sınıflandırması | Bölüm 3.2; Tablo 8, 9 |
+| 4 | Önemli güvenlik bulgularının kod satırlarıyla incelenmesi | Bölüm 3.3; Tablo 10 |
+| 5 | PEP 8 ve kodlama standardı problemleri | Bölüm 3.4; Tablo 11 |
+| 6 | Gerçek sorun / düşük öncelikli / yanlış pozitif ayrımı | Bölüm 3.5; Tablo 12, 13; Şekil 2 |
+| 7 | Düzeltmeler; önceki ve yeni kod karşılaştırması | Bölüm 3.6; Tablo 14 |
+| 8 | Araçların yeniden çalıştırılması ve karşılaştırma | Bölüm 4; Tablo 15–23; Şekil 3–5 |
+| 9 | Araçların, bulguların, düzeltmelerin ve yeniden analizin raporlanması | Bölüm 2–5; Tablo 3, 25 |
+
+**Tablo 25.** Karşılaşılan sorunlar ve çözümleri
+
+| Sorun | Etki | Çözüm |
+| --- | --- | --- |
+| İlk Bandit raporları 1.8.6 ile üretildi | 3 B105 bulgusu eksikti | Kod değişikliğinden önce 1.9.4 ile yeniden üretildi |
+| LDAP paketleri derlenemedi | 2 E0401 mesajı | Ortam kısıtı olarak kaydedildi |
+| R0401 aynı kodda değişti (43/48; 49/44) | Ham sayıda yanıltıcı fark | İçe aktarmaların değişmediği doğrulandı; eşleştirme dışı tutuldu |
+| `metadata_provider/` Pylint kapsamı dışında | 4 W3101 kapanışı görünmedi | Etki dosya bazlı ölçümle gösterildi |
+| B113 `requests.Session` çağrılarını tanımadı | 5 istek raporda yoktu | Elle bulundu; FIND-116 düzeltildi |
+| Takvim kayması (plan: 2–7 Kasım) | Düzeltmeler 24 Kasım'da birleştirildi | Kod dondurma 24 Kasım 16.00; kapsam sınırlandı |
+
+# 5. Değerlendirme ve Sonuç
+
+**Bandit sonuçları.** MEDIUM bulgulardaki %35,7'lik azalma (Tablo 15), gerçek sorun olarak sınıflandırılmış zaman aşımsız isteklerin kapanmasından kaynaklanır (Tablo 17). Kalan 38 bulgunun çoğu yanlış pozitif, geri kalanı düşük öncelikli uyarıdır (Tablo 12); bu sayı incelenmiş ve kabul edilmiş uyarıları gösterir, Bandit kurallarının kapsamadığı risklerin bulunmadığı anlamına gelmez.
+
+**Pylint sonuçları.** Genel puandaki küçük artış (Tablo 15), projenin büyüklüğüne karşı az sayıda seçilmiş düzeltme yapılmasının ve toplu biçimlendirmeden kaçınılmasının beklenen sonucudur; etki dosya düzeyinde daha belirgindir (Tablo 20, Şekil 5) ve yeni mesaj çıkmaması düzeltmelerin dar kapsamlı kaldığını gösterir (Tablo 19). Puan tek başına bir güvenlik ölçütü değildir: en önemli güvenlik düzeltmelerinden ikisi (FIND-150, 126) `web.py` puanını yalnızca 0,02 artırmıştır.
+
+**PEP 8 sonuçları.** İhlallerin büyük çoğunluğunun satır uzunluğundan oluşması (Tablo 11), projenin tutarlı biçimde daha uzun satırlar kullanmasından kaynaklanır; bu ihlaller okunabilirliği etkiler. Çalışma davranışını etkileyebilecek tek ihlal olan çıplak `except` düzeltilmiş, `jinjia.py` ise lisans başlığı dışında uyumlu hale getirilmiştir (Tablo 21).
+
+**Araç çıktısı ile gerçek risk ilişkisi.** Temel bulgu, araç uyarı sayısı ile gerçek riskin örtüşmemesidir. Bandit bulgularının çoğu yanlış pozitif çıkmış (Şekil 2), en anlamlı güvenlik sorunları ise araçların görmediği yerlerde bulunmuştur: yetki mantığı (FIND-150, 151), yanıt farkı üzerinden bilgi sızıntısı (FIND-126), geliştiricilerce susturulmuş güvensiz bir varsayılan (FIND-044) ve aracın tanımadığı çağrı biçimleri (FIND-116, 160). Bu nedenle Bandit sayısındaki azalma güvenlik iyileştirmesinin yalnızca bir kısmını yansıtır. Statik analiz araçları, elle kod incelemesi ve gerekçeli bir bulgu kaydı olmadan güvenilir bir değerlendirme sağlamaz; değerleri incelemenin nereden başlayacağını göstermelerindedir.
+
+**Hedeflere ulaşma.** H1–H4, H6 ve ek ölçütler karşılanmış, H5 kısmen karşılanmıştır (Tablo 23): üç düzeltme kısmidir, bir düzeltmede yazılı teknik inceleme yerine yalnızca GitHub onayı vardır ve altı incelemenin birleştirmeden sonra yapılması inceleme zamanlamasında iyileştirme gerektiğini gösterir.
+
+**Sınırlılıklar.**
+
+- Analiz statiktir; düzeltmelerin çalışma zamanı davranışı test edilmemiş, kod okuma ve yalıtılmış denemelerle desteklenmiştir.
+- Yapılan düzeltmeler uygulamanın güvenli olduğu anlamına gelmez; kabul edilen gerçek sorunlar ve araçların kapsamadığı alanlar risk taşımaya devam eder.
+- LDAP paketleri kurulamadığı için ilgili kod içe aktarmalar çözülmeden tarandı; Pylint `metadata_provider/` dizinini taramadı ve R0401 sayısı tekrarlanabilir değildi.
+- Gömülü üçüncü taraf kod yalnızca incelendi; kayıt satırı sayıları gruplama nedeniyle araç mesajı sayılarıyla birebir karşılaştırılamaz.
+
+**Geliştirilebilecek yönler.**
+
+- İlk girişte varsayılan yönetici parolasının değiştirilmesinin zorunlu kılınması (FIND-044) ve parola sıfırlamanın onay bağlantısıyla yapılması (FIND-126'nın kalan kısmı).
+- Yükleme ayarının sunucu tarafında uygulanması (FIND-151), `douban.py` isteklerine zaman aşımı eklenmesi (FIND-160) ve Google Drive seri küçük resmi hatasının giderilmesi (FIND-152).
+- `helper.py`'deki istisna sırası sorununun davranış farkı değerlendirilerek giderilmesi (FIND-057/082).
+- `metadata_provider/` dizinine `__init__.py` eklenerek Pylint kapsamının tamamlanması ve `requests.Session` çağrılarını da kapsayan ek bir kuralla Bandit'in desteklenmesi.
+
+# Kaynakça
+
+[1] janeczku, "Calibre-Web," GitHub. [Çevrimiçi]. Erişim: 24 Kasım 2026. Adres: https://github.com/janeczku/calibre-web
+
+[2] OWASP Foundation, "OWASP Top 10," OWASP. [Çevrimiçi]. Erişim: 24 Kasım 2026. Adres: https://owasp.org/Top10/
+
+[3] Ş. Altın, D. Yıldırım, M. E. Bulut ve M. H. Kurt, "calibre-web (ekip çatalı, project-analysis dalı)," GitHub. [Çevrimiçi]. Erişim: 24 Kasım 2026. Adres: https://github.com/sseydaltin/calibre-web
+
+[4] PyCQA, "Bandit documentation," sürüm 1.9. [Çevrimiçi]. Erişim: 24 Kasım 2026. Adres: https://bandit.readthedocs.io/
+
+[5] Pylint contributors, "Pylint documentation," sürüm 4.1. [Çevrimiçi]. Erişim: 24 Kasım 2026. Adres: https://pylint.readthedocs.io/
+
+[6] PyCQA, "Flake8: Your Tool For Style Guide Enforcement," sürüm 7.4. [Çevrimiçi]. Erişim: 24 Kasım 2026. Adres: https://flake8.pycqa.org/
+
+[7] G. van Rossum, B. Warsaw ve A. Coghlan, "PEP 8 – Style Guide for Python Code," Python Enhancement Proposals, 2001. [Çevrimiçi]. Erişim: 24 Kasım 2026. Adres: https://peps.python.org/pep-0008/
+
+[8] Requests developers, "Advanced Usage: Timeouts," Requests documentation. [Çevrimiçi]. Erişim: 24 Kasım 2026. Adres: https://requests.readthedocs.io/en/latest/user/advanced/#timeouts
+
+[9] MITRE, "CWE-400: Uncontrolled Resource Consumption," Common Weakness Enumeration. [Çevrimiçi]. Erişim: 24 Kasım 2026. Adres: https://cwe.mitre.org/data/definitions/400.html
+
+[10] MITRE, "CWE-1188: Initialization of a Resource with an Insecure Default," Common Weakness Enumeration. [Çevrimiçi]. Erişim: 24 Kasım 2026. Adres: https://cwe.mitre.org/data/definitions/1188.html
+
+[11] MITRE, "CWE-204: Observable Response Discrepancy," Common Weakness Enumeration. [Çevrimiçi]. Erişim: 24 Kasım 2026. Adres: https://cwe.mitre.org/data/definitions/204.html
+
+[12] MITRE, "CWE-285: Improper Authorization," Common Weakness Enumeration. [Çevrimiçi]. Erişim: 24 Kasım 2026. Adres: https://cwe.mitre.org/data/definitions/285.html
+
+[13] Python Software Foundation, "zipfile — Work with ZIP archives," Python 3.12 documentation. [Çevrimiçi]. Erişim: 24 Kasım 2026. Adres: https://docs.python.org/3.12/library/zipfile.html
